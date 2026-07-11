@@ -11,7 +11,6 @@ namespace Project.Player
         private Animator animator;
         private Rigidbody2D rb;
         private PlayerInputHandler inputHandler;
-
         private PlayerController2D playerController;
 
         private void Awake()
@@ -24,6 +23,8 @@ namespace Project.Player
 
         private void Update()
         {
+            if (playerController == null) return;
+
             // Check Running Condition
             bool isMoving = Mathf.Abs(inputHandler.MoveInput.x) > 0.1f;
             animator.SetBool("isMoving", isMoving);
@@ -38,7 +39,7 @@ namespace Project.Player
             animator.SetBool("isHanging", playerController.isHanging);
 
             // Jump Animation finish
-            if (playerController.isClimbing || playerController.isHanging)
+            if (playerController.isClimbing || playerController.isHanging || playerController.isInsideLadder)
             {
                 animator.SetBool("isGrounded", true);
             }
@@ -55,7 +56,14 @@ namespace Project.Player
                 {
                     return;
                 }
-                animator.SetTrigger("attack");
+                //animator.SetTrigger("attack");  // 애니메이션 IDLE 사용
+            }
+
+            if (playerController.isHurtTriggered)
+            {
+                animator.SetTrigger("hurt");
+
+                playerController.isHurtTriggered = false;
             }
         }
     }

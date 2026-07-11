@@ -4,22 +4,32 @@ using UnityEngine;
 
 public class Gradation : MonoBehaviour
 {
-    public Material mat;
-    private float progress;
-    public ColorMinus colorMinus;
-
     private SpriteRenderer sr;
+    private Material mat;
 
-    private void Start()
+    private float progress;
+
+    void Awake()
     {
-
         sr = GetComponent<SpriteRenderer>();
-        mat = sr.material;
+        mat = new Material(sr.material);
+        sr.material = mat;
+    }
 
-        mat.SetColor("_TargetColor", colorMinus.OriginalColor);   // Å×½ºÆ®
+    public void SetAmount(float amount,Color baseColor)
+    {
+        mat.SetFloat("_FillAmount", amount);
+        mat.SetColor("_TargetColor", baseColor);
+    }
 
+    public void Play(Color targetColor)
+    {
+        progress = 0f;
+
+        mat.SetColor("_TargetColor", targetColor);
+        mat.SetFloat("_FillAmount", 1f);
+        StopAllCoroutines();
         StartCoroutine(Fill());
-
     }
 
     IEnumerator Fill()
@@ -27,7 +37,9 @@ public class Gradation : MonoBehaviour
         while (progress < 1f)
         {
             progress += Time.deltaTime;
+
             mat.SetFloat("_Progress", progress);
+
             yield return null;
         }
     }
