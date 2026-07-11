@@ -64,7 +64,7 @@ public class MonsterAttackTrigger : MonoBehaviour
 
                 target.TakeDamage(
                     damage,
-                    ElementType.None,
+                    Color.white,
                     transform.root.gameObject,
                     true
                 );

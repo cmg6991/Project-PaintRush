@@ -654,34 +654,41 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     public void TakeDamage(
         int damage,
-        ElementType attackElement,
+        Color attackColor,
         GameObject attacker,
         bool ignoreElement)
     {
-        if (fillcolor.CurrentColor == Color.white) { 
-
-        }
-
-
-        if (isDead)
+        if(!ignoreElement)
         {
-            return;
+            if (!fillcolor.HasColor)
+            {
+                Debug.Log("색이 없음");
+                return;
+            }
+            if (Vector4.Distance(fillcolor.CurrentColor, attackColor) > 0.01f)
+            {
+                Debug.Log("색이 다름");
+                return;
+            }
         }
 
-        if (!ignoreElement &&
-            attackElement != currentElement)
-        {
-            Debug.Log(
-                $"{gameObject.name}: 색상이 달라 데미지 무효"
-            );
 
-            return;
-        }
+        //if (isDead)
+        //{
+        //    return;
+        //}
 
-        currentHp = Mathf.Max(
-            0,
-            currentHp - damage
-        );
+        //if (!ignoreElement &&
+        //    attackColor != currentElement)
+        //{
+        //    Debug.Log(
+        //        $"{gameObject.name}: 색상이 달라 데미지 무효"
+        //    );
+
+        //    return;
+        //}
+
+        currentHp = Mathf.Max(0,currentHp - damage);
 
         Debug.Log(
             $"{gameObject.name} 피격! 남은 체력: {currentHp}"
