@@ -81,6 +81,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     [Header("대상")]
     public Transform player;
+    public FillColor fillcolor;
 
     private Rigidbody2D rb;
     private MonsterMovement monsterMovement;
@@ -141,6 +142,8 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     private void Start()
     {
+        fillcolor = GetComponent<FillColor>();
+
         if (monsterMovement.UsesPlayerTracking &&
             player == null)
         {
@@ -648,17 +651,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
     }
 
-    public void TakeDamage(
-        int damage,
-        ElementType attackElement)
-    {
-        TakeDamage(
-            damage,
-            attackElement,
-            null,
-            false
-        );
-    }
 
     public void TakeDamage(
         int damage,
@@ -666,6 +658,11 @@ public class MonsterAI : MonoBehaviour, IDamageable
         GameObject attacker,
         bool ignoreElement)
     {
+        if (fillcolor.CurrentColor == Color.white) { 
+
+        }
+
+
         if (isDead)
         {
             return;
