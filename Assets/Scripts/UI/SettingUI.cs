@@ -25,22 +25,22 @@ public class SettingUI : MonoBehaviour
         exit2Button.onClick.AddListener(Close);
         maxButton.onClick.AddListener(ToggleMaximize);
 
-        //bgmSlider.onValueChanged.AddListener(ChangeBGMVolume);
-        //effectSlider.onValueChanged.AddListener(ChangeEffectVolume);
+        bgmSlider.onValueChanged.AddListener(ChangeBGMVolume);
+        effectSlider.onValueChanged.AddListener(ChangeEffectVolume);
 
-        //bgmSlider.value = SoundManager.Instance.BGMVolume;
-        //effectSlider.value = SoundManager.Instance.SFXVolume;
+        bgmSlider.value = SoundManager.Instance.BGMVolume;
+        effectSlider.value = SoundManager.Instance.SFXVolume;
     }
 
-    //private void ChangeBGMVolume(float value)
-    //{
-    //    SoundManager.Instance.SetBGMVolume(value);
-    //}
+    private void ChangeBGMVolume(float value)
+    {
+        SoundManager.Instance.SetBGMVolume(value);
+    }
 
-    //private void ChangeEffectVolume(float value)
-    //{
-    //    SoundManager.Instance.SetSFXVolume(value);
-    //}
+    private void ChangeEffectVolume(float value)
+    {
+        SoundManager.Instance.SetSFXVolume(value);
+    }
 
     private void ToggleMaximize()
     {

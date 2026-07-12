@@ -1,7 +1,23 @@
 using UnityEngine;
 
+public enum SFXType
+{
+    Click,
+    Shoot,
+    Hit,
+    Paint
+}
 public class SoundManager : Singleton<SoundManager>
 {
+    [Header("Audio Source")]
+    [SerializeField] private AudioSource bgmSource;
+    [SerializeField] private AudioSource sfxSource;
+
+    [Header("BGM")]
+    [SerializeField] private AudioClip bgmClip;
+
+    [Header("SFX")]
+    [SerializeField] private AudioClip[] sfxClips;
     public float BGMVolume { get; private set; } = 1f;
     public float SFXVolume { get; private set; } = 1f;
 
@@ -13,6 +29,21 @@ public class SoundManager : Singleton<SoundManager>
     public override void Awake()
     {
         base.Awake();
+    }
+    private void Start()
+    {
+        PlayBGM();
+    }
+
+    public void PlayBGM()
+    {
+        bgmSource.clip = bgmClip;
+        bgmSource.loop = true;
+        bgmSource.Play();
+    }
+    public void PlaySFX(SFXType type)
+    {
+        sfxSource.PlayOneShot(sfxClips[(int)type]);
     }
 
     public void ToggleSound()
@@ -35,12 +66,12 @@ public class SoundManager : Singleton<SoundManager>
     public void SetBGMVolume(float value)
     {
         BGMVolume = value;
-        // BGM AudioSource에 적용
+        bgmSource.volume = value;
     }
 
     public void SetSFXVolume(float value)
     {
         SFXVolume = value;
-        // 효과음 AudioSource에 적용
+        sfxSource.volume = value;
     }
 }
