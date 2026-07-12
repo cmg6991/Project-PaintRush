@@ -1,12 +1,16 @@
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : Singleton<UIManager>
 {
-    [Header("Start ¾À SoundOn/OFF")]
-    [SerializeField] private Button soundButton;
-    [SerializeField] private Sprite soundOn;
-    [SerializeField] private Sprite soundOff;
+    [Header("Setting")]
+    [SerializeField] private Button settingButton;
+    [SerializeField] private GameObject settingPanel;
+    [SerializeField] private Sprite settingOn;
+    [SerializeField] private Sprite settingOff;
+
+    bool isOpen = false;
 
     public override void Awake()
     {
@@ -14,16 +18,24 @@ public class UIManager : Singleton<UIManager>
     }
     private void Start()
     {
-        soundButton.onClick.AddListener(PressSoundButton);
-        //UpdateToggleImage(soundButton, SoundManager.Instance.IsSoundOn, soundOn, soundOff);
+        settingButton.onClick.AddListener(PressSettingButton);
+        UpdateToggleImage(settingButton, isOpen, settingOn, settingOff);
     }
 
-    private void PressSoundButton()
+    private void PressSettingButton()
     {
-        SoundManager.Instance.ToggleSound();
-        UpdateToggleImage(soundButton, SoundManager.Instance.IsSoundOn, soundOn, soundOff);
+        isOpen = !isOpen;
+        settingPanel.SetActive(isOpen);
+        UpdateToggleImage(settingButton, isOpen, settingOn, settingOff);
     }
-    private void UpdateToggleImage(Button button, bool isOn, Sprite onSprite, Sprite offSprite)
+    public void CloseSetting()
+    {
+        isOpen = false;
+        settingPanel.SetActive(false);
+
+        UpdateToggleImage(settingButton,isOpen,settingOn,settingOff);
+    }
+    public void UpdateToggleImage(Button button, bool isOn, Sprite onSprite, Sprite offSprite)
     {
         button.image.sprite = isOn ? onSprite : offSprite;
     }
