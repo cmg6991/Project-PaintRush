@@ -44,10 +44,12 @@ public class UIManager : Singleton<UIManager>
     public void GameStart()
     {
         Debug.Log("게임 시작");
+        SoundManager.Instance.PlaySFX(SFXType.Click);
     }
 
     public void GameExit()
     {
         Debug.Log("게임 종료");
+        SoundManager.Instance.PlaySFX(SFXType.Click);
     }
 }

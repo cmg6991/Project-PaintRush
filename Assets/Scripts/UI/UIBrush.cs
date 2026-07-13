@@ -3,7 +3,7 @@ using System.Collections;
 
 public class UIBrush : PoolableObject
 {
-    [SerializeField] private float lifeTime = 6f;
+    [SerializeField] private float lifeTime = 0.1f;
 
     private SpriteRenderer sr;
 

@@ -104,4 +104,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0afeee291d3fd4c4798d50e1e202b03b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIBrush
-  lifeTime: 6
+  lifeTime: 1
