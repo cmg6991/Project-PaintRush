@@ -32,6 +32,7 @@ namespace Project.Player
         private Rigidbody2D rb;
         private PlayerInputHandler inputHandler;
         private SpriteRenderer spriteRenderer;                                // 스프라이트를 투명하게 만들기 위함
+        private CapsuleCollider2D playerCollider;
         private bool isGrounded;                                              // 땅에 붙어있나
         private float originalGravityScale;                                   // 사다리에서 혹은 행거에서 떨어질때 중력 조절           
 
@@ -129,7 +130,7 @@ namespace Project.Player
             }
 
             // 행거 범위 안이고 윗키를 눌렀을시
-            if (isInsideHanger && currentHangerCollider != null && inputHandler.MoveInput.y > 0.1f)
+            if (isInsideHanger && currentHangerCollider != null && inputHandler.MoveInput.y > 0.1f && !isClimbing)
             {
                 if(!isHanging)
                 {
@@ -267,8 +268,8 @@ namespace Project.Player
         // Check Ladder Collision 
         private void OnTriggerEnter2D(Collider2D collision)
         {
+            if (collision.gameObject.layer == LayerMask.NameToLayer("Item")) return;
             if (collision.GetComponent<ColorDropItem>() != null) return;
-
             if (collision.CompareTag("Enemy") && collision.isTrigger) return;
 
             if (collision.CompareTag("Ladder"))
@@ -295,8 +296,13 @@ namespace Project.Player
         }
         private void OnTriggerExit2D(Collider2D collision)
         {
-            if(collision.GetComponent<ColorDropItem>() != null)
+            if (collision.transform.IsChildOf(transform)) return;
+            if(collision.GetComponent<ColorDropItem>() != null)  return;
+
+            // 탈출할 때도 내 본체 캡슐이 완전히 이탈한 상태인지 검증하여 센서 조기 이탈 버그 차단
+            if (playerCollider != null && playerCollider.BoundsIntersect(collision.bounds))
             {
+                // 아직 본체 캡슐이 사다리나 행거 안에 완전히 겹쳐 있다면 나간 것으로 처리하지 않음 (센서만 빠져나간 상태)
                 return;
             }
 
@@ -349,6 +355,15 @@ namespace Project.Player
                 Gizmos.color = Color.red;
                 Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
             }
+        }
+    }
+
+    public static class Collider2DExtensions
+    {
+        public static bool BoundsIntersect(this Collider2D source, Bounds targetBounds)
+        {
+            if (source == null) return false;
+            return source.bounds.Intersects(targetBounds);
         }
     }
 }
