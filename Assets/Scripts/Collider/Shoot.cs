@@ -33,6 +33,9 @@ public class Shoot : MonoBehaviour
         {
             IPaintable paintable = hit.collider.GetComponent<IPaintable>();
 
+            Debug.Log("IPaintable 찾음: " + hit.collider.name);
+
+
             if (paintable != null)
             {
                 paintable.Paint(fillColor.CurrentColor, hit.point);

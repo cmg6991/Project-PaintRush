@@ -15,7 +15,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     public void TakeDamage(
         int damage,
-        ElementType attackElement,
+        Color attackColor,
         GameObject attacker,
         bool ignoreElement)
     {
