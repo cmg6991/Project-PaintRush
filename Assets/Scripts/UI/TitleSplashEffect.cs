@@ -21,7 +21,6 @@ public class TitleSplashEffect : MonoBehaviour
 
         foreach (Transform point in spawnPoints)
         {
-            Debug.Log($"Point: {point.name} / {point.position}");
 
             Spawn(point.position);
 
@@ -31,9 +30,9 @@ public class TitleSplashEffect : MonoBehaviour
 
     private void Spawn(Vector3 position)
     {
-        UIBrush brush = splashPool.Get<UIBrush>();
-        Debug.Log($" / À§Ä¡: {position}");
+        UISplash brush = splashPool.Get<UISplash>();
 
+        brush.OnSpawn();
         brush.transform.position = position;
 
         brush.transform.rotation =
@@ -46,7 +45,7 @@ public class TitleSplashEffect : MonoBehaviour
         StartCoroutine(PopRoutine(brush));
     }
 
-    private IEnumerator PopRoutine(UIBrush brush)
+    private IEnumerator PopRoutine(UISplash brush)
     {
         float targetScale = Random.Range(minScale, maxScale);
         float time = 0f;

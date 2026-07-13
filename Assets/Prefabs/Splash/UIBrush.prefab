@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3577749208752451137}
   - component: {fileID: 4993556202444217176}
-  - component: {fileID: 6776219210031714263}
+  - component: {fileID: 3859106960422360846}
   m_Layer: 0
   m_Name: UIBrush
   m_TagString: Untagged
@@ -80,7 +80,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 2502302147038634319, guid: c9d9561d0a1602946b6e2cea3396fae4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -92,7 +92,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &6776219210031714263
+--- !u!114 &3859106960422360846
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -101,7 +101,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 3561779987282456801}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0afeee291d3fd4c4798d50e1e202b03b, type: 3}
+  m_Script: {fileID: 11500000, guid: 2a7be87b1f22518469c3a836db17753e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIBrush
-  lifeTime: 5
+  m_EditorClassIdentifier: Assembly-CSharp::UISplash
+  splashSprites:
+  - {fileID: -7297812266498129303, guid: 8fb14d3e4ab4a1e49aecd15d3f0df3d7, type: 3}
+  - {fileID: 2502302147038634319, guid: c9d9561d0a1602946b6e2cea3396fae4, type: 3}
+  - {fileID: -607946772735701926, guid: 86e1780c096296346ae8fc010d0d75bf, type: 3}
+  - {fileID: 8056707015453053104, guid: 7e10e6e15a60018468347d29e6e0f540, type: 3}

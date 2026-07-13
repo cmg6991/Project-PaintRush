@@ -1400,7 +1400,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0953c8c63ebe9c40a08d5c6858d6041, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObjectPool
-  prefab: {fileID: 6776219210031714263, guid: 35e40598895024e42beae6b3afedc5b0, type: 3}
+  prefab: {fileID: 3859106960422360846, guid: 35e40598895024e42beae6b3afedc5b0, type: 3}
   startCount: 10
 --- !u!4 &1953503128
 Transform:
