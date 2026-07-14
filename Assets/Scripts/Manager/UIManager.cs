@@ -47,6 +47,11 @@ public class UIManager : Singleton<UIManager>
         SoundManager.Instance.PlaySFX(SFXType.Click);
     }
 
+    public void Setting()
+    {
+        settingPanel.SetActive(true);
+    }
+
     public void GameExit()
     {
         Debug.Log("게임 종료");
