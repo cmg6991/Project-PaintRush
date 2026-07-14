@@ -6,7 +6,7 @@ public class PaintableWall : MonoBehaviour,IPaintable
     {
         PaintManager.instance.SpawnDefaultSplash(hitPoint, color);
 
-        DoorOpen door = GetComponentInParent<DoorOpen>();
+        DoorOpen door = GetComponent<DoorOpen>();
 
         if (door != null)
         {

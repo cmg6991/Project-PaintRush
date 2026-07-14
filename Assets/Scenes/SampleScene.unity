@@ -224,7 +224,6 @@ GameObject:
   - component: {fileID: 142641692}
   - component: {fileID: 142641691}
   - component: {fileID: 142641690}
-  - component: {fileID: 142641689}
   m_Layer: 3
   m_Name: tile_archHalf_0 (3)
   m_TagString: Untagged
@@ -232,18 +231,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &142641689
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 142641688}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eab3cc371a2f0994b9d3c62ef506e917, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GunTile
 --- !u!114 &142641690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3607,6 +3594,22 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 8113566398691237155, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
+      propertyPath: splashPrefabs.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8113566398691237155, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
+      propertyPath: 'splashPrefabs.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2477463574452566620, guid: 2038b794f4fc7344db3ff4da9225364d, type: 3}
+    - target: {fileID: 8113566398691237155, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
+      propertyPath: 'splashPrefabs.Array.data[2]'
+      value: 
+      objectReference: {fileID: 3215492187660844159, guid: d8e598bab0b9ce54096647b3ef6e3c1c, type: 3}
+    - target: {fileID: 8113566398691237155, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
+      propertyPath: 'splashPrefabs.Array.data[3]'
+      value: 
+      objectReference: {fileID: 5914289684482106114, guid: c4e7cf69129a1a44c86bc861e251c009, type: 3}
     - target: {fileID: 8903276482467688692, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
       propertyPath: m_SortingOrder
       value: 1
