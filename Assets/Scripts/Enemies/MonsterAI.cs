@@ -19,69 +19,78 @@ public class MonsterAI : MonoBehaviour, IDamageable
     private const float DirectionThreshold = 0.2f;
 
     [Header("피격 및 사망")]
-    public float hitSpriteTime = 0.15f;
-    public float deadSpriteTime = 0.3f;
+    [SerializeField, Min(0f)] private float hitSpriteTime = 0.15f;
+    [SerializeField, Min(0f)] private float deadSpriteTime = 0.3f;
+    [SerializeField] private bool stopWhileHit = false;
 
     [Header("상태")]
-    public MonsterState currentState = MonsterState.Patrol;
+    [SerializeField] private MonsterState currentState = MonsterState.Patrol;
 
     [Header("속성")]
-    public ElementType currentElement = ElementType.None;
+    [SerializeField] private ElementType currentElement = ElementType.None;
+    [SerializeField] private Color redElementColor = Color.red;
+    [SerializeField] private Color blueElementColor = Color.blue;
+    [SerializeField] private Color yellowElementColor = Color.yellow;
+    [SerializeField, Min(0.001f)] private float colorTolerance = 0.08f;
 
     [Header("순찰 체크")]
-    public Transform groundCheck;
-    public Transform wallCheck;
-    public LayerMask groundLayer;
-    public float groundCheckDistance = 0.7f;
-    public float wallCheckDistance = 0.4f;
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private Transform wallCheck;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField, Min(0f)] private float groundCheckDistance = 0.7f;
+    [SerializeField, Min(0f)] private float wallCheckDistance = 0.4f;
 
     [Header("순찰 범위")]
-    public float patrolRange = 5f;
-    public float patrolTurnCooldown = 0.2f;
-    public bool randomStartDirection = true;
+    [SerializeField, Min(0f)] private float patrolRange = 5f;
+    [SerializeField, Min(0f)] private float patrolTurnCooldown = 0.2f;
+    [SerializeField] private bool randomStartDirection = true;
 
-    [Header("이동 속도")]
-    public float patrolSpeed = 2f;
-    public float chaseSpeed = 3.5f;
-    public float detectRange = 4f;
-    public float attackRange = 1.2f;
+    [Header("이동 및 감지")]
+    [SerializeField, Min(0f)] private float patrolSpeed = 2f;
+    [SerializeField, Min(0f)] private float chaseSpeed = 3.5f;
+    [SerializeField, Min(0f)] private float detectRange = 4f;
+    [SerializeField, Min(0f)] private float attackRange = 1.2f;
 
     [Header("AI 반응")]
-    public float noticeTime = 0.5f;
-    public float turnDelay = 0.4f;
-    public float searchTime = 1.2f;
+    [SerializeField, Min(0f)] private float noticeTime = 0.5f;
+    [SerializeField, Min(0f)] private float turnDelay = 0.4f;
+    [SerializeField, Min(0f)] private float searchTime = 1.2f;
 
     [Header("공격")]
-    public float attackCooldown = 1.5f;
+    [SerializeField, Min(1)] private int attackDamage = 1;
+    [SerializeField, Min(0f)] private float attackCooldown = 1.5f;
+    [SerializeField] private MonsterAttackTrigger attackTrigger;
 
     [Header("도망")]
-    public bool canRunAway = true;
-    public int runAwayHp = 1;
-    public float runAwaySpeed = 4f;
+    [SerializeField] private bool canRunAway = true;
+    [SerializeField, Min(0)] private int runAwayHp = 1;
+    [SerializeField, Min(0f)] private float runAwaySpeed = 4f;
+    [SerializeField, Min(0f)] private float runAwayDistance = 6f;
+    [SerializeField, Min(0f)] private float runAwayDuration = 2.5f;
 
     [Header("체력")]
-    public int maxHp = 3;
+    [SerializeField, Min(1)] private int maxHp = 3;
 
     [Header("상태 아이콘")]
-    public GameObject noticeIcon;
-    public GameObject runAwayIcon;
+    [SerializeField] private GameObject noticeIcon;
+    [SerializeField] private GameObject runAwayIcon;
+    [SerializeField] private GameObject paletteIcon;
 
     [Header("드롭 아이템")]
-    public GameObject defaultDropPrefab;
-    public GameObject redDropPrefab;
-    public GameObject blueDropPrefab;
-    public GameObject yellowDropPrefab;
+    [SerializeField] private GameObject defaultDropPrefab;
+    [SerializeField] private GameObject redDropPrefab;
+    [SerializeField] private GameObject blueDropPrefab;
+    [SerializeField] private GameObject yellowDropPrefab;
+    [SerializeField, Range(0f, 1f)] private float paintDropChance = 0.7f;
 
     [Header("팔레트 아이템")]
-    public bool hasPaletteItem;
-    public GameObject paletteItemPrefab;
+    [SerializeField] private bool hasPaletteItem;
+    [SerializeField] private GameObject paletteItemPrefab;
 
-    [Range(0f, 1f)]
-    public float paintDropChance = 0.7f;
-
-    [Header("대상")]
-    public Transform player;
-    public FillColor fillcolor;
+    [Header("외부 참조")]
+    [SerializeField] private Transform player;
+    [SerializeField] private FillColor fillColor;
+    [SerializeField] private MonsterManager monsterManager;
 
     private Rigidbody2D rb;
     private MonsterMovement monsterMovement;
@@ -92,11 +101,11 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     private float startX;
     private float lastPatrolTurnTime;
-
     private float noticeTimer;
     private float searchTimer;
     private float lastTurnTime;
     private float lastAttackTime;
+    private float runAwayTimer;
 
     private float basePatrolSpeed;
     private float baseChaseSpeed;
@@ -105,8 +114,17 @@ public class MonsterAI : MonoBehaviour, IDamageable
     private bool hasNoticedPlayer;
     private bool isHit;
     private bool isDead;
+    private bool deathReported;
+    private bool registeredToManager;
 
     private Coroutine hitRoutine;
+
+    public MonsterState CurrentState => currentState;
+    public ElementType CurrentElement => currentElement;
+    public int CurrentHp => currentHp;
+    public int MaxHp => maxHp;
+    public bool IsDead => isDead;
+    public bool HasPaletteItem => hasPaletteItem;
 
     private void Awake()
     {
@@ -114,15 +132,14 @@ public class MonsterAI : MonoBehaviour, IDamageable
         monsterMovement = GetComponent<MonsterMovement>();
         monsterVisual = GetComponent<MonsterVisual>();
 
-        if (monsterMovement == null || monsterVisual == null)
+        if (fillColor == null)
         {
-            Debug.LogError(
-                $"{gameObject.name}: " +
-                "MonsterMovement 또는 MonsterVisual이 없습니다."
-            );
+            fillColor = GetComponent<FillColor>();
+        }
 
-            enabled = false;
-            return;
+        if (attackTrigger == null)
+        {
+            attackTrigger = GetComponentInChildren<MonsterAttackTrigger>(true);
         }
 
         currentHp = maxHp;
@@ -131,37 +148,50 @@ public class MonsterAI : MonoBehaviour, IDamageable
         baseChaseSpeed = chaseSpeed;
         baseRunAwaySpeed = runAwaySpeed;
 
-        if (rb != null)
-        {
-            rb.freezeRotation = true;
-        }
+        rb.freezeRotation = true;
 
         SetNoticeIcon(false);
         SetRunAwayIcon(false);
+        SetPaletteIcon(false);
     }
 
     private void Start()
     {
-        fillcolor = GetComponent<FillColor>();
-
-        if (monsterMovement.UsesPlayerTracking &&
-            player == null)
+        if (monsterMovement.UsesPlayerTracking && player == null)
         {
             FindPlayer();
         }
+
+        if (monsterManager == null)
+        {
+            monsterManager = MonsterManager.Instance;
+
+            if (monsterManager == null)
+            {
+                monsterManager = FindFirstObjectByType<MonsterManager>();
+            }
+        }
+
+        RegisterToManager();
 
         startX = transform.position.x;
 
         if (randomStartDirection)
         {
-            moveDirection =
-                Random.value < 0.5f ? -1 : 1;
+            moveDirection = Random.value < 0.5f ? -1 : 1;
         }
 
-        ChangeElement(currentElement);
-        UpdateFacing();
+        if (currentElement != ElementType.None)
+        {
+            ApplyElementVisualAndStats();
+        }
+        else
+        {
+            SyncElementFromFillColor();
+        }
 
-        SetRunAwayIcon(hasPaletteItem);
+        SetPaletteIcon(hasPaletteItem);
+        UpdateFacing();
     }
 
     private void Update()
@@ -170,6 +200,8 @@ public class MonsterAI : MonoBehaviour, IDamageable
         {
             return;
         }
+
+        SyncElementFromFillColor();
 
         if (monsterMovement.UsesPlayerTracking)
         {
@@ -184,6 +216,19 @@ public class MonsterAI : MonoBehaviour, IDamageable
         if (isDead)
         {
             return;
+        }
+
+        if (isHit && stopWhileHit)
+        {
+            monsterMovement.Stop();
+            return;
+        }
+
+        // 피라냐처럼 플레이어 추적 FSM을 사용하지 않는 몬스터도
+        // 공격 트리거에 플레이어가 있으면 접촉 피해를 준다.
+        if (!monsterMovement.UsesPlayerTracking)
+        {
+            TryPerformAttack();
         }
 
         switch (currentState)
@@ -216,19 +261,37 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     private void FindPlayer()
     {
-        GameObject playerObject =
-            GameObject.FindGameObjectWithTag("Player");
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
 
         if (playerObject == null)
         {
-            Debug.LogWarning(
-                $"{gameObject.name}: Player 태그 오브젝트를 찾지 못함"
-            );
-
+            Debug.LogWarning($"{gameObject.name}: Player 태그 오브젝트를 찾지 못했습니다.");
             return;
         }
 
         player = playerObject.transform;
+    }
+
+    private void RegisterToManager()
+    {
+        if (registeredToManager || monsterManager == null)
+        {
+            return;
+        }
+
+        monsterManager.Register(this);
+        registeredToManager = true;
+    }
+
+    private void UnregisterFromManager()
+    {
+        if (!registeredToManager || monsterManager == null)
+        {
+            return;
+        }
+
+        monsterManager.Unregister(this);
+        registeredToManager = false;
     }
 
     private void CheckPlayerDistance()
@@ -244,10 +307,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
-        float distance = Vector2.Distance(
-            transform.position,
-            player.position
-        );
+        float distance = Vector2.Distance(transform.position, player.position);
 
         if (distance <= detectRange)
         {
@@ -261,8 +321,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     private void HandlePlayerDetected(float distance)
     {
-        if (!hasNoticedPlayer &&
-            currentState == MonsterState.Patrol)
+        if (!hasNoticedPlayer && currentState == MonsterState.Patrol)
         {
             EnterNotice();
             return;
@@ -310,44 +369,43 @@ public class MonsterAI : MonoBehaviour, IDamageable
     {
         currentState = MonsterState.Patrol;
         hasNoticedPlayer = false;
+        SetRunAwayIcon(false);
+    }
+
+    private void EnterRunAway()
+    {
+        if (!canRunAway || !monsterMovement.UsesPlayerTracking)
+        {
+            return;
+        }
+
+        currentState = MonsterState.RunAway;
+        runAwayTimer = 0f;
+        SetRunAwayIcon(true);
     }
 
     private void Patrol()
     {
-        UpdateStateIcons(false, hasPaletteItem);
+        UpdateStateIcons(false, false);
 
         CheckPatrolDirection();
-
-        monsterMovement.Move(
-            moveDirection,
-            patrolSpeed
-        );
+        monsterMovement.Move(moveDirection, patrolSpeed);
 
         if (monsterMovement.Type == MonsterType.Piranha)
         {
-            monsterVisual.SetState(
-                MonsterVisualState.VerticalMove
-            );
-
-            monsterVisual.SetVerticalDirection(
-                monsterMovement.VerticalDirection
-            );
+            monsterVisual.SetState(MonsterVisualState.VerticalMove);
+            monsterVisual.SetVerticalDirection(monsterMovement.VerticalDirection);
         }
         else
         {
-            monsterVisual.SetState(
-                MonsterVisualState.Move
-            );
+            monsterVisual.SetState(MonsterVisualState.Move);
         }
     }
+
     private void NoticePlayer()
     {
         UpdateStateIcons(true, false);
-
-        monsterVisual.SetState(
-            MonsterVisualState.Attack
-        );
-
+        monsterVisual.SetState(MonsterVisualState.Attack);
         monsterMovement.Stop();
 
         noticeTimer -= Time.fixedDeltaTime;
@@ -362,10 +420,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
     private void ChasePlayer()
     {
         UpdateStateIcons(false, false);
-
-        monsterVisual.SetState(
-            MonsterVisualState.Move
-        );
+        monsterVisual.SetState(MonsterVisualState.Move);
 
         if (player == null)
         {
@@ -373,25 +428,14 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
 
         UpdateDirectionToPlayer();
-
-        monsterMovement.Move(
-            moveDirection,
-            chaseSpeed
-        );
+        monsterMovement.Move(moveDirection, chaseSpeed);
     }
 
     private void SearchPlayer()
     {
         UpdateStateIcons(false, false);
-
-        monsterVisual.SetState(
-            MonsterVisualState.Move
-        );
-
-        monsterMovement.Move(
-            moveDirection,
-            patrolSpeed
-        );
+        monsterVisual.SetState(MonsterVisualState.Move);
+        monsterMovement.Move(moveDirection, patrolSpeed);
 
         searchTimer -= Time.fixedDeltaTime;
 
@@ -404,10 +448,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
     private void AttackPlayer()
     {
         UpdateStateIcons(false, false);
-
-        monsterVisual.SetState(
-            MonsterVisualState.Attack
-        );
+        monsterVisual.SetState(MonsterVisualState.Attack);
 
         if (player != null)
         {
@@ -415,47 +456,71 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
 
         monsterMovement.Stop();
+        TryPerformAttack();
+    }
+
+    private bool TryPerformAttack()
+    {
+        if (attackTrigger == null)
+        {
+            return false;
+        }
+
+        if (!attackTrigger.TryGetTarget(out PlayerHealth target))
+        {
+            return false;
+        }
 
         if (Time.time - lastAttackTime < attackCooldown)
         {
-            return;
+            return false;
         }
 
         lastAttackTime = Time.time;
 
-        Debug.Log($"{gameObject.name}: 몬스터 공격");
+        target.TakeDamage(
+            attackDamage,
+            Color.white,
+            gameObject,
+            true
+        );
+
+        Debug.Log($"{gameObject.name}: 플레이어 공격, 데미지 {attackDamage}");
+        return true;
     }
 
     private void RunAway()
     {
-        if (!canRunAway ||
-            !monsterMovement.UsesPlayerTracking)
+        if (!canRunAway || !monsterMovement.UsesPlayerTracking)
         {
             EnterPatrol();
             return;
         }
 
         UpdateStateIcons(false, true);
-
-        monsterVisual.SetState(
-            MonsterVisualState.Move
-        );
+        monsterVisual.SetState(MonsterVisualState.Move);
 
         if (player == null)
         {
+            EnterPatrol();
             return;
         }
 
-        float directionFromPlayer =
-            transform.position.x - player.position.x;
+        runAwayTimer += Time.fixedDeltaTime;
 
-        moveDirection =
-            directionFromPlayer >= 0f ? 1 : -1;
+        float distance = Vector2.Distance(transform.position, player.position);
 
-        monsterMovement.Move(
-            moveDirection,
-            runAwaySpeed
-        );
+        if ((runAwayDistance > 0f && distance >= runAwayDistance) ||
+            (runAwayDuration > 0f && runAwayTimer >= runAwayDuration))
+        {
+            EnterPatrol();
+            return;
+        }
+
+        float directionFromPlayer = transform.position.x - player.position.x;
+        moveDirection = directionFromPlayer >= 0f ? 1 : -1;
+
+        monsterMovement.Move(moveDirection, runAwaySpeed);
     }
 
     private void CheckPatrolDirection()
@@ -465,8 +530,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (Time.time - lastPatrolTurnTime <
-            patrolTurnCooldown)
+        if (Time.time - lastPatrolTurnTime < patrolTurnCooldown)
         {
             return;
         }
@@ -488,8 +552,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
-        if (monsterMovement.UsesGroundObstacleCheck &&
-            ShouldTurnAround())
+        if (monsterMovement.UsesGroundObstacleCheck && ShouldTurnAround())
         {
             TurnAround();
             lastPatrolTurnTime = Time.time;
@@ -520,26 +583,22 @@ public class MonsterAI : MonoBehaviour, IDamageable
         return !hasGroundAhead || hasWallAhead;
     }
 
-    private void OnCollisionEnter2D(
-        Collision2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (isDead ||
-            !monsterMovement.CanTurnOnWallCollision)
+        if (isDead || !monsterMovement.CanTurnOnWallCollision)
         {
             return;
         }
 
         bool isGroundLayer =
-            ((1 << collision.gameObject.layer) &
-             groundLayer) != 0;
+            ((1 << collision.gameObject.layer) & groundLayer) != 0;
 
         if (!isGroundLayer)
         {
             return;
         }
 
-        foreach (ContactPoint2D contact in
-                 collision.contacts)
+        foreach (ContactPoint2D contact in collision.contacts)
         {
             if (Mathf.Abs(contact.normal.x) <= 0.5f)
             {
@@ -578,46 +637,124 @@ public class MonsterAI : MonoBehaviour, IDamageable
             moveDirection = 1;
             lastTurnTime = Time.time;
         }
-        else if (
-            directionToPlayer < -DirectionThreshold)
+        else if (directionToPlayer < -DirectionThreshold)
         {
             moveDirection = -1;
             lastTurnTime = Time.time;
         }
     }
 
-    public void ChangeElement(ElementType newElement)
+    /// <summary>
+    /// 몬스터 속성은 최초 한 번만 설정된다.
+    /// 이미 속성이 있다면 다른 타일을 밟아도 변경하지 않는다.
+    /// </summary>
+    public bool ChangeElement(ElementType newElement)
     {
-        currentElement = newElement;
+        if (newElement == ElementType.None)
+        {
+            return false;
+        }
 
-        ApplyElementColor();
-        ApplyElementStats();
+        if (currentElement != ElementType.None)
+        {
+            return currentElement == newElement;
+        }
+
+        SetElementInternal(newElement);
+        return true;
     }
 
-    private void ApplyElementColor()
+    private void SyncElementFromFillColor()
     {
-        if (monsterVisual == null)
+        if (currentElement != ElementType.None ||
+            fillColor == null ||
+            !fillColor.HasColor)
         {
             return;
         }
 
-        switch (currentElement)
+        if (TryResolveElement(fillColor.CurrentColor, out ElementType element))
+        {
+            SetElementInternal(element);
+        }
+    }
+
+    private void SetElementInternal(ElementType newElement)
+    {
+        currentElement = newElement;
+        ApplyElementVisualAndStats();
+
+        Debug.Log($"{gameObject.name}: 속성 확정 - {currentElement}");
+    }
+
+    private void ApplyElementVisualAndStats()
+    {
+        monsterVisual.SetElementTint(GetElementColor(currentElement));
+        ApplyElementStats();
+    }
+
+    private bool TryResolveElement(Color color, out ElementType element)
+    {
+        float redDistance = ColorDistance(color, redElementColor);
+        float blueDistance = ColorDistance(color, blueElementColor);
+        float yellowDistance = ColorDistance(color, yellowElementColor);
+
+        float minDistance = Mathf.Min(
+            redDistance,
+            blueDistance,
+            yellowDistance
+        );
+
+        if (minDistance > colorTolerance)
+        {
+            element = ElementType.None;
+            return false;
+        }
+
+        if (minDistance == redDistance)
+        {
+            element = ElementType.Red;
+        }
+        else if (minDistance == blueDistance)
+        {
+            element = ElementType.Blue;
+        }
+        else
+        {
+            element = ElementType.Yellow;
+        }
+
+        return true;
+    }
+
+    private bool IsMatchingAttackColor(Color attackColor)
+    {
+        Color elementColor = GetElementColor(currentElement);
+        return ColorDistance(attackColor, elementColor) <= colorTolerance;
+    }
+
+    private static float ColorDistance(Color a, Color b)
+    {
+        Vector4 difference = (Vector4)a - (Vector4)b;
+        difference.w = 0f;
+        return difference.magnitude;
+    }
+
+    private Color GetElementColor(ElementType element)
+    {
+        switch (element)
         {
             case ElementType.Red:
-                monsterVisual.SetElementTint(Color.red);
-                break;
+                return redElementColor;
 
             case ElementType.Blue:
-                monsterVisual.SetElementTint(Color.blue);
-                break;
+                return blueElementColor;
 
             case ElementType.Yellow:
-                monsterVisual.SetElementTint(Color.yellow);
-                break;
+                return yellowElementColor;
 
             default:
-                monsterVisual.SetElementTint(Color.white);
-                break;
+                return Color.white;
         }
     }
 
@@ -651,51 +788,49 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
     }
 
-
     public void TakeDamage(
         int damage,
         Color attackColor,
         GameObject attacker,
         bool ignoreElement)
     {
-        if(!ignoreElement)
+        if (isDead)
         {
-            if (!fillcolor.HasColor)
+            return;
+        }
+
+        if (damage <= 0)
+        {
+            Debug.LogWarning(
+                $"{gameObject.name}: 0 이하의 데미지가 전달되었습니다. ({damage})"
+            );
+            return;
+        }
+
+        SyncElementFromFillColor();
+
+        if (!ignoreElement)
+        {
+            if (currentElement == ElementType.None)
             {
-                Debug.Log("색이 없음");
+                Debug.Log($"{gameObject.name}: 색이 없어 데미지 무효");
                 return;
             }
-            if (Vector4.Distance(fillcolor.CurrentColor, attackColor) > 0.01f)
+
+            if (!IsMatchingAttackColor(attackColor))
             {
-                Debug.Log("색이 다름");
+                Debug.Log($"{gameObject.name}: 색이 달라 데미지 무효");
                 return;
             }
         }
 
+        currentHp = Mathf.Max(0, currentHp - damage);
 
-        //if (isDead)
-        //{
-        //    return;
-        //}
-
-        //if (!ignoreElement &&
-        //    attackColor != currentElement)
-        //{
-        //    Debug.Log(
-        //        $"{gameObject.name}: 색상이 달라 데미지 무효"
-        //    );
-
-        //    return;
-        //}
-
-        currentHp = Mathf.Max(0,currentHp - damage);
-
-        Debug.Log(
-            $"{gameObject.name} 피격! 남은 체력: {currentHp}"
-        );
+        Debug.Log($"{gameObject.name} 피격! 남은 체력: {currentHp}");
 
         if (currentHp <= 0)
         {
+            isDead = true;
             StartCoroutine(DieRoutine());
             return;
         }
@@ -711,14 +846,13 @@ public class MonsterAI : MonoBehaviour, IDamageable
             monsterMovement.UsesPlayerTracking &&
             currentHp <= runAwayHp)
         {
-            currentState = MonsterState.RunAway;
+            EnterRunAway();
         }
     }
 
     private IEnumerator HitRoutine()
     {
         isHit = true;
-
         monsterVisual.PlayHit(hitSpriteTime);
 
         yield return new WaitForSeconds(hitSpriteTime);
@@ -729,13 +863,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     private IEnumerator DieRoutine()
     {
-        if (isDead)
-        {
-            yield break;
-        }
-
-        isDead = true;
-
         if (hitRoutine != null)
         {
             StopCoroutine(hitRoutine);
@@ -746,39 +873,52 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
         SetNoticeIcon(false);
         SetRunAwayIcon(false);
+        SetPaletteIcon(false);
 
         monsterVisual.PlayDead();
-
         DisableDamageAndCollisions();
 
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-            rb.simulated = false;
-        }
+        rb.linearVelocity = Vector2.zero;
+        rb.simulated = false;
+
+        ReportDeath();
 
         Debug.Log($"{gameObject.name}: 몬스터 사망");
 
         yield return new WaitForSeconds(deadSpriteTime);
 
         DropItem();
-
         Destroy(gameObject);
+    }
+
+    private void ReportDeath()
+    {
+        if (deathReported)
+        {
+            return;
+        }
+
+        deathReported = true;
+
+        if (monsterManager != null)
+        {
+            monsterManager.RegisterDeath(this);
+            registeredToManager = false;
+        }
     }
 
     private void DisableDamageAndCollisions()
     {
         MonsterAttackTrigger[] attackTriggers =
-            GetComponentsInChildren<MonsterAttackTrigger>();
+            GetComponentsInChildren<MonsterAttackTrigger>(true);
 
-        foreach (MonsterAttackTrigger attackTrigger
-                 in attackTriggers)
+        foreach (MonsterAttackTrigger trigger in attackTriggers)
         {
-            attackTrigger.enabled = false;
+            trigger.enabled = false;
         }
 
         Collider2D[] colliders =
-            GetComponentsInChildren<Collider2D>();
+            GetComponentsInChildren<Collider2D>(true);
 
         foreach (Collider2D collider in colliders)
         {
@@ -790,23 +930,27 @@ public class MonsterAI : MonoBehaviour, IDamageable
     {
         if (hasPaletteItem)
         {
-            if (paletteItemPrefab != null)
+            if (paletteItemPrefab == null)
             {
-                Instantiate(
-                    paletteItemPrefab,
-                    transform.position,
-                    Quaternion.identity
+                Debug.LogWarning(
+                    $"{gameObject.name}: Palette Item Prefab이 연결되지 않았습니다."
                 );
-
-                Debug.Log("팔레트 아이템 드롭");
+                return;
             }
 
+            Instantiate(
+                paletteItemPrefab,
+                transform.position,
+                Quaternion.identity
+            );
+
+            Debug.Log($"{gameObject.name}: 팔레트 아이템 드롭");
             return;
         }
 
         if (Random.value > paintDropChance)
         {
-            Debug.Log("물감 드롭 안 됨");
+            Debug.Log($"{gameObject.name}: 물감 드롭 안 됨");
             return;
         }
 
@@ -814,6 +958,9 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
         if (dropPrefab == null)
         {
+            Debug.LogWarning(
+                $"{gameObject.name}: {currentElement} 드롭 프리팹이 없습니다."
+            );
             return;
         }
 
@@ -823,7 +970,9 @@ public class MonsterAI : MonoBehaviour, IDamageable
             Quaternion.identity
         );
 
-        Debug.Log("물감 드롭");
+        Debug.Log(
+            $"{gameObject.name}: {currentElement} 물감 드롭"
+        );
     }
 
     private GameObject GetDropPrefab()
@@ -831,23 +980,42 @@ public class MonsterAI : MonoBehaviour, IDamageable
         switch (currentElement)
         {
             case ElementType.Red:
-                return redDropPrefab != null
-                    ? redDropPrefab
-                    : defaultDropPrefab;
+                return GetColorDropOrFallback(
+                    redDropPrefab,
+                    "Red"
+                );
 
             case ElementType.Blue:
-                return blueDropPrefab != null
-                    ? blueDropPrefab
-                    : defaultDropPrefab;
+                return GetColorDropOrFallback(
+                    blueDropPrefab,
+                    "Blue"
+                );
 
             case ElementType.Yellow:
-                return yellowDropPrefab != null
-                    ? yellowDropPrefab
-                    : defaultDropPrefab;
+                return GetColorDropOrFallback(
+                    yellowDropPrefab,
+                    "Yellow"
+                );
 
             default:
                 return defaultDropPrefab;
         }
+    }
+
+    private GameObject GetColorDropOrFallback(
+        GameObject colorPrefab,
+        string colorName)
+    {
+        if (colorPrefab != null)
+        {
+            return colorPrefab;
+        }
+
+        Debug.LogWarning(
+            $"{gameObject.name}: {colorName} 드롭 프리팹이 없어 기본 드롭을 사용합니다."
+        );
+
+        return defaultDropPrefab;
     }
 
     private void UpdateStateIcons(
@@ -874,51 +1042,54 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
     }
 
+    private void SetPaletteIcon(bool isActive)
+    {
+        if (paletteIcon != null)
+        {
+            paletteIcon.SetActive(isActive);
+        }
+    }
+
     private void UpdateFacing()
     {
-        if (monsterVisual != null)
-        {
-            monsterVisual.SetDirection(moveDirection);
-        }
+        monsterVisual.SetDirection(moveDirection);
 
         if (groundCheck != null)
         {
-            Vector3 position =
-                groundCheck.localPosition;
-
-            position.x =
-                Mathf.Abs(position.x) *
-                moveDirection;
-
+            Vector3 position = groundCheck.localPosition;
+            position.x = Mathf.Abs(position.x) * moveDirection;
             groundCheck.localPosition = position;
         }
 
         if (wallCheck != null)
         {
-            Vector3 position =
-                wallCheck.localPosition;
-
-            position.x =
-                Mathf.Abs(position.x) *
-                moveDirection;
-
+            Vector3 position = wallCheck.localPosition;
+            position.x = Mathf.Abs(position.x) * moveDirection;
             wallCheck.localPosition = position;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (!deathReported)
+        {
+            UnregisterFromManager();
         }
     }
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(
-            transform.position,
-            detectRange
-        );
+        Gizmos.DrawWireSphere(transform.position, detectRange);
 
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(
-            transform.position,
-            attackRange
-        );
+        Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        if (runAwayDistance > 0f)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, runAwayDistance);
+        }
 
         Gizmos.color = Color.green;
         Gizmos.DrawLine(
@@ -937,7 +1108,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
         if (groundCheck != null)
         {
             Gizmos.color = Color.blue;
-
             Gizmos.DrawLine(
                 groundCheck.position,
                 groundCheck.position +
@@ -948,7 +1118,6 @@ public class MonsterAI : MonoBehaviour, IDamageable
         if (wallCheck != null)
         {
             Gizmos.color = Color.magenta;
-
             Gizmos.DrawLine(
                 wallCheck.position,
                 wallCheck.position +

@@ -1,15 +1,20 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class MonsterAttackTrigger : MonoBehaviour
 {
-    [Header("Á¢ÃË µ¥¹ÌÁö")]
-    [SerializeField] private int damage = 1;
-    [SerializeField] private float damageInterval = 1f;
+    // ì‹¤ì œ ê³µê²© ì‹œì ê³¼ ì¿¨íƒ€ì„ì€ MonsterAIê°€ ê´€ë¦¬í•œë‹¤.
+    // ì´ ì»´í¬ë„ŒíŠ¸ëŠ” ê³µê²© ë²”ìœ„ ì•ˆì˜ í”Œë ˆì´ì–´ë§Œ ì¶”ì í•œë‹¤.
+    private readonly Dictionary<Collider2D, PlayerHealth> targetsByCollider =
+        new Dictionary<Collider2D, PlayerHealth>();
 
-    private readonly HashSet<PlayerHealth> playersInRange = new();
-    private Coroutine damageCoroutine;
+    public bool HasTarget
+    {
+        get
+        {
+            return TryGetTarget(out _);
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -20,71 +25,59 @@ public class MonsterAttackTrigger : MonoBehaviour
             return;
         }
 
-        playersInRange.Add(playerHealth);
-
-        if (damageCoroutine == null)
-        {
-            damageCoroutine = StartCoroutine(DamageRoutine());
-        }
+        targetsByCollider[other] = playerHealth;
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        PlayerHealth playerHealth = FindPlayerHealth(other);
-
-        if (playerHealth == null)
-        {
-            return;
-        }
-
-        playersInRange.Remove(playerHealth);
-
-        if (playersInRange.Count == 0 && damageCoroutine != null)
-        {
-            StopCoroutine(damageCoroutine);
-            damageCoroutine = null;
-        }
+        targetsByCollider.Remove(other);
     }
 
-    private IEnumerator DamageRoutine()
+    public bool TryGetTarget(out PlayerHealth target)
     {
-        while (playersInRange.Count > 0)
+        target = null;
+
+        if (targetsByCollider.Count == 0)
         {
-            // ¹İº¹ Áß ÄÃ·º¼ÇÀÌ ¹Ù²î´Â ¹®Á¦¸¦ ÇÇÇÏ±â À§ÇØ º¹»çº» »ç¿ë
-            PlayerHealth[] targets = new PlayerHealth[playersInRange.Count];
-            playersInRange.CopyTo(targets);
+            return false;
+        }
 
-            foreach (PlayerHealth target in targets)
+        List<Collider2D> invalidColliders = null;
+
+        foreach (KeyValuePair<Collider2D, PlayerHealth> pair
+                 in targetsByCollider)
+        {
+            if (pair.Key == null || pair.Value == null)
             {
-                if (target == null)
-                {
-                    playersInRange.Remove(target);
-                    continue;
-                }
-
-                target.TakeDamage(
-                    damage,
-                    Color.white,
-                    transform.root.gameObject,
-                    true
-                );
-
-                Debug.Log($"¸ó½ºÅÍ Á¢ÃË µ¥¹ÌÁö Àû¿ë: {damage}");
+                invalidColliders ??= new List<Collider2D>();
+                invalidColliders.Add(pair.Key);
+                continue;
             }
 
-            yield return new WaitForSeconds(damageInterval);
+            target = pair.Value;
+            break;
         }
 
-        damageCoroutine = null;
+        if (invalidColliders != null)
+        {
+            foreach (Collider2D invalidCollider in invalidColliders)
+            {
+                targetsByCollider.Remove(invalidCollider);
+            }
+        }
+
+        return target != null;
     }
 
-    private PlayerHealth FindPlayerHealth(Collider2D other)
+    private static PlayerHealth FindPlayerHealth(Collider2D other)
     {
-        PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
+        PlayerHealth playerHealth =
+            other.GetComponent<PlayerHealth>();
 
         if (playerHealth == null)
         {
-            playerHealth = other.GetComponentInParent<PlayerHealth>();
+            playerHealth =
+                other.GetComponentInParent<PlayerHealth>();
         }
 
         return playerHealth;
@@ -92,12 +85,6 @@ public class MonsterAttackTrigger : MonoBehaviour
 
     private void OnDisable()
     {
-        playersInRange.Clear();
-
-        if (damageCoroutine != null)
-        {
-            StopCoroutine(damageCoroutine);
-            damageCoroutine = null;
-        }
+        targetsByCollider.Clear();
     }
 }
