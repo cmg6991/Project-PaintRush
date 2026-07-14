@@ -321,7 +321,8 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     private void HandlePlayerDetected(float distance)
     {
-        if (!hasNoticedPlayer && currentState == MonsterState.Patrol)
+        if (!hasNoticedPlayer &&
+            currentState == MonsterState.Patrol)
         {
             EnterNotice();
             return;
@@ -332,7 +333,11 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
-        currentState = distance <= attackRange
+        bool hasAttackTarget =
+            attackTrigger != null &&
+            attackTrigger.HasTarget;
+
+        currentState = hasAttackTarget
             ? MonsterState.Attack
             : MonsterState.Chase;
     }
