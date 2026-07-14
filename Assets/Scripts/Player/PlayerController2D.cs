@@ -32,6 +32,7 @@ namespace Project.Player
         private Rigidbody2D rb;
         private PlayerInputHandler inputHandler;
         private SpriteRenderer spriteRenderer;                                // 스프라이트를 투명하게 만들기 위함
+        private CapsuleCollider2D playerCollider;                             // 본체 캡슐 콜라이더 캐싱용 변수
         private bool isGrounded;                                              // 땅에 붙어있나
         private float originalGravityScale;                                   // 사다리에서 혹은 행거에서 떨어질때 중력 조절           
 
@@ -62,6 +63,7 @@ namespace Project.Player
             rb = GetComponent<Rigidbody2D>();
             inputHandler = GetComponent<PlayerInputHandler>();
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            playerCollider = GetComponent<CapsuleCollider2D>();           // 캡슐 콜라이더 초기화
 
             originalGravityScale = rb.gravityScale;
         }
@@ -281,16 +283,24 @@ namespace Project.Player
                 isInsideHanger = true;
                 currentHangerCollider = collision;
             }
-
-            else if (collision.CompareTag("Enemy"))
+            else if (collision.CompareTag("Monster"))
             {
-                if (isInvincible) return;
+                if (playerCollider != null && playerCollider.IsTouching(collision))
+                {
+                    if (isInvincible) return;
 
-                Debug.Log("<color=red>[플레이어 피격]</color>");
+                    Debug.Log("<color=red>[플레이어 피격]</color>");
 
-                isHurtTriggered = true;
+                    // 본체 PlayerHealth를 찾아 데미지 처리를 호출
+                    PlayerHealth health = GetComponent<PlayerHealth>();
+                    if (health != null)
+                    {
+                        health.TakeDamage(1, Color.white, collision.gameObject, true);
+                    }
 
-                StartCoroutine(InvincibleBlinkRoutine());
+                    isHurtTriggered = true;
+                    StartCoroutine(InvincibleBlinkRoutine());
+                }
             }
         }
         private void OnTriggerExit2D(Collider2D collision)

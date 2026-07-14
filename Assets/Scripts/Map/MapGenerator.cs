@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
+
 public class MapGenerator : MonoBehaviour
 {
     public Tilemap tilemap;
@@ -9,7 +10,7 @@ public class MapGenerator : MonoBehaviour
     {
         if (tilemap == null || mapData == null || mapData.tiles == null)
         {
-            Debug.LogError("[MapGenerator] Å¸ÀÏ¸Ê ÄÄÆ÷³ÍÆ®³ª µ¥ÀÌÅÍ°¡ ´©¶ôµÇ¾ú½À´Ï´Ù.");
+            Debug.LogError("[MapGenerator] íƒ€ì¼ë§µ ì»´í¬ë„ŒíŠ¸ë‚˜ ë°ì´í„°ê°€ ëˆ„ë½ë˜ì—ˆìŠµë‹ˆë‹¤.");
             return;
         }
 
@@ -22,6 +23,6 @@ public class MapGenerator : MonoBehaviour
                 tilemap.SetTile(position, tilePrefabs[tileInfo.id]);
             }
         }
-        Debug.Log("[MapGenerator] Å¸ÀÏ¸Ê ¹èÄ¡ ¿Ï·á!");
+        Debug.Log("[MapGenerator] íƒ€ì¼ë§µ ë°°ì¹˜ ì™„ë£Œ!");
     }
 }
