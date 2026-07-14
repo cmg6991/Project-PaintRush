@@ -11,19 +11,29 @@ public class MonsterTileCol : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        FillColor monsterColor = collision.GetComponent<FillColor>();
-
-        if (monsterColor == null)
-            return;
-
         if (colorMinus.IsAbsorbed)
             return;
 
-        if (monsterColor.HasColor)
+        FillColor fillColor = collision.GetComponent<FillColor>();
+
+        if (fillColor == null)
             return;
 
-        colorMinus.Play();
+        switch (collision.tag)
+        {
+            case "Monster":
+                // 몬스터가 이미 색이 있으면 흡수하지 않음
+                if (fillColor.HasColor)
+                    return;
 
-        monsterColor.SetColor(colorMinus.OriginalColor);
+                colorMinus.Play();
+                fillColor.SetColor(colorMinus.OriginalColor);
+                break;
+
+            case "Gun":
+                colorMinus.Play();
+                fillColor.GunSetColor(colorMinus.OriginalColor);
+                break;
+        }
     }
 }
