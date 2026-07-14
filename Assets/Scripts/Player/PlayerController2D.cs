@@ -32,7 +32,6 @@ namespace Project.Player
         private Rigidbody2D rb;
         private PlayerInputHandler inputHandler;
         private SpriteRenderer spriteRenderer;                                // 스프라이트를 투명하게 만들기 위함
-        private CapsuleCollider2D playerCollider;
         private bool isGrounded;                                              // 땅에 붙어있나
         private float originalGravityScale;                                   // 사다리에서 혹은 행거에서 떨어질때 중력 조절           
 
@@ -74,7 +73,7 @@ namespace Project.Player
 
             if (isGrounded)                         // 땅에 발이 닿으면 오브젝트 탈출 후 낙하상태 해제
             {
-                isFallingFromObject = false;        
+                isFallingFromObject = false;
             }
 
             // Print Debug Log
@@ -130,9 +129,9 @@ namespace Project.Player
             }
 
             // 행거 범위 안이고 윗키를 눌렀을시
-            if (isInsideHanger && currentHangerCollider != null && inputHandler.MoveInput.y > 0.1f && !isClimbing)
+            if (isInsideHanger && currentHangerCollider != null && inputHandler.MoveInput.y > 0.1f)
             {
-                if(!isHanging)
+                if (!isHanging)
                 {
                     float playerX = transform.position.x;
                     Vector3 colliderCenter = currentHangerCollider.bounds.center;
@@ -159,7 +158,7 @@ namespace Project.Player
 
                     rb.linearVelocity = Vector2.zero;
                 }
-                
+
                 // 손잡이에 매달리는중
                 isHanging = true;
                 isClimbing = false;
@@ -184,8 +183,8 @@ namespace Project.Player
                 }
 
                 // 바닥 탈출
-                else if (isGrounded && transform.position.y < ladderCenterY 
-                    && inputHandler.MoveInput.y <= 0.1f 
+                else if (isGrounded && transform.position.y < ladderCenterY
+                    && inputHandler.MoveInput.y <= 0.1f
                     && (inputHandler.MoveInput.y < -0.1f || Mathf.Abs(inputHandler.MoveInput.x) > 0.1f))
                 {
                     isClimbing = false;
@@ -220,7 +219,7 @@ namespace Project.Player
                 float moveY = inputHandler.MoveInput.y;
                 rb.linearVelocity = new Vector2(0f, moveY * climbSpeed);
 
-                if(Mathf.Abs(moveY) > 0.1f)
+                if (Mathf.Abs(moveY) > 0.1f)
                 {
                     // sin 파로 사다리로 움직일때만 흔들어줌
                     float angle = Mathf.Sin(Time.time * 15f) * 10f;
@@ -268,8 +267,8 @@ namespace Project.Player
         // Check Ladder Collision 
         private void OnTriggerEnter2D(Collider2D collision)
         {
-            if (collision.gameObject.layer == LayerMask.NameToLayer("Item")) return;
             if (collision.GetComponent<ColorDropItem>() != null) return;
+
             if (collision.CompareTag("Enemy") && collision.isTrigger) return;
 
             if (collision.CompareTag("Ladder"))
@@ -296,13 +295,8 @@ namespace Project.Player
         }
         private void OnTriggerExit2D(Collider2D collision)
         {
-            if (collision.transform.IsChildOf(transform)) return;
-            if(collision.GetComponent<ColorDropItem>() != null)  return;
-
-            // 탈출할 때도 내 본체 캡슐이 완전히 이탈한 상태인지 검증하여 센서 조기 이탈 버그 차단
-            if (playerCollider != null && playerCollider.BoundsIntersect(collision.bounds))
+            if (collision.GetComponent<ColorDropItem>() != null)
             {
-                // 아직 본체 캡슐이 사다리나 행거 안에 완전히 겹쳐 있다면 나간 것으로 처리하지 않음 (센서만 빠져나간 상태)
                 return;
             }
 
@@ -327,7 +321,7 @@ namespace Project.Player
 
             while (timer < invincibleDuration)
             {
-                if(spriteRenderer != null)
+                if (spriteRenderer != null)
                 {
                     float currentAlpha = spriteRenderer.color.a == 1f ? 0.2f : 1f;
                     spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, currentAlpha);
@@ -355,15 +349,6 @@ namespace Project.Player
                 Gizmos.color = Color.red;
                 Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
             }
-        }
-    }
-
-    public static class Collider2DExtensions
-    {
-        public static bool BoundsIntersect(this Collider2D source, Bounds targetBounds)
-        {
-            if (source == null) return false;
-            return source.bounds.Intersects(targetBounds);
         }
     }
 }

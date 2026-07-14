@@ -2,7 +2,7 @@ using System.IO;
 using UnityEngine;
 
 [System.Serializable]
-public class TileData { public int id; public int x; public int y; }
+public class TileData { public int id; public int x; public int y; public string color; }
 
 [System.Serializable]
 public class MapData { public TileData[] tiles; }
@@ -17,6 +17,8 @@ public class DataManager : Singleton<DataManager>
     {
         base.Awake();
         // 추가적인 초기화 코드들...
+
+
     }
 
     public void LoadMapFromJson(string fileName)
