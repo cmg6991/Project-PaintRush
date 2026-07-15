@@ -15,12 +15,11 @@ GameObject:
   - component: {fileID: 8805637147778564622}
   - component: {fileID: 8427046803644218293}
   - component: {fileID: 1870195073150530765}
-feature/myeongki
+  - component: {fileID: 7758758176192792443}
   - component: {fileID: 39937661720411949}
   - component: {fileID: 2255208213904780210}
-  - component: {fileID: 7758758176192792443}
   - component: {fileID: 7011519852887212104}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Ghost
   m_TagString: Monster
   m_Icon: {fileID: 0}
@@ -36,7 +35,7 @@ Transform:
   m_GameObject: {fileID: 1153601307852431748}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.25, y: -1.61, z: 0}
+  m_LocalPosition: {x: -1.04, y: -0.03, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -181,8 +180,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAI
   hitSpriteTime: 0.15
   deadSpriteTime: 0.3
+  stopWhileHit: 0
   currentState: 0
   currentElement: 0
+  redElementColor: {r: 1, g: 0, b: 0, a: 1}
+  blueElementColor: {r: 0, g: 0, b: 1, a: 1}
+  yellowElementColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorTolerance: 0.08
   groundCheck: {fileID: 0}
   wallCheck: {fileID: 0}
   groundLayer:
@@ -193,29 +197,35 @@ MonoBehaviour:
   patrolRange: 5
   patrolTurnCooldown: 0.2
   randomStartDirection: 1
-  patrolSpeed: 1.8
-  chaseSpeed: 2.5
-  detectRange: 7
+  patrolSpeed: 1.5
+  chaseSpeed: 2.3
+  detectRange: 5
   attackRange: 0.4
   noticeTime: 0.5
   turnDelay: 0.4
   searchTime: 1.2
-  attackCooldown: 1.5
+  attackDamage: 1
+  attackCooldown: 1.8
+  attackTrigger: {fileID: 0}
   canRunAway: 1
-  runAwayHp: 2
+  runAwayHp: 1
   runAwaySpeed: 2.8
-  maxHp: 5
+  runAwayDistance: 6
+  runAwayDuration: 2.5
+  maxHp: 2
   noticeIcon: {fileID: 1586952318732145632}
   runAwayIcon: {fileID: 5143647048022552642}
+  paletteIcon: {fileID: 0}
   defaultDropPrefab: {fileID: 1719896524428501687, guid: 58db9cf4d4a698f4b9dc84b5ef96977b, type: 3}
   redDropPrefab: {fileID: 1719896524428501687, guid: cdaf1545c2a684c46a3500ac3ef23ab5, type: 3}
   blueDropPrefab: {fileID: 1719896524428501687, guid: 493b3b82425a53d41927b7d6abcd5888, type: 3}
   yellowDropPrefab: {fileID: 1719896524428501687, guid: 1e07116d06f58514fb297434e702d62b, type: 3}
+  paintDropChance: 0.7
   hasPaletteItem: 0
   paletteItemPrefab: {fileID: 0}
-  paintDropChance: 0.7
   player: {fileID: 0}
-  fillcolor: {fileID: 0}
+  fillColor: {fileID: 0}
+  monsterManager: {fileID: 0}
 --- !u!114 &8427046803644218293
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,37 +279,7 @@ MonoBehaviour:
   deadSprite: {fileID: 3265116749355564653, guid: dc67d1d05548b614f80899b4ed6b2579, type: 3}
   moveFrameInterval: 0.2
   facesRightByDefault: 0
-feature/myeongki
---- !u!114 &39937661720411949
-
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1153601307852431748}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
- feature/myeongki
-  m_Script: {fileID: 11500000, guid: af9f6c31fe8079049bc894a7880b3ab3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Gradation
---- !u!114 &2255208213904780210
-
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1153601307852431748}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-feature/myeongki
-  m_Script: {fileID: 11500000, guid: 00b52dc1544996b4f82898db72c4d51a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FillColor
 --- !u!61 &7758758176192792443
-
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -333,9 +313,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-feature/myeongki
-  m_Offset: {x: 0, y: -0.56878257}
-
+  m_Offset: {x: 0, y: -0.29520822}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -345,11 +323,33 @@ feature/myeongki
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
- feature/myeongki
-  m_Size: {x: 0.51, y: 1.8675647}
+  m_Size: {x: 1, y: 1.5904162}
   m_EdgeRadius: 0
+--- !u!114 &39937661720411949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153601307852431748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af9f6c31fe8079049bc894a7880b3ab3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2255208213904780210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153601307852431748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b52dc1544996b4f82898db72c4d51a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &7011519852887212104
-
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -530,7 +530,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2, y: 2}
+  m_Size: {x: 0.55, y: 0.8}
   m_EdgeRadius: 0
 --- !u!114 &7408318927167950386
 MonoBehaviour:
@@ -544,8 +544,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e257281d3ab365439e312df5e231114, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackTrigger
-  damage: 1
-  damageInterval: 1
 --- !u!1 &5143647048022552642
 GameObject:
   m_ObjectHideFlags: 0

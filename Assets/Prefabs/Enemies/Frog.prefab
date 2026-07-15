@@ -112,7 +112,7 @@ GameObject:
   - component: {fileID: 4643946212496530276}
   m_Layer: 6
   m_Name: Frog
-  m_TagString: Untagged
+  m_TagString: Monster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -126,7 +126,7 @@ Transform:
   m_GameObject: {fileID: 2198724670472549822}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.88, y: -0.5, z: 0}
+  m_LocalPosition: {x: 1.6683233, y: 0.63128376, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -272,8 +272,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAI
   hitSpriteTime: 0.15
   deadSpriteTime: 0.3
+  stopWhileHit: 0
   currentState: 0
   currentElement: 0
+  redElementColor: {r: 1, g: 0, b: 0, a: 1}
+  blueElementColor: {r: 0, g: 0, b: 1, a: 1}
+  yellowElementColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorTolerance: 0.08
   groundCheck: {fileID: 0}
   wallCheck: {fileID: 0}
   groundLayer:
@@ -284,29 +289,35 @@ MonoBehaviour:
   patrolRange: 5
   patrolTurnCooldown: 0.2
   randomStartDirection: 1
-  patrolSpeed: 2
-  chaseSpeed: 2.5
-  detectRange: 4
+  patrolSpeed: 1.5
+  chaseSpeed: 2.2
+  detectRange: 4.5
   attackRange: 0.4
   noticeTime: 0.5
   turnDelay: 0.4
   searchTime: 1.2
-  attackCooldown: 1.5
+  attackDamage: 1
+  attackCooldown: 1.6
+  attackTrigger: {fileID: 0}
   canRunAway: 1
   runAwayHp: 2
   runAwaySpeed: 2.8
-  maxHp: 5
+  runAwayDistance: 6
+  runAwayDuration: 2.5
+  maxHp: 3
   noticeIcon: {fileID: 129329972008183851}
   runAwayIcon: {fileID: 6730673250842525683}
+  paletteIcon: {fileID: 0}
   defaultDropPrefab: {fileID: 1719896524428501687, guid: 58db9cf4d4a698f4b9dc84b5ef96977b, type: 3}
   redDropPrefab: {fileID: 1719896524428501687, guid: cdaf1545c2a684c46a3500ac3ef23ab5, type: 3}
   blueDropPrefab: {fileID: 1719896524428501687, guid: 493b3b82425a53d41927b7d6abcd5888, type: 3}
   yellowDropPrefab: {fileID: 1719896524428501687, guid: 1e07116d06f58514fb297434e702d62b, type: 3}
+  paintDropChance: 0.7
   hasPaletteItem: 0
   paletteItemPrefab: {fileID: 0}
-  paintDropChance: 0.7
   player: {fileID: 0}
-  fillcolor: {fileID: 0}
+  fillColor: {fileID: 0}
+  monsterManager: {fileID: 0}
 --- !u!114 &9185143608774973791
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -642,7 +653,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2, y: 2}
+  m_Size: {x: 0.5, y: 0.7}
   m_EdgeRadius: 0
 --- !u!114 &4379420007570854437
 MonoBehaviour:
@@ -656,5 +667,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e257281d3ab365439e312df5e231114, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackTrigger
-  damage: 1
-  damageInterval: 1
