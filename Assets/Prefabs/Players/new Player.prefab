@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 478723301456730950}
   - component: {fileID: 6766338757532620454}
   - component: {fileID: 3100511534458572842}
-  m_Layer: 0
+  - component: {fileID: 359228729887965597}
+  m_Layer: 7
   m_Name: MagnetSensor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,6 +97,19 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &359228729887965597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872609893571092837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71dc9bb2594634041911899b5189618c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMagnet
+  initialPullSpeed: 5
 --- !u!1 &4192196351404308742
 GameObject:
   m_ObjectHideFlags: 0
@@ -113,9 +127,9 @@ GameObject:
   - component: {fileID: 6352660176712310350}
   - component: {fileID: 7131710060668765626}
   - component: {fileID: 198943563998556848}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: item_gun_0
-  m_TagString: Untagged
+  m_TagString: Gun
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -184,7 +198,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 8
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2432502294506506857, guid: f96ce6f96440c1644b2e090dd52df174, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -346,7 +360,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7606967591474504880}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: GroundCheckPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -418,7 +432,7 @@ GameObject:
   - component: {fileID: 724057288243133151}
   - component: {fileID: 3317165725029823759}
   - component: {fileID: 3045484866681322435}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: new Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -518,7 +532,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 3
+  m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 6a963085b63a0d14ca9a3f246e31129f, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -722,7 +736,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5817995784864917343}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: GunPivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}

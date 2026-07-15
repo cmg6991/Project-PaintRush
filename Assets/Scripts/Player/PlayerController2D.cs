@@ -48,7 +48,8 @@ namespace Project.Player
         public bool isInsideHanger = false;                                   // 손잡이 잡고 있는가
         public bool isHanging = false;                                        // 손잡이 잡고있는중인가
 
-        private bool isFallingFromObject = false;                             // 점프로 탈출했을때 공중에 떠있나
+        private bool isFallingFromLadder = false;
+        private bool isFallingFromHanger = false;
 
         private Collider2D currentLadderCollider;                             // 충돌한 사다리와 행거의 중심점 좌표등을 빼옴
         private Collider2D currentHangerCollider;
@@ -75,20 +76,9 @@ namespace Project.Player
 
             if (isGrounded)                         // 땅에 발이 닿으면 오브젝트 탈출 후 낙하상태 해제
             {
-                isFallingFromObject = false;
+                isFallingFromLadder = false;
+                isFallingFromHanger = false;
             }
-
-            // Print Debug Log
-            //if (inputHandler.JumpTriggered)
-            //{
-            //    Collider2D hitCollider = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
-            //    string detectedObjectName = hitCollider != null ? hitCollider.name : "없음 (Null)";
-
-            //    Debug.Log($"<color=cyan>[Jump 시스템 디버그]</color> " +
-            //              $"스페이스바 입력: {inputHandler.JumpTriggered} | " +
-            //              $"isGrounded(땅인가?): {isGrounded} | " +
-            //              $"감지된 바닥 오브젝트: {detectedObjectName}");
-            //}
 
             // 땅에 있고, 사다리/행거 안 탈 때 점프 키 누르면 Y축위로 속도를 줌
             if (inputHandler.JumpTriggered && isGrounded && !isClimbing && !isHanging)
@@ -127,7 +117,8 @@ namespace Project.Player
                 // 사다리 타는중
                 isClimbing = true;
                 isHanging = false;
-                isFallingFromObject = false;
+                isFallingFromLadder = false;
+                isFallingFromHanger = false;
             }
 
             // 행거 범위 안이고 윗키를 눌렀을시
@@ -164,7 +155,8 @@ namespace Project.Player
                 // 손잡이에 매달리는중
                 isHanging = true;
                 isClimbing = false;
-                isFallingFromObject = false;
+                isFallingFromLadder = false;
+                isFallingFromHanger = false;
             }
 
             // 사다리 타는 도중 벗어날때
@@ -199,12 +191,25 @@ namespace Project.Player
             // 사다리, 행거 도중 점프 눌러서 이탈
             if ((isClimbing || isHanging) && inputHandler.JumpTriggered)
             {
+                bool wasClimbing = isClimbing;
+                bool wasHanging = isHanging;
+
                 isClimbing = false;
                 isHanging = false;
                 rb.gravityScale = originalGravityScale;
 
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce * 0.7f);
-                isFallingFromObject = true;
+                if(wasClimbing)
+                {
+                    isFallingFromLadder = true;
+                    isFallingFromHanger = false;
+                }
+                else if (wasHanging)
+                {
+                    isFallingFromHanger = true;
+                    isFallingFromLadder = false;
+                }
+
 
                 transform.rotation = Quaternion.Euler(0f, IsFacingRight ? 0f : 180f, 0f);
             }
@@ -243,7 +248,7 @@ namespace Project.Player
                 transform.rotation = Quaternion.Euler(0f, IsFacingRight ? 0f : 180f, 0f);
 
                 // 떨어지는 중이면 입력 무시
-                if (isFallingFromObject)
+                if (isFallingFromLadder)
                 {
                     rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
                 }

@@ -3289,6 +3289,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 643513439215655364, guid: 7dd368b7fe2a00d4caaa7ecac74ab627, type: 3}
+      propertyPath: m_TagString
+      value: Monster
+      objectReference: {fileID: 0}
     - target: {fileID: 2540531999560551335, guid: 7dd368b7fe2a00d4caaa7ecac74ab627, type: 3}
       propertyPath: attackRange
       value: 0.2
@@ -7926,22 +7930,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: -4156153270462206780, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: -1490285669068776394, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 724057288243133151, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
-      propertyPath: gunTransform
-      value: 
-      objectReference: {fileID: 1364392186}
-    - target: {fileID: 872609893571092837, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
     - target: {fileID: 2019474185779283751, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.2
@@ -7982,41 +7970,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3718788111682283646, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
-      propertyPath: m_GravityScale
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4192196351404308742, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 4871722620419045878, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
-      propertyPath: m_Layer
-      value: 7
+    - target: {fileID: 2138128436596269454, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
+      propertyPath: maxHp
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5372951278261645871, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 5372951278261645871, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 7550368728581958492, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 8903276482467688692, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
-      propertyPath: m_SortingOrder
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5372951278261645871, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1936768570}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
 --- !u!1 &1269024859
 GameObject:
@@ -8528,11 +8493,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58497ca6379faa349b8a54a84e411cc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RandomSplash
---- !u!4 &1364392186 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 9167460471162723402, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
-  m_PrefabInstance: {fileID: 1207553112}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1367900315
 GameObject:
   m_ObjectHideFlags: 0
@@ -10612,7 +10572,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 643513439215655364, guid: a8f70397d7af667488197b208d0627ec, type: 3}
       propertyPath: m_TagString
-      value: Enemy
+      value: Monster
       objectReference: {fileID: 0}
     - target: {fileID: 2540531999560551335, guid: a8f70397d7af667488197b208d0627ec, type: 3}
       propertyPath: maxHp
@@ -11817,24 +11777,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 939cdca79b9d1aa4a94a43968c63d877, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaintableBrush
---- !u!1 &1936768558 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5372951278261645871, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
-  m_PrefabInstance: {fileID: 1207553112}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1936768570
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1936768558}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 812e53cc080c23446973ed086a87ad6d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
-  maxHp: 5
 --- !u!1 &1969827875
 GameObject:
   m_ObjectHideFlags: 0
