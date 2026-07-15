@@ -14,7 +14,7 @@ public class RandomSplash : MonoBehaviour
         GameObject prefab = targetArray[Random.Range(0, targetArray.Length)];
         GameObject obj = Instantiate(prefab, mousePos, Quaternion.identity);
 
-        float scale = Random.Range(0.7f, 1.5f);
+        float scale = Random.Range(0.9f, 1.5f);
         obj.transform.localScale = Vector3.one * scale;
 
         float rot = Random.Range(0f, 360f);
