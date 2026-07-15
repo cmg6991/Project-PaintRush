@@ -11,42 +11,37 @@ public class PlayerHeartUI : MonoBehaviour, IDamageable
 
     private void Awake()
     {
-        // 같은 오브젝트에 붙어있는 Image 컴포넌트를 자동으로 확인
         if (heartFillImage == null)
         {
             heartFillImage = GetComponent<Image>();
         }
 
-        // 에디터 설정을 잊었더라도 코드로 강제 Filled 타입 및 수직 깎임 세팅을 적용
         if (heartFillImage != null)
         {
             heartFillImage.type = Image.Type.Filled;
             heartFillImage.fillMethod = Image.FillMethod.Vertical;
-            heartFillImage.fillOrigin = (int)Image.OriginVertical.Bottom; // 아래에서부터 채움
+            heartFillImage.fillOrigin = (int)Image.OriginVertical.Bottom;
         }
 
-        // 상위 부모 오브젝트에서 PlayerHealth 컴포넌트를 캐싱해 둡니다.
+        // 상위 부모 오브젝트(new Player)에서 PlayerHealth 컴포넌트를 캐싱
         playerHealth = GetComponentInParent<PlayerHealth>();
     }
 
     private void Start()
     {
-        // 플레이어가 뒤집혀도 머리 위 UI는 회전 없음
         initialRotation = transform.rotation;
     }
 
     private void LateUpdate()
     {
-        // 플레이어 본체가 좌우 Flip 등으로 회전해도 UI는 회전없음
         transform.rotation = initialRotation;
     }
 
-    // IDamageable 인터페이스 구현: 머리 위 하트 피격 시 본체로 데미지 토스
+    // 하트 자체가 피격당했을 때, 동료분의 PlayerHealth로 데미지
     public void TakeDamage(int damage, Color attackColor, GameObject attacker, bool ignoreElement)
     {
         if (playerHealth != null)
         {
-            // 본체 PlayerHealth로 데미지 처리를 위임합니다.
             playerHealth.TakeDamage(damage, attackColor, attacker, ignoreElement);
         }
         else
@@ -55,16 +50,15 @@ public class PlayerHeartUI : MonoBehaviour, IDamageable
         }
     }
 
-    // PlayerHealth에서 체력 변화가 완료된 후 호출하여 UI를 갱신하는 함수
+    // 동료분의 PlayerHealth에서 체력이 깎인 뒤 이 함수를 호출해 줍니다.
     public void UpdateHeartFill(int currentHp, int maxHp)
     {
         if (heartFillImage == null) return;
 
-        // 체력 비율 계산 Filled Image의 fillAmount에 대입
         float hpRatio = (float)currentHp / maxHp;
         heartFillImage.fillAmount = Mathf.Clamp01(hpRatio);
 
-        // 물감이 다 빠질수록 색상도 흐려짐 (체력 0에 가까워질수록 원래 흰색 이미지로 돌아가거나 연해짐)
+        // 물감이 다 빠질수록 색상도 흐려짐
         heartFillImage.color = Color.Lerp(Color.white, Color.red, hpRatio);
     }
 }

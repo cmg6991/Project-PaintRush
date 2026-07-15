@@ -417,6 +417,7 @@ GameObject:
   - component: {fileID: 4552268368394580867}
   - component: {fileID: 724057288243133151}
   - component: {fileID: 3317165725029823759}
+  - component: {fileID: 3045484866681322435}
   m_Layer: 0
   m_Name: new Player
   m_TagString: Player
@@ -698,6 +699,20 @@ MonoBehaviour:
   isInsideHanger: 0
   isHanging: 0
   isHurtTriggered: 0
+--- !u!114 &3045484866681322435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5372951278261645871}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 812e53cc080c23446973ed086a87ad6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  maxHp: 5
+  heartUI: {fileID: 8060512660189146225}
 --- !u!1 &7550368728581958492
 GameObject:
   m_ObjectHideFlags: 0

@@ -291,11 +291,15 @@ namespace Project.Player
 
                     Debug.Log("<color=red>[플레이어 피격]</color>");
 
-                    // 본체 PlayerHealth를 찾아 데미지 처리를 호출
+                    // 데미지 처리를 호출
                     PlayerHealth health = GetComponent<PlayerHealth>();
                     if (health != null)
                     {
                         health.TakeDamage(1, Color.white, collision.gameObject, true);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[PlayerController2D] 플레이어 본체에서 PlayerHealth 컴포넌트를 찾을 수 없습니다.");
                     }
 
                     isHurtTriggered = true;
@@ -305,10 +309,7 @@ namespace Project.Player
         }
         private void OnTriggerExit2D(Collider2D collision)
         {
-            if (collision.GetComponent<ColorDropItem>() != null)
-            {
-                return;
-            }
+            if (collision.GetComponent<ColorDropItem>() != null) return;
 
             if (collision.CompareTag("Ladder"))
             {
@@ -329,6 +330,7 @@ namespace Project.Player
             isInvincible = true;
             float timer = 0f;
 
+            // 피격시 무적시간
             while (timer < invincibleDuration)
             {
                 if (spriteRenderer != null)
