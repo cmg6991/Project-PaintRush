@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 478723301456730950}
   - component: {fileID: 6766338757532620454}
   - component: {fileID: 3100511534458572842}
+  - component: {fileID: 2733038573058413563}
   m_Layer: 0
   m_Name: MagnetSensor
   m_TagString: Untagged
@@ -96,6 +97,19 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &2733038573058413563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872609893571092837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71dc9bb2594634041911899b5189618c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMagnet
+  initialPullSpeed: 5
 --- !u!1 &4192196351404308742
 GameObject:
   m_ObjectHideFlags: 0
