@@ -5,7 +5,10 @@ using UnityEngine;
 public class MonsterAttackTrigger : MonoBehaviour
 {
     // 실제 공격 시점과 쿨타임은 MonsterAI가 관리한다.
-    // 이 컴포넌트는 공격 범위 안에 있는 PlayerHealth만 추적한다.
+    // 이 컴포넌트는 공격 범위 안에 있는 플레이어의 "본체 Collider"만 추적한다.
+    //
+    // 플레이어 자식의 MagnetSensor처럼 큰 Trigger Collider까지 플레이어로
+    // 인식하면 멀리 떨어져 있어도 공격하는 문제가 생기므로 Trigger Collider는 제외한다.
 
     private readonly Dictionary<Collider2D, PlayerHealth> targetsByCollider =
         new Dictionary<Collider2D, PlayerHealth>();
@@ -39,8 +42,6 @@ public class MonsterAttackTrigger : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D other)
     {
-        // Enter 이벤트가 누락되거나 런타임에 오브젝트가 활성화된 경우에도
-        // 현재 겹쳐 있는 플레이어를 다시 등록한다.
         TrackTarget(other);
     }
 
@@ -79,6 +80,7 @@ public class MonsterAttackTrigger : MonoBehaviour
                 playerHealth == null ||
                 !targetCollider.enabled ||
                 !targetCollider.gameObject.activeInHierarchy ||
+                targetCollider.isTrigger ||
                 !IsActuallyOverlapping(targetCollider);
 
             if (isInvalid)
@@ -105,6 +107,12 @@ public class MonsterAttackTrigger : MonoBehaviour
 
     private void TrackTarget(Collider2D other)
     {
+        // MagnetSensor, GroundCheck 등 플레이어 자식의 센서용 Trigger는 무시한다.
+        if (other == null || other.isTrigger)
+        {
+            return;
+        }
+
         PlayerHealth playerHealth = FindPlayerHealth(other);
 
         if (playerHealth == null)
