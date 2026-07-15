@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 8642495969322162883}
   - component: {fileID: 2042300153991318928}
   m_Layer: 0
-  m_Name: splash7
-  m_TagString: Untagged
+  m_Name: splash4
+  m_TagString: Splash
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -7297812266498129303, guid: 8fb14d3e4ab4a1e49aecd15d3f0df3d7, type: 3}
+  m_Sprite: {fileID: 8056707015453053104, guid: 7e10e6e15a60018468347d29e6e0f540, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
