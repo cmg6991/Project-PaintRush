@@ -321,8 +321,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     private void HandlePlayerDetected(float distance)
     {
-        if (!hasNoticedPlayer &&
-            currentState == MonsterState.Patrol)
+        if (!hasNoticedPlayer && currentState == MonsterState.Patrol)
         {
             EnterNotice();
             return;
@@ -333,11 +332,15 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
+        // 실제 공격 가능 여부는 거리 수치보다 AttackRange 트리거를 우선한다.
+        // 기존에는 attackRange가 0.4처럼 작으면 플레이어가 트리거 안에 있어도
+        // 계속 Chase 상태에 머무는 문제가 있었다.
         bool hasAttackTarget =
             attackTrigger != null &&
             attackTrigger.HasTarget;
 
-        currentState = hasAttackTarget
+        currentState = hasAttackTarget ||
+                       distance <= attackRange
             ? MonsterState.Attack
             : MonsterState.Chase;
     }

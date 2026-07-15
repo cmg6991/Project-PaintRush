@@ -74,7 +74,6 @@ public class Shoot : MonoBehaviour
             if (paintable == null)
                 continue;
 
-feature/myeongki
             // 문이 겹쳐 있으면 일반 벽은 무시
             if (hitDoor && hit.collider.GetComponent<DoorOpen>() == null)
                 continue;

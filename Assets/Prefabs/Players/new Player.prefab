@@ -687,7 +687,7 @@ MonoBehaviour:
   groundCheckPoint: {fileID: 7606967591474504880}
   groundLayer:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 0
   groundCheckRadius: 0.2
   climbSpeed: 4
   hangerYOffset: 0.6
