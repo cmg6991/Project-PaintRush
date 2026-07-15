@@ -1,6 +1,5 @@
 using Project.Player;
 using System.Collections;
-using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,7 +13,7 @@ public class PlayerAttack : MonoBehaviour
 
     [Header("--- Recoil (반동) Settings ---")]
     [SerializeField] private float recoilForce = 0.15f;         // 총이 뒤로 밀리는 거리
-    [SerializeField] private float recoilDuration = 0.05f;      // 반동 속도 (얼마나 빨리 밀렸나)
+    [SerializeField] private float recoilDuration = 0.05f;      // 반동 속도
 
     [Header("--- Gun Sway(총기 흔들림) Settings ---")]
     [SerializeField] private float swaySpeed = 14f;             // 달릴때 흔들리는 속도
@@ -25,32 +24,26 @@ public class PlayerAttack : MonoBehaviour
 
     public string currentWeaponColor = "White";
 
-    [Header("--- Paint Inventory ---")]                         // 플레이어가 보유한 색깔별 물감
+    [Header("--- Paint Inventory ---")]
     public int redInkCount = 0;
     public int greenInkCount = 0;
     public int blueInkCount = 0;
 
     private PlayerController2D playerController;
-    private PlayerInputHandler inputHandler;                    // 입력 확인되야 총이 흔들림
-    private Vector3 gunOriginalLocalPos;                        // 총의 원래 자리 기억용
-    private bool isRecoiling = false;                           // 반동 연출용
+    private PlayerInputHandler inputHandler;
+    private Vector3 gunOriginalLocalPos;
+    private bool isRecoiling = false;
 
     private Camera mainCamera;
-
-    //public Shoot shoot;
 
     private void Awake()
     {
         playerController = GetComponent<PlayerController2D>();
         inputHandler = GetComponent<PlayerInputHandler>();
-
-        //shoot = GetComponent<Shoot>();
-
         mainCamera = Camera.main;
 
-        if(gunTransform != null)
+        if (gunTransform != null)
         {
-            // 게임 시작시 총 좌표 기억
             gunOriginalLocalPos = gunTransform.localPosition;
         }
     }
@@ -58,19 +51,17 @@ public class PlayerAttack : MonoBehaviour
     void Update()
     {
         HandleAiming();
-
         HandleGunSway();
 
-        // 마우스 왼쪽 클릭 감지
-        if(Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+        // 여기서는 오직 마우스 클릭 시 "총이 뒤로 밀리는 반동 연출" 수행
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            // 매달려 있을 때는 하지 않음
-            if (playerController != null && playerController.IsClimbingOrHanging)
-            {
-                return;
-            }
+            if (playerController != null && playerController.IsClimbingOrHanging) return;
 
-            AttackWithLaser();
+            if (gunTransform != null && !isRecoiling)
+            {
+                StartCoroutine(ApplyRecoil());
+            }
         }
     }
 
@@ -78,44 +69,41 @@ public class PlayerAttack : MonoBehaviour
     {
         if (playerController == null || gunPivot == null || mainCamera == null) { return; }
 
-        // 화면상 마우스 좌표를 게임 공간 좌표로 변환
+        // 마우스 화면 좌표 2D 월드 좌표로 변환
         Vector3 mouseScreenPos = Input.mousePosition;
-        Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(new Vector3(mouseScreenPos.x, mouseScreenPos.y, 10f));
+        mouseScreenPos.z = Mathf.Abs(mainCamera.transform.position.z);
+        Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(mouseScreenPos);
+        mouseWorldPos.z = gunPivot.position.z; // 평면 축 일치
 
-        // 총기 손잡이(pivot)에서 마우스를 향하는 화살표
-        Vector2 targetDirection = (mouseWorldPos - gunPivot.position).normalized;
-        // 플레이어 시선 방향에 따른 기준 정면 화살표
-        Vector2 forwardDirection = playerController.IsFacingRight ? Vector2.right : Vector2.left;
+        // 캐릭터 회전 상태와 상관없이 월드상의 마우스 위치를 똑바로 쳐다보게 방향 벡터를 직주입
+        Vector3 targetDirection = (mouseWorldPos - gunPivot.position).normalized;
 
-        // 마우스가 정면보다 위에 있으면 +, 정면보다 아래에 있으면 -
-        float rawAngle = Vector2.SignedAngle(forwardDirection, targetDirection);
+        // 본체 회전으로 축이 뒤집히는것 고려, 방향벡터 주입
+        gunPivot.right = targetDirection;
 
-        // Mathf.Clamp를 이용해 위아래 30도 이내로 각도를 강제 제한
-        // 마우스가 50도 위로 올라가도, 이 함수를 거치면 무조건 30도에서 딱 멈춤
-        float clampedAngle = Mathf.Clamp(rawAngle, -30f, 30f);
+        // 인스펙터창에 위아래 30도 범위를 강제 제한(Clamp)하기 위해 로컬 Euler 각도만 정규화
+        Vector3 localEuler = gunPivot.localRotation.eulerAngles;
+        float currentAngle = localEuler.z;
 
-        if(!playerController.IsFacingRight)
-        {
-            clampedAngle *= -1f;
-        }
+        // 유니티는 내부적으로 각도를 0~360도로 처리하므로 -180~180도 범위로 보정
+        if (currentAngle > 180f) currentAngle -= 360f;
 
-        // 최종 가둔 각도(Z축)를 총기 손잡이(gunPivot)의 회전값에 부드럽게 주입
+        // 기획 오프셋 제한 적용 (-30도 ~ 30도)
+        float clampedAngle = Mathf.Clamp(currentAngle, -30f, 30f);
+
+        // 정렬 완료된 각도를 회전값에 대입합니다. (대각선 튐 및 상하 역전 현상 완치)
         gunPivot.localRotation = Quaternion.Euler(0f, 0f, clampedAngle);
     }
 
     private void HandleGunSway()
     {
-        if (gunTransform == null || inputHandler == null){return;}
+        if (gunTransform == null || inputHandler == null) { return; }
 
-        // 플레이어가 좌우로 움직이고 있나 체크
         bool isMoving = Mathf.Abs(inputHandler.MoveInput.x) > 0.1f;
 
-        // 플레이어가 땅에 붙어있고 걷는 중일때만 흔들림
         if (isMoving && playerController != null && playerController.IsGroundedToAnim)
         {
-            // 흔들림 사인파로
             float swayY = Mathf.Sin(Time.time * swaySpeed) * swayAmount;
-
             gunTransform.localPosition = new Vector3(gunOriginalLocalPos.x, gunOriginalLocalPos.y + swayY, gunOriginalLocalPos.z);
         }
         else
@@ -124,43 +112,14 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    void AttackWithLaser()
-    {
-        // 총 반동 연출
-        if(gunTransform != null && !isRecoiling)
-        {
-            StartCoroutine(ApplyRecoil());
-        }
-
-        // 플레이어가 바라보는 방향 벡터
-        Vector2 fireDirection = attackPoint.right;
-
-        //// 총구에서 레이캐스트 발사
-        //RaycastHit2D hit = Physics2D.Raycast(attackPoint.position, fireDirection, attackRange, enemyLayer);
-
-        //Debug.DrawRay(attackPoint.position, fireDirection * attackRange, Color.magenta, 0.3f);
-
-        //if(hit.collider != null)
-        //{
-        //    // 몬스터 조준 감지 성공 확인
-        //    Debug.Log($"<color=orange>[레이저 조준 완료]</color> {hit.collider.name}를 조준했습니다!");
-
-        //        // 기타 색을 채우라고 지시하는 명령  <--------------- 여기에서 붙여서 사용하시면 되요
-        //}
-
-        //shoot.ShootPaint();
-    }
     private IEnumerator ApplyRecoil()
     {
         isRecoiling = true;
 
-        // 플레이어가 바라보는 방향의 반대 방향으로 총을 밈
         float directionSign = playerController.IsFacingRight ? -1f : 1f;
         Vector3 recoilOffset = new Vector3(directionSign * recoilForce, 0f, 0f);
-
         Vector3 targetRecoilPos = gunOriginalLocalPos + recoilOffset;
 
-        // 총을 순식간에 뒤로 밀어냄
         float elapsed = 0f;
         while (elapsed < recoilDuration)
         {
@@ -170,8 +129,6 @@ public class PlayerAttack : MonoBehaviour
         }
         gunTransform.localPosition = targetRecoilPos;
 
-
-        // 원래 위치로 총을 복귀
         elapsed = 0f;
         while (elapsed < recoilDuration * 2f)
         {
@@ -184,14 +141,10 @@ public class PlayerAttack : MonoBehaviour
         isRecoiling = false;
     }
 
-    // See AttackRange
     private void OnDrawGizmosSelected()
     {
         if (attackPoint == null) return;
         Gizmos.color = Color.cyan;
-
-        Vector3 direction = Application.isPlaying && playerController != null
-            && !playerController.IsFacingRight ? Vector3.left : Vector3.right;
         Gizmos.DrawLine(attackPoint.position, attackPoint.position + attackPoint.right * attackRange);
     }
 
@@ -199,24 +152,9 @@ public class PlayerAttack : MonoBehaviour
     {
         switch (colorName)
         {
-            case "Red":
-                redInkCount++;
-                Debug.Log($"<color=red>[물감 획득]</color> 빨간 물감 추가! 현재 개수 : {redInkCount}");
-                break;
-            case "Green":
-                greenInkCount++;
-                Debug.Log($"<color=red>[물감 획득]</color> 초록 물감 추가! 현재 개수 : {greenInkCount}");
-                break;
-            case "Blue":
-                blueInkCount++;
-                Debug.Log($"<color=red>[물감 획득]</color> 파란 물감 추가! 현재 개수 : {greenInkCount}");
-                break;
-            default:
-                Debug.LogWarning($" 알 수 없는 색상의 물감입니다: {colorName}");
-                break;
+            case "Red": redInkCount++; break;
+            case "Green": greenInkCount++; break;
+            case "Blue": blueInkCount++; break;
         }
-
-        // 팔레트 UI 갱신
-        // 다 모으면 펑 하고 전멸기 발동
     }
 }

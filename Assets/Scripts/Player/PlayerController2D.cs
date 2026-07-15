@@ -32,6 +32,7 @@ namespace Project.Player
         private Rigidbody2D rb;
         private PlayerInputHandler inputHandler;
         private SpriteRenderer spriteRenderer;                                // 스프라이트를 투명하게 만들기 위함
+        private CapsuleCollider2D playerCollider;                             // 본체 캡슐 콜라이더 캐싱용 변수
         private bool isGrounded;                                              // 땅에 붙어있나
         private float originalGravityScale;                                   // 사다리에서 혹은 행거에서 떨어질때 중력 조절           
 
@@ -62,6 +63,7 @@ namespace Project.Player
             rb = GetComponent<Rigidbody2D>();
             inputHandler = GetComponent<PlayerInputHandler>();
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            playerCollider = GetComponent<CapsuleCollider2D>();           // 캡슐 콜라이더 초기화
 
             originalGravityScale = rb.gravityScale;
         }
@@ -73,7 +75,7 @@ namespace Project.Player
 
             if (isGrounded)                         // 땅에 발이 닿으면 오브젝트 탈출 후 낙하상태 해제
             {
-                isFallingFromObject = false;        
+                isFallingFromObject = false;
             }
 
             // Print Debug Log
@@ -131,7 +133,7 @@ namespace Project.Player
             // 행거 범위 안이고 윗키를 눌렀을시
             if (isInsideHanger && currentHangerCollider != null && inputHandler.MoveInput.y > 0.1f)
             {
-                if(!isHanging)
+                if (!isHanging)
                 {
                     float playerX = transform.position.x;
                     Vector3 colliderCenter = currentHangerCollider.bounds.center;
@@ -158,7 +160,7 @@ namespace Project.Player
 
                     rb.linearVelocity = Vector2.zero;
                 }
-                
+
                 // 손잡이에 매달리는중
                 isHanging = true;
                 isClimbing = false;
@@ -183,8 +185,8 @@ namespace Project.Player
                 }
 
                 // 바닥 탈출
-                else if (isGrounded && transform.position.y < ladderCenterY 
-                    && inputHandler.MoveInput.y <= 0.1f 
+                else if (isGrounded && transform.position.y < ladderCenterY
+                    && inputHandler.MoveInput.y <= 0.1f
                     && (inputHandler.MoveInput.y < -0.1f || Mathf.Abs(inputHandler.MoveInput.x) > 0.1f))
                 {
                     isClimbing = false;
@@ -219,7 +221,7 @@ namespace Project.Player
                 float moveY = inputHandler.MoveInput.y;
                 rb.linearVelocity = new Vector2(0f, moveY * climbSpeed);
 
-                if(Mathf.Abs(moveY) > 0.1f)
+                if (Mathf.Abs(moveY) > 0.1f)
                 {
                     // sin 파로 사다리로 움직일때만 흔들어줌
                     float angle = Mathf.Sin(Time.time * 15f) * 10f;
@@ -281,24 +283,33 @@ namespace Project.Player
                 isInsideHanger = true;
                 currentHangerCollider = collision;
             }
-
-            else if (collision.CompareTag("Enemy"))
+            else if (collision.CompareTag("Monster"))
             {
-                if (isInvincible) return;
+                if (playerCollider != null && playerCollider.IsTouching(collision))
+                {
+                    if (isInvincible) return;
 
-                Debug.Log("<color=red>[플레이어 피격]</color>");
+                    Debug.Log("<color=red>[플레이어 피격]</color>");
 
-                isHurtTriggered = true;
+                    // 데미지 처리를 호출
+                    PlayerHealth health = GetComponent<PlayerHealth>();
+                    if (health != null)
+                    {
+                        health.TakeDamage(1, Color.white, collision.gameObject, true);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[PlayerController2D] 플레이어 본체에서 PlayerHealth 컴포넌트를 찾을 수 없습니다.");
+                    }
 
-                StartCoroutine(InvincibleBlinkRoutine());
+                    isHurtTriggered = true;
+                    StartCoroutine(InvincibleBlinkRoutine());
+                }
             }
         }
         private void OnTriggerExit2D(Collider2D collision)
         {
-            if(collision.GetComponent<ColorDropItem>() != null)
-            {
-                return;
-            }
+            if (collision.GetComponent<ColorDropItem>() != null) return;
 
             if (collision.CompareTag("Ladder"))
             {
@@ -319,9 +330,10 @@ namespace Project.Player
             isInvincible = true;
             float timer = 0f;
 
+            // 피격시 무적시간
             while (timer < invincibleDuration)
             {
-                if(spriteRenderer != null)
+                if (spriteRenderer != null)
                 {
                     float currentAlpha = spriteRenderer.color.a == 1f ? 0.2f : 1f;
                     spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, currentAlpha);

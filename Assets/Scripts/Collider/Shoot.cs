@@ -23,8 +23,12 @@ public class Shoot : MonoBehaviour
         if (!fillColor.HasColor)
             return;
 
-        Vector3 mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        // 마우스 월드 좌표 변환
+        Vector3 mouseScreenPos = Input.mousePosition;
+        mouseScreenPos.z = Mathf.Abs(Camera.main.transform.position.z);
+        Vector3 mouse = Camera.main.ScreenToWorldPoint(mouseScreenPos);
         mouse.z = 0;
+
         RaycastHit2D[] hits = Physics2D.RaycastAll(mouse, Vector2.zero);
 
         bool didPaint = false;
@@ -35,11 +39,9 @@ public class Shoot : MonoBehaviour
 
             Debug.Log("IPaintable 찾음: " + hit.collider.name);
 
-
             if (paintable != null)
             {
                 paintable.Paint(fillColor.CurrentColor, hit.point);
-
                 didPaint = true;
             }
         }
@@ -49,6 +51,9 @@ public class Shoot : MonoBehaviour
             fillColor.Consume(0.3f);
         }
 
-        smoke.PlayParticle(fillColor.CurrentColor);
+        if (smoke != null)
+        {
+            smoke.PlayParticle(fillColor.CurrentColor);
+        }
     }
 }
