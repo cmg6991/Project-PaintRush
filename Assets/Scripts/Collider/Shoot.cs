@@ -23,8 +23,12 @@ public class Shoot : MonoBehaviour
         if (!fillColor.HasColor)
             return;
 
-        Vector3 mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        // 마우스 월드 좌표 변환
+        Vector3 mouseScreenPos = Input.mousePosition;
+        mouseScreenPos.z = Mathf.Abs(Camera.main.transform.position.z);
+        Vector3 mouse = Camera.main.ScreenToWorldPoint(mouseScreenPos);
         mouse.z = 0;
+
         RaycastHit2D[] hits = Physics2D.RaycastAll(mouse, Vector2.zero);
 
         //bool didPaint = false;
@@ -70,6 +74,7 @@ public class Shoot : MonoBehaviour
             if (paintable == null)
                 continue;
 
+feature/myeongki
             // 문이 겹쳐 있으면 일반 벽은 무시
             if (hitDoor && hit.collider.GetComponent<DoorOpen>() == null)
                 continue;
@@ -81,6 +86,9 @@ public class Shoot : MonoBehaviour
         if (didPaint)
             fillColor.Consume(0.1f);
 
-        smoke.PlayParticle(fillColor.CurrentColor);
+        if (smoke != null)
+        {
+            smoke.PlayParticle(fillColor.CurrentColor);
+        }
     }
 }
