@@ -1,35 +1,118 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Collider2D))]
 public class MonsterAttackTrigger : MonoBehaviour
 {
-    [Header("Á¢ÃË µ¥¹ÌÁö")]
-    [SerializeField] private int damage = 1;
-    [SerializeField] private float damageInterval = 1f;
+    // ì‹¤ì œ ê³µê²© ì‹œì ê³¼ ì¿¨íƒ€ì„ì€ MonsterAIê°€ ê´€ë¦¬í•œë‹¤.
+    // ì´ ì»´í¬ë„ŒíŠ¸ëŠ” ê³µê²© ë²”ìœ„ ì•ˆì— ìˆëŠ” í”Œë ˆì´ì–´ì˜ "ë³¸ì²´ Collider"ë§Œ ì¶”ì í•œë‹¤.
+    //
+    // í”Œë ˆì´ì–´ ìì‹ì˜ MagnetSensorì²˜ëŸ¼ í° Trigger Colliderê¹Œì§€ í”Œë ˆì´ì–´ë¡œ
+    // ì¸ì‹í•˜ë©´ ë©€ë¦¬ ë–¨ì–´ì ¸ ìˆì–´ë„ ê³µê²©í•˜ëŠ” ë¬¸ì œê°€ ìƒê¸°ë¯€ë¡œ Trigger ColliderëŠ” ì œì™¸í•œë‹¤.
 
-    private readonly HashSet<PlayerHealth> playersInRange = new();
-    private Coroutine damageCoroutine;
+    private readonly Dictionary<Collider2D, PlayerHealth> targetsByCollider =
+        new Dictionary<Collider2D, PlayerHealth>();
+
+    private Collider2D attackCollider;
+
+    public bool HasTarget
+    {
+        get
+        {
+            return TryGetTarget(out _);
+        }
+    }
+
+    private void Awake()
+    {
+        attackCollider = GetComponent<Collider2D>();
+
+        if (!attackCollider.isTrigger)
+        {
+            Debug.LogWarning(
+                $"{gameObject.name}: ê³µê²© ë²”ìœ„ Collider2Dì˜ Is Triggerê°€ êº¼ì ¸ ìˆìŠµë‹ˆë‹¤."
+            );
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        PlayerHealth playerHealth = FindPlayerHealth(other);
+        TrackTarget(other);
+    }
 
-        if (playerHealth == null)
-        {
-            return;
-        }
-
-        playersInRange.Add(playerHealth);
-
-        if (damageCoroutine == null)
-        {
-            damageCoroutine = StartCoroutine(DamageRoutine());
-        }
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        TrackTarget(other);
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
+        targetsByCollider.Remove(other);
+    }
+
+    public bool TryGetTarget(out PlayerHealth target)
+    {
+        target = null;
+
+        if (attackCollider == null ||
+            !attackCollider.enabled ||
+            !gameObject.activeInHierarchy)
+        {
+            targetsByCollider.Clear();
+            return false;
+        }
+
+        if (targetsByCollider.Count == 0)
+        {
+            return false;
+        }
+
+        List<Collider2D> invalidColliders = null;
+
+        foreach (KeyValuePair<Collider2D, PlayerHealth> pair
+                 in targetsByCollider)
+        {
+            Collider2D targetCollider = pair.Key;
+            PlayerHealth playerHealth = pair.Value;
+
+            bool isInvalid =
+                targetCollider == null ||
+                playerHealth == null ||
+                !targetCollider.enabled ||
+                !targetCollider.gameObject.activeInHierarchy ||
+                targetCollider.isTrigger ||
+                !IsActuallyOverlapping(targetCollider);
+
+            if (isInvalid)
+            {
+                invalidColliders ??= new List<Collider2D>();
+                invalidColliders.Add(targetCollider);
+                continue;
+            }
+
+            target = playerHealth;
+            break;
+        }
+
+        if (invalidColliders != null)
+        {
+            foreach (Collider2D invalidCollider in invalidColliders)
+            {
+                targetsByCollider.Remove(invalidCollider);
+            }
+        }
+
+        return target != null;
+    }
+
+    private void TrackTarget(Collider2D other)
+    {
+        // MagnetSensor, GroundCheck ë“± í”Œë ˆì´ì–´ ìì‹ì˜ ì„¼ì„œìš© TriggerëŠ” ë¬´ì‹œí•œë‹¤.
+        if (other == null || other.isTrigger)
+        {
+            return;
+        }
+
         PlayerHealth playerHealth = FindPlayerHealth(other);
 
         if (playerHealth == null)
@@ -37,54 +120,34 @@ public class MonsterAttackTrigger : MonoBehaviour
             return;
         }
 
-        playersInRange.Remove(playerHealth);
-
-        if (playersInRange.Count == 0 && damageCoroutine != null)
-        {
-            StopCoroutine(damageCoroutine);
-            damageCoroutine = null;
-        }
+        targetsByCollider[other] = playerHealth;
     }
 
-    private IEnumerator DamageRoutine()
+    private bool IsActuallyOverlapping(Collider2D other)
     {
-        while (playersInRange.Count > 0)
+        if (other == null || attackCollider == null)
         {
-            // ¹İº¹ Áß ÄÃ·º¼ÇÀÌ ¹Ù²î´Â ¹®Á¦¸¦ ÇÇÇÏ±â À§ÇØ º¹»çº» »ç¿ë
-            PlayerHealth[] targets = new PlayerHealth[playersInRange.Count];
-            playersInRange.CopyTo(targets);
-
-            foreach (PlayerHealth target in targets)
-            {
-                if (target == null)
-                {
-                    playersInRange.Remove(target);
-                    continue;
-                }
-
-                target.TakeDamage(
-                    damage,
-                    Color.white,
-                    transform.root.gameObject,
-                    true
-                );
-
-                Debug.Log($"¸ó½ºÅÍ Á¢ÃË µ¥¹ÌÁö Àû¿ë: {damage}");
-            }
-
-            yield return new WaitForSeconds(damageInterval);
+            return false;
         }
 
-        damageCoroutine = null;
+        ColliderDistance2D distance =
+            Physics2D.Distance(
+                attackCollider,
+                other
+            );
+
+        return distance.isOverlapped;
     }
 
-    private PlayerHealth FindPlayerHealth(Collider2D other)
+    private static PlayerHealth FindPlayerHealth(Collider2D other)
     {
-        PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
+        PlayerHealth playerHealth =
+            other.GetComponent<PlayerHealth>();
 
         if (playerHealth == null)
         {
-            playerHealth = other.GetComponentInParent<PlayerHealth>();
+            playerHealth =
+                other.GetComponentInParent<PlayerHealth>();
         }
 
         return playerHealth;
@@ -92,12 +155,6 @@ public class MonsterAttackTrigger : MonoBehaviour
 
     private void OnDisable()
     {
-        playersInRange.Clear();
-
-        if (damageCoroutine != null)
-        {
-            StopCoroutine(damageCoroutine);
-            damageCoroutine = null;
-        }
+        targetsByCollider.Clear();
     }
 }

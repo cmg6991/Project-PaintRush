@@ -15,6 +15,10 @@ GameObject:
   - component: {fileID: 2540531999560551335}
   - component: {fileID: 1040625933827328443}
   - component: {fileID: 6087103137340279254}
+  - component: {fileID: 7000753292814942898}
+  - component: {fileID: 8441497138155235533}
+  - component: {fileID: 5198273107439228541}
+  - component: {fileID: 4234544759499069904}
   m_Layer: 6
   m_Name: Slime
   m_TagString: Untagged
@@ -66,7 +70,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 4701e6bb4d649bf4b91a936cca753708, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -160,8 +164,8 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+  m_Offset: {x: 0, y: 0.16476886}
+  m_Radius: 0.33523116
 --- !u!114 &2540531999560551335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210,6 +214,7 @@ MonoBehaviour:
   paletteItemPrefab: {fileID: 0}
   paintDropChance: 0.7
   player: {fileID: 0}
+  fillcolor: {fileID: 0}
 --- !u!114 &1040625933827328443
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -263,6 +268,89 @@ MonoBehaviour:
   deadSprite: {fileID: -5914970437212030713, guid: 374f634e94ed01b44ac5b913a583036e, type: 3}
   moveFrameInterval: 0.2
   facesRightByDefault: 0
+--- !u!114 &7000753292814942898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 643513439215655364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b52dc1544996b4f82898db72c4d51a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FillColor
+--- !u!114 &8441497138155235533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 643513439215655364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af9f6c31fe8079049bc894a7880b3ab3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gradation
+--- !u!61 &5198273107439228541
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 643513439215655364}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: -0.20356563}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.49, y: 0.34}
+    newSize: {x: 0.51, y: 0.73}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.49, y: 0.7471313}
+  m_EdgeRadius: 0
+--- !u!114 &4234544759499069904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 643513439215655364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da216f8dc1c96c340bdb5f10634f9be1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterPaint
+  damage: 10
 --- !u!1 &6131039638982804653
 GameObject:
   m_ObjectHideFlags: 0

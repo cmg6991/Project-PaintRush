@@ -210,6 +210,7 @@ MonoBehaviour:
   paletteItemPrefab: {fileID: 0}
   paintDropChance: 0.7
   player: {fileID: 0}
+  fillcolor: {fileID: 0}
 --- !u!114 &3425773066578918327
 MonoBehaviour:
   m_ObjectHideFlags: 0
