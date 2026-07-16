@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 39937661720411949}
   - component: {fileID: 2255208213904780210}
   - component: {fileID: 7011519852887212104}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Ghost
   m_TagString: Monster
   m_Icon: {fileID: 0}
@@ -34,14 +34,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1153601307852431748}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.04, y: -0.03, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -2.887, y: 0.721, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3753522468378658674}
   - {fileID: 8115553829700930352}
   - {fileID: 8078356963409219956}
+  - {fileID: 414355078713428671}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &5022105156142217083
@@ -160,7 +161,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -208,11 +209,11 @@ MonoBehaviour:
   attackCooldown: 1.8
   attackTrigger: {fileID: 0}
   canRunAway: 1
-  runAwayHp: 1
+  runAwayHp: 10
   runAwaySpeed: 2.8
   runAwayDistance: 6
   runAwayDuration: 2.5
-  maxHp: 2
+  maxHp: 50
   noticeIcon: {fileID: 1586952318732145632}
   runAwayIcon: {fileID: 5143647048022552642}
   paletteIcon: {fileID: 0}
@@ -220,7 +221,7 @@ MonoBehaviour:
   redDropPrefab: {fileID: 1719896524428501687, guid: cdaf1545c2a684c46a3500ac3ef23ab5, type: 3}
   blueDropPrefab: {fileID: 1719896524428501687, guid: 493b3b82425a53d41927b7d6abcd5888, type: 3}
   yellowDropPrefab: {fileID: 1719896524428501687, guid: 1e07116d06f58514fb297434e702d62b, type: 3}
-  paintDropChance: 0.7
+  paintDropChance: 0.5
   hasPaletteItem: 0
   paletteItemPrefab: {fileID: 0}
   player: {fileID: 0}
@@ -453,6 +454,84 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &1671441203362593568
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 414355078713428671}
+  - component: {fileID: 3104287016337007393}
+  m_Layer: 6
+  m_Name: BodyColider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &414355078713428671
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1671441203362593568}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4069891513874710721}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &3104287016337007393
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1671441203362593568}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 256
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.007936701, y: 0.0086122155}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.5313693, y: 0.721948}
+  m_EdgeRadius: 0
 --- !u!1 &4670509230360080538
 GameObject:
   m_ObjectHideFlags: 0
@@ -464,7 +543,7 @@ GameObject:
   - component: {fileID: 8115553829700930352}
   - component: {fileID: 85096981998304414}
   - component: {fileID: 7408318927167950386}
-  m_Layer: 8
+  m_Layer: 7
   m_Name: AttackRange
   m_TagString: Untagged
   m_Icon: {fileID: 0}

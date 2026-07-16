@@ -1135,4 +1135,25 @@ public class MonsterAI : MonoBehaviour, IDamageable
             );
         }
     }
+
+    public void SetPaletteCarrier(
+    bool isCarrier,
+    GameObject overridePaletteItemPrefab = null)
+    {
+        hasPaletteItem = isCarrier;
+
+        if (overridePaletteItemPrefab != null)
+        {
+            paletteItemPrefab = overridePaletteItemPrefab;
+        }
+
+        SetPaletteIcon(hasPaletteItem);
+
+        if (hasPaletteItem)
+        {
+            Debug.Log(
+                $"{gameObject.name}: 팔레트 보유 몬스터로 지정됨"
+            );
+        }
+    }
 }

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1719896524428501687
+--- !u!1 &374640298714622027
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,41 +8,41 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2256432241619348843}
-  - component: {fileID: 5235553861403891463}
-  - component: {fileID: -2399086455971759495}
-  - component: {fileID: -7973388397296671163}
-  - component: {fileID: -5677612283647799275}
-  m_Layer: 9
-  m_Name: YellowPalettePiece
+  - component: {fileID: 2730572180197853335}
+  - component: {fileID: 5767718691055012845}
+  - component: {fileID: 4816283782319414568}
+  - component: {fileID: 2196791626215109354}
+  - component: {fileID: 4370715066594307854}
+  m_Layer: 0
+  m_Name: PaletteItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2256432241619348843
+--- !u!4 &2730572180197853335
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1719896524428501687}
+  m_GameObject: {fileID: 374640298714622027}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.18467, y: -0.04784, z: 0}
+  m_LocalPosition: {x: -15.400224, y: 1.913146, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &5235553861403891463
+--- !u!212 &5767718691055012845
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1719896524428501687}
+  m_GameObject: {fileID: 374640298714622027}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -82,25 +82,25 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 3746133895855155937, guid: 1a5868dd903aeb842b8cdbaa197cfcec, type: 3}
-  m_Color: {r: 0.9427508, g: 1, b: 0, a: 1}
+  m_Sprite: {fileID: 6746304972845065646, guid: d5ec1409e2566e1498d3580e3534adc6, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.71, y: 0.62}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!58 &-2399086455971759495
+--- !u!58 &4816283782319414568
 CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1719896524428501687}
+  m_GameObject: {fileID: 374640298714622027}
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
@@ -129,44 +129,15 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.32
---- !u!114 &-7973388397296671163
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1719896524428501687}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93b43a93933559643adc67b6faa95a48, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ColorDropItem
-  colorId: Yellow
-  paintColor: {r: 1, g: 1, b: 0, a: 1}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  fallingGravityScale: 1
-  landingLift: 0.03
-  floatSpeed: 3
-  floatAmount: 0.1
-  magnetRange: 2.5
-  collectDistance: 0.35
-  initialPullSpeed: 2
-  maximumPullSpeed: 12
-  pullAcceleration: 18
-  pullWobbleAmount: 0.08
-  pullWobbleSpeed: 18
-  paletteManager: {fileID: 0}
---- !u!50 &-5677612283647799275
+  m_Radius: 0.5
+--- !u!50 &2196791626215109354
 Rigidbody2D:
   serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1719896524428501687}
+  m_GameObject: {fileID: 374640298714622027}
   m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
@@ -182,7 +153,36 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 1
+  m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &4370715066594307854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 374640298714622027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93b43a93933559643adc67b6faa95a48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ColorDropItem
+  colorId: Red
+  paintColor: {r: 1, g: 0, b: 0, a: 1}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  fallingGravityScale: 1
+  landingLift: 0.03
+  floatSpeed: 3
+  floatAmount: 0.1
+  magnetRange: 2.5
+  collectDistance: 0.35
+  initialPullSpeed: 2
+  maximumPullSpeed: 12
+  pullAcceleration: 18
+  pullWobbleAmount: 0.08
+  pullWobbleSpeed: 18
+  paletteManager: {fileID: 0}
