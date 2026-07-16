@@ -1,29 +1,38 @@
+using System.Collections.Generic;
 using System.IO;
-using System.Collections.Generic; // List 사용을 위해 추가
 using UnityEngine;
 
 [System.Serializable]
-public class TileData
+public class PlayerStat
 {
-    public int id;
-    public string name;  // 타일 프리팹/스프라이트 에셋 이름 (예: tile_grass)
-    public string type;  // 타일 타입 (Block, Ladder, Hazard 등)
-    public int x;        // 타일 위치
-    public int y;
-    public string color; // 타일 색상
+    public int currentHp;
+    public int maxHp;
+    public int redInk;
+    public int greenInk;
+    public int blueInk;
 }
 
 [System.Serializable]
-public class MapData
+public class MonsterStat
 {
-    public List<TileData> tiles;
+    public int currentHp;
+    public int maxHp;
+    public float patrolSpeed;
+    public float chaseSpeed;
+    public float detectRange;
+    public float attackRange;
+    public int attackDamage;
+    public string currentElement; // ElementType enum을 문자열로 호환 보장하며 보존
 }
 
 public class DataManager : MonoBehaviour
 {
     public static DataManager Instance { get; private set; }
 
-    public MapData CurrentMapData;
+    public PlayerStat CurrentPlayerStat = new PlayerStat();
+
+    // 몬스터 ID를 키로 하는 스탯 데이터 맵
+    private Dictionary<string, MonsterStat> monsterStatMap = new Dictionary<string, MonsterStat>();
 
     private void Awake()
     {
@@ -31,7 +40,7 @@ public class DataManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            CurrentMapData = new MapData { tiles = new List<TileData>() };
+            InitDefaultData();
         }
         else
         {
@@ -39,48 +48,65 @@ public class DataManager : MonoBehaviour
         }
     }
 
-    // [세이브 기능]: 씬의 타일 정보를 지정된 JSON 물리 파일로 보존
-    public void SaveMapToJson(string mapName)
+    private void InitDefaultData()
     {
-        string folderPath = Path.Combine(Application.dataPath, "Resources/Maps");
-        if (!Directory.Exists(folderPath))
-        {
-            Directory.CreateDirectory(folderPath);
-        }
-
-        string filePath = Path.Combine(folderPath, mapName + ".json");
-        string jsonString = JsonUtility.ToJson(CurrentMapData, true);
-        File.WriteAllText(filePath, jsonString);
-        Debug.Log($"[DataManager] 맵 데이터 세이브 완료: {filePath}");
+        CurrentPlayerStat.maxHp = 5;
+        CurrentPlayerStat.currentHp = 5;
+        CurrentPlayerStat.redInk = 0;
+        CurrentPlayerStat.greenInk = 0;
+        CurrentPlayerStat.blueInk = 0;
     }
 
-    // [로드 기능]: 프로젝트 Resources 폴더에서 JSON 맵 텍스트 에셋을 로드하여 복원
-    public void LoadMapFromResources(string resourcePath)
+    // 플레이어 HP 갱신
+    public void UpdatePlayerHp(int currentHp, int maxHp)
     {
-        // 1. Resources.Load 시도
-        TextAsset mapTextAsset = Resources.Load<TextAsset>(resourcePath);
+        CurrentPlayerStat.currentHp = currentHp;
+        CurrentPlayerStat.maxHp = maxHp;
+        Debug.Log($"[DataManager] 플레이어 HP 동기화: {currentHp}/{maxHp}");
+    }
 
-        if (mapTextAsset != null)
+    // 플레이어 잉크 보유량 갱신
+    public void UpdatePlayerInk(int red, int green, int blue)
+    {
+        CurrentPlayerStat.redInk = red;
+        CurrentPlayerStat.greenInk = green;
+        CurrentPlayerStat.blueInk = blue;
+    }
+
+    // 몬스터 스탯이 저장되어 있는지 확인
+    public bool HasMonsterStat(string id)
+    {
+        return monsterStatMap.ContainsKey(id);
+    }
+
+    // 몬스터 스탯 조회
+    public MonsterStat GetMonsterStat(string id)
+    {
+        if (monsterStatMap.TryGetValue(id, out MonsterStat stat))
         {
-            string jsonString = mapTextAsset.text;
-            CurrentMapData = JsonUtility.FromJson<MapData>(jsonString);
-            Debug.Log($"[DataManager] Resources '{resourcePath}' 맵 로드 완료");
+            return stat;
         }
-        else
+        return null;
+    }
+
+    // 몬스터 개별 스탯 갱신 API (느슨한 결합 제공)
+    public void UpdateMonsterStat(string id, int currentHp, int maxHp, float patrolSpeed, float chaseSpeed, float detectRange, float attackRange, int attackDamage, string element)
+    {
+        if (!monsterStatMap.TryGetValue(id, out MonsterStat stat))
         {
-            // 백업: 에디터 임포트 지연 예외 방어 (실제 하드디스크 경로에서 직접 긁어오기)
-            string filePath = Path.Combine(Application.dataPath, "Resources", resourcePath + ".json");
-            if (File.Exists(filePath))
-            {
-                string jsonString = File.ReadAllText(filePath);
-                CurrentMapData = JsonUtility.FromJson<MapData>(jsonString);
-                Debug.Log($"[DataManager] 에디터 백업 로더로 '{filePath}' 파일 다이렉트 로드 성공!");
-            }
-            else
-            {
-                Debug.LogWarning($"[DataManager] Resources 및 로컬 디스크에서 '{resourcePath}' 파일을 찾을 수 없어 빈 맵 데이터로 초기화합니다.");
-                CurrentMapData = new MapData { tiles = new List<TileData>() };
-            }
+            stat = new MonsterStat();
+            monsterStatMap[id] = stat;
         }
+
+        stat.currentHp = currentHp;
+        stat.maxHp = maxHp;
+        stat.patrolSpeed = patrolSpeed;
+        stat.chaseSpeed = chaseSpeed;
+        stat.detectRange = detectRange;
+        stat.attackRange = attackRange;
+        stat.attackDamage = attackDamage;
+        stat.currentElement = element;
+
+        Debug.Log($"[DataManager] 몬스터 '{id}' 동적 스탯/속성 동기화 (HP: {currentHp}/{maxHp}, Element: {element})");
     }
 }

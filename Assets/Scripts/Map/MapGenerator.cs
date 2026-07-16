@@ -4,10 +4,52 @@ using UnityEngine.Tilemaps;
 public class MapGenerator : MonoBehaviour
 {
     public Tilemap tilemap;
-    public TileBase[] tilePrefabs;
+    private TileManager tileManager;
+
+    private void Awake()
+    {
+        // 1. 씬 내의 TileManager 검색
+        tileManager = FindAnyObjectByType<TileManager>();
+
+        if (tileManager != null)
+        {
+            // 2. 씬 내의 모든 타일맵들을 수집해 이름별로 자동 바인딩 (인스펙터 빈칸 완전 차단)
+            Tilemap[] childTilemaps = FindObjectsByType<Tilemap>(FindObjectsInactive.Include);
+            foreach (var map in childTilemaps)
+            {
+                string nameLower = map.gameObject.name.ToLower();
+                if (nameLower.Contains("solid") || nameLower.Contains("ground") || nameLower.Contains("block"))
+                {
+                    tileManager.solidTilemap = map;
+                }
+                else if (nameLower.Contains("ladder"))
+                {
+                    tileManager.ladderTilemap = map;
+                }
+                else if (nameLower.Contains("grab") || nameLower.Contains("hanger"))
+                {
+                    tileManager.grabTilemap = map;
+                }
+            }
+
+            // 백업 처리
+            if (tileManager.solidTilemap == null)
+            {
+                tileManager.solidTilemap = FindAnyObjectByType<Tilemap>();
+            }
+
+            // 호환용 변수 매칭
+            tilemap = tileManager.solidTilemap;
+        }
+    }
 
     public void GenerateMap(MapData mapData)
     {
+        if (tileManager == null)
+        {
+            tileManager = FindAnyObjectByType<TileManager>();
+        }
+
         if (tilemap == null || mapData == null || mapData.tiles == null)
         {
             Debug.LogError("[MapGenerator] 타일맵 컴포넌트나 데이터가 누락되었습니다.");
@@ -31,9 +73,9 @@ public class MapGenerator : MonoBehaviour
             }
 
             // 이름으로 찾지 못했으나 id가 유효 범위라면 인덱스로 백업 검색
-            if (targetTile == null && tileInfo.id >= 0 && tileInfo.id < tilePrefabs.Length)
+            if (targetTile == null && tileManager != null && tileInfo.id >= 0 && tileInfo.id < tileManager.tilePresets.Count)
             {
-                targetTile = tilePrefabs[tileInfo.id];
+                targetTile = tileManager.tilePresets[tileInfo.id];
             }
 
             if (targetTile != null)
@@ -53,12 +95,12 @@ public class MapGenerator : MonoBehaviour
     // 이름이 일치하는 타일 에셋 검색 헬퍼
     private TileBase FindTileByName(string tileName)
     {
-        if (tilePrefabs == null) return null;
+        if (tileManager == null || tileManager.tilePresets == null) return null;
 
         // 비교할 입력 이름을 소문자로 바꾸고, _0, 공백, 언더바, 복사본, 부속 숫자 제거
         string cleanInput = tileName.ToLower().Replace("_0", "").Replace(" ", "").Replace("_", "").Replace("1", "");
 
-        foreach (var tile in tilePrefabs)
+        foreach (var tile in tileManager.tilePresets)
         {
             if (tile != null)
             {

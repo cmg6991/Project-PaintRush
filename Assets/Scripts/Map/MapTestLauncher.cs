@@ -9,25 +9,33 @@ using UnityEditor;
 public class MapTestLauncher : MonoBehaviour
 {
     [Header("--- Target Config ---")]
-    [SerializeField] private string targetMapName = "Maps/Stage1"; // 불러올 맵 이름
+    [SerializeField] private string targetMapName = "Stage1";   // 불러올 맵 이름 (Maps/ 폴더 기준 파일명)
+    [SerializeField] private float gridUnitSize = 1.28f;        // 기준 그리드 유닛 크기 (사이사이 보간 작업)
 
     private void Start()
     {
-        // DataManager에게 Resources 폴더 안의 JSON 파일 로드 요청
-        DataManager.Instance.LoadMapFromResources(targetMapName);
+        // 씬 내의 임시 배치용 "tile_" 껍데기 오브젝트들을 탐색하여 자동 비활성화 (투명 벽 충돌 차단)
+        GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsInactive.Include);
+        foreach (GameObject obj in allObjects)
+        {
+            if (obj.name.ToLower().StartsWith("tile_"))
+            {
+                obj.SetActive(false);
+            }
+        }
 
-        // 씬 안에 배치되어 있는 MapGenerator 컴포넌트 찾기
-        MapGenerator generator = FindAnyObjectByType<MapGenerator>();
+        // 씬 안에 배치되어 있는 TileManager 컴포넌트 찾기
+        TileManager tileManager = FindAnyObjectByType<TileManager>();
 
-        if (generator != null)
+        if (tileManager != null)
         {
             // 로드 완료된 데이터를 기반으로 타일맵 생성 구동
-            generator.GenerateMap(DataManager.Instance.CurrentMapData);
-            Debug.Log($"[MapTestLauncher] '{targetMapName}' 맵 로딩 및 배치 성공!");
+            tileManager.LoadMap(targetMapName);
+            Debug.Log($"[MapTestLauncher] '{targetMapName}' 맵 로딩 성공!");
         }
         else
         {
-            Debug.LogError("[MapTestLauncher] 씬 내에서 MapGenerator를 찾을 수 없습니다.");
+            Debug.LogError("[MapTestLauncher] 씬 내에서 TileManager를 찾을 수 없습니다.");
         }
     }
 
@@ -35,14 +43,11 @@ public class MapTestLauncher : MonoBehaviour
     [ContextMenu("Scan Scene to JSON (Stage1)")]
     public void ScanSceneToStage1()
     {
-        // 데이터 초기화
-        DataManager.Instance.CurrentMapData.tiles.Clear();
-
         // 씬 내의 "tile_"로 시작하는 모든 일반 오브젝트 탐색
-        GameObject[] allObjects = FindObjectsOfType<GameObject>();
+        GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsInactive.Exclude);
         List<TileData> scannedTiles = new List<TileData>();
 
-        MapGenerator generator = FindObjectOfType<MapGenerator>();
+        TileManager tileManager = FindAnyObjectByType<TileManager>();
 
         foreach (GameObject obj in allObjects)
         {
@@ -50,7 +55,7 @@ public class MapTestLauncher : MonoBehaviour
             {
                 TileData data = new TileData();
 
-                // 이름 정제: "tile_brick_0 (12)" -> "tile_brick_0"
+                // 이름 Parse "tile_brick_0 (12)" -> "tile_brick_0" (유지 보수)
                 string cleanName = obj.name;
                 int index = cleanName.IndexOf(" (");
                 if (index > 0)
@@ -59,19 +64,22 @@ public class MapTestLauncher : MonoBehaviour
                 }
 
                 data.name = cleanName;
-                data.x = Mathf.RoundToInt(obj.transform.position.x);
-                data.y = Mathf.RoundToInt(obj.transform.position.y);
 
-                //  ID 자동 분석 연산
+                // 그리드 유닛 정규화 스냅 적용 (소수점 배치 튐으로 인한 틈새 발생 방지)
+                data.x = Mathf.RoundToInt(obj.transform.position.x / gridUnitSize);
+                data.y = Mathf.RoundToInt(obj.transform.position.y / gridUnitSize);
+
+                //  TileManager 프리셋 대조
                 int matchedId = 0;
-                if (generator != null && generator.tilePrefabs != null)
+                if (tileManager != null && tileManager.tilePresets != null)
                 {
                     string cleanInput = cleanName.ToLower().Replace("_0", "").Replace(" ", "").Replace("_", "").Replace("1", "");
-                    for (int i = 0; i < generator.tilePrefabs.Length; i++)
+                    for (int i = 0; i < tileManager.tilePresets.Count; i++)
                     {
-                        if (generator.tilePrefabs[i] != null)
+                        var tile = tileManager.tilePresets[i];
+                        if (tile != null)
                         {
-                            string cleanTileName = generator.tilePrefabs[i].name.ToLower().Replace("_0", "").Replace(" ", "").Replace("_", "").Replace("1", "");
+                            string cleanTileName = tile.name.ToLower().Replace("_0", "").Replace(" ", "").Replace("_", "").Replace("1", "");
                             if (cleanTileName == cleanInput)
                             {
                                 matchedId = i;
@@ -115,7 +123,7 @@ public class MapTestLauncher : MonoBehaviour
             }
         }
 
-        DataManager.Instance.CurrentMapData.tiles = scannedTiles;
+        MapData scannedMapData = new MapData { tiles = scannedTiles };
 
         // Resources/Maps 폴더에 Stage1.json 파일로 다이렉트 저장
 #if UNITY_EDITOR
@@ -126,12 +134,12 @@ public class MapTestLauncher : MonoBehaviour
         }
 
         string filePath = Path.Combine(folderPath, "Stage1.json");
-        string jsonString = JsonUtility.ToJson(DataManager.Instance.CurrentMapData, true);
+        string jsonString = JsonUtility.ToJson(scannedMapData, true);
         File.WriteAllText(filePath, jsonString);
 
-        // 유니티 프로젝트 에셋 데이터베이스 새로고침 (즉시 탐색기에 보임)
+        // 유니티 프로젝트 에셋 데이터베이스 새로고침 
         AssetDatabase.Refresh();
-        Debug.Log($"<color=green>[스캐너 완료]</color> 씬의 타일 오브젝트 {scannedTiles.Count}개를 성공적으로 스캔하여 '{filePath}' 저장 및 갱신 완료!");
+        Debug.Log($"<color=green>[스캐너 완료]</color> 씬의 타일 오브젝트 {scannedTiles.Count}개를 1.28 스냅 보정 적용하여 '{filePath}'에 저장 완료!");
 #endif
     }
 }

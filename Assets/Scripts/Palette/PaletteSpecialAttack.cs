@@ -29,7 +29,7 @@ public class PaletteSpecialAttack : MonoBehaviour
 
             if (monsterManager == null)
             {
-                monsterManager = FindFirstObjectByType<MonsterManager>();
+                monsterManager = FindAnyObjectByType<MonsterManager>();
             }
         }
     }

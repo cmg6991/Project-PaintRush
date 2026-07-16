@@ -49,7 +49,6 @@ namespace Project.Player
         public bool isHanging = false;                                        // 손잡이 잡고있는중인가
 
         private bool isFallingFromLadder = false;
-        private bool isFallingFromHanger = false;
 
         private Collider2D currentLadderCollider;                             // 충돌한 사다리와 행거의 중심점 좌표등을 빼옴
         private Collider2D currentHangerCollider;
@@ -77,7 +76,6 @@ namespace Project.Player
             if (isGrounded)                         // 땅에 발이 닿으면 오브젝트 탈출 후 낙하상태 해제
             {
                 isFallingFromLadder = false;
-                isFallingFromHanger = false;
             }
 
             // 땅에 있고, 사다리/행거 안 탈 때 점프 키 누르면 Y축위로 속도를 줌
@@ -118,7 +116,6 @@ namespace Project.Player
                 isClimbing = true;
                 isHanging = false;
                 isFallingFromLadder = false;
-                isFallingFromHanger = false;
             }
 
             // 행거 범위 안이고 윗키를 눌렀을시
@@ -156,7 +153,6 @@ namespace Project.Player
                 isHanging = true;
                 isClimbing = false;
                 isFallingFromLadder = false;
-                isFallingFromHanger = false;
             }
 
             // 사다리 타는 도중 벗어날때
@@ -202,11 +198,9 @@ namespace Project.Player
                 if(wasClimbing)
                 {
                     isFallingFromLadder = true;
-                    isFallingFromHanger = false;
                 }
                 else if (wasHanging)
                 {
-                    isFallingFromHanger = true;
                     isFallingFromLadder = false;
                 }
 

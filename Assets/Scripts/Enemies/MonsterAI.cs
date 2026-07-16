@@ -98,6 +98,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     private int currentHp;
     private int moveDirection = 1;
+    private string monsterUniqueId; // DataManager 스탯 동기화용 고유 ID
 
     private float startX;
     private float lastPatrolTurnTime;
@@ -157,6 +158,31 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     private void Start()
     {
+        monsterUniqueId = $"{gameObject.name}_{transform.position.x:F2}_{transform.position.y:F2}";
+
+        if (DataManager.Instance != null && DataManager.Instance.HasMonsterStat(monsterUniqueId))
+        {
+            var stat = DataManager.Instance.GetMonsterStat(monsterUniqueId);
+            currentHp = stat.currentHp;
+            patrolSpeed = stat.patrolSpeed;
+            chaseSpeed = stat.chaseSpeed;
+            detectRange = stat.detectRange;
+            attackRange = stat.attackRange;
+            attackDamage = stat.attackDamage;
+
+            if (System.Enum.TryParse(stat.currentElement, out ElementType savedElement))
+            {
+                currentElement = savedElement;
+            }
+
+            if (currentHp <= 0)
+            {
+                isDead = true;
+                gameObject.SetActive(false);
+                return;
+            }
+        }
+
         if (monsterMovement.UsesPlayerTracking && player == null)
         {
             FindPlayer();
@@ -168,7 +194,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
             if (monsterManager == null)
             {
-                monsterManager = FindFirstObjectByType<MonsterManager>();
+                monsterManager = FindAnyObjectByType<MonsterManager>();
             }
         }
 
@@ -690,6 +716,28 @@ public class MonsterAI : MonoBehaviour, IDamageable
         ApplyElementVisualAndStats();
 
         Debug.Log($"{gameObject.name}: 속성 확정 - {currentElement}");
+
+        // 속성이 변경되었으므로 DataManager에도 실시간 동기화
+        SyncStatsToDataManager();
+    }
+
+    // DataManager에 자신의 현재 스탯을 전송하는 느슨한 결합용 헬퍼 함수
+    private void SyncStatsToDataManager()
+    {
+        if (DataManager.Instance != null && !string.IsNullOrEmpty(monsterUniqueId))
+        {
+            DataManager.Instance.UpdateMonsterStat(
+                monsterUniqueId,
+                currentHp,
+                maxHp,
+                patrolSpeed,
+                chaseSpeed,
+                detectRange,
+                attackRange,
+                attackDamage,
+                currentElement.ToString()
+            );
+        }
     }
 
     private void ApplyElementVisualAndStats()
@@ -832,6 +880,9 @@ public class MonsterAI : MonoBehaviour, IDamageable
         currentHp = Mathf.Max(0, currentHp - damage);
 
         Debug.Log($"{gameObject.name} 피격! 남은 체력: {currentHp}");
+
+        // DataManager 스탯 실시간 동기화
+        SyncStatsToDataManager();
 
         if (currentHp <= 0)
         {

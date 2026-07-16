@@ -11,7 +11,7 @@ public class PaletteUI : MonoBehaviour
     {
         if (inventory == null)
         {
-            inventory = FindFirstObjectByType<PaletteInventory>();
+            inventory = FindAnyObjectByType<PaletteInventory>();
         }
     }
 

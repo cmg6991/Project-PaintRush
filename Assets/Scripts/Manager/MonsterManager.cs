@@ -30,9 +30,7 @@ public class MonsterManager : MonoBehaviour {
 
     private void Start() {
         MonsterAI[] sceneMonsters =
-            FindObjectsByType<MonsterAI>(
-                FindObjectsSortMode.None
-            );
+            FindObjectsByType<MonsterAI>(FindObjectsInactive.Exclude);
 
         foreach (MonsterAI monster in sceneMonsters) { Register(monster); }
 

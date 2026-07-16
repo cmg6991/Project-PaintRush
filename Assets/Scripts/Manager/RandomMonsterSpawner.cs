@@ -71,7 +71,7 @@ public class RandomMonsterSpawner : MonoBehaviour
             if (monsterManager == null)
             {
                 monsterManager =
-                    FindFirstObjectByType<MonsterManager>();
+                    FindAnyObjectByType<MonsterManager>();
             }
         }
     }
