@@ -31,6 +31,10 @@ public class FillColor : MonoBehaviour
 
     private float lightTime;
 
+    private bool prevHasColor;
+    private Color prevColor;
+    private float prevAmount;
+
     private void Awake()
     {
         gradation = GetComponent<Gradation>();
@@ -109,6 +113,10 @@ public class FillColor : MonoBehaviour
     }
     public void FeverOn()
     {
+        prevHasColor = HasColor;
+        prevColor = CurrentColor;
+        prevAmount = ColorAmount;
+
         IsFever = true;
 
         HasColor = true;
@@ -141,6 +149,21 @@ public class FillColor : MonoBehaviour
 
         if (gradation != null)
             gradation.FeverOff();
+
+        HasColor = prevHasColor;
+        CurrentColor = prevColor;
+        ColorAmount = prevAmount;
+
+        if (HasColor)
+        {
+            gradation.Play(CurrentColor);
+            UpdateVisual();
+        }
+        else
+        {
+            ClearColor();
+        }
+
         UIManager.Instance.HideFeverUI();
     }
 
