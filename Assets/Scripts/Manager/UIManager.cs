@@ -12,6 +12,8 @@ public class UIManager : Singleton<UIManager>
 
     bool isOpen = false;
 
+    private FeverUI feverUI;
+
     public override void Awake()
     {
         base.Awake();
@@ -56,5 +58,20 @@ public class UIManager : Singleton<UIManager>
     {
         Debug.Log("게임 종료");
         SoundManager.Instance.PlaySFX(SFXType.Click);
+    }
+    public void RegisterFeverUI(FeverUI ui)
+    {
+        feverUI = ui;
+    }
+
+    public void ShowFeverUI()
+    {
+        Debug.Log("show");
+        feverUI?.FeverOn();
+    }
+
+    public void HideFeverUI()
+    {
+        feverUI?.FeverOff();
     }
 }

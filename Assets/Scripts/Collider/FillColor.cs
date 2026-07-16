@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using System.Collections;
 
 public class FillColor : MonoBehaviour
 {
@@ -29,8 +30,6 @@ public class FillColor : MonoBehaviour
     [SerializeField] private ParticleSystem feverSparkle;
 
     private float lightTime;
-
-    [SerializeField] private FeverUI feverUI;
 
     private void Awake()
     {
@@ -122,7 +121,15 @@ public class FillColor : MonoBehaviour
         }
         if (feverSparkle != null)
             feverSparkle.Play();
-        feverUI.FeverOn();
+        UIManager.Instance.ShowFeverUI();
+        StartCoroutine(FeverTimer());
+    }
+
+    IEnumerator FeverTimer()
+    {
+        yield return new WaitForSeconds(5f);
+
+        FeverOff();
     }
 
     public void FeverOff()
@@ -134,7 +141,7 @@ public class FillColor : MonoBehaviour
 
         if (gradation != null)
             gradation.FeverOff();
-        feverUI.FeverOff();
+        UIManager.Instance.HideFeverUI();
     }
 
     private void UpdateFeverLight()
