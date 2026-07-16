@@ -7,8 +7,33 @@ public class DoorOpen : MonoBehaviour
 
     private List<Color> paintedColors = new();
 
+    private bool isOpened;
+
+    private void OnEnable()
+    {
+        if (MonsterManager.Instance != null)
+        {
+            MonsterManager.Instance.OnAliveCountChanged += OnAliveCountChanged;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (MonsterManager.Instance != null)
+        {
+            MonsterManager.Instance.OnAliveCountChanged -= OnAliveCountChanged;
+        }
+    }
+
+    private void OnAliveCountChanged(int aliveCount)
+    {
+        CheckOpen();
+    }
+
     public void AddPaintColor(Color color)
     {
+        if (isOpened)
+            return;
         foreach (Color requiredColor in requiredColors)
         {
             // 총에서 발사한 색이 필요한 색인지 확인
@@ -39,9 +64,24 @@ public class DoorOpen : MonoBehaviour
 
     private void CheckOpen()
     {
-        if (paintedColors.Count >= requiredColors.Count)
+        bool colorComplete = paintedColors.Count >= requiredColors.Count;
+        bool monsterComplete = MonsterManager.Instance != null &&
+                               MonsterManager.Instance.AliveCount == 1;
+
+        if (colorComplete && monsterComplete)
         {
-            Debug.Log("모든 필요한 색깔 완료!");
+            isOpened = true;
+            OpenDoor();
         }
+    }
+
+    private void OpenDoor()
+    {
+        Debug.Log("문이 열립니다!");
+
+        // 예시
+        // animator.SetTrigger("Open");
+        // GetComponent<Collider2D>().enabled = false;
+        // Destroy(gameObject);
     }
 }

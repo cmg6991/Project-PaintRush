@@ -1,17 +1,53 @@
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class FillColor : MonoBehaviour
 {
     public bool HasColor { get; private set; }
     public Color CurrentColor { get; private set; }
-    public float ColorAmount { get; private set; }
+    public Color ShootColor
+    {
+        get
+        {
+            if (IsFever)
+                return gradation.DisplayColor;
 
+            return CurrentColor;
+        }
+    }
+    public float ColorAmount { get; private set; }
+    public bool IsFever { get; private set; }
     private Gradation gradation;
-    
+
+    [SerializeField] private Light2D feverLight;
+
+    [SerializeField] private float minIntensity = 0.5f;
+    [SerializeField] private float maxIntensity = 2f;
+
+    [SerializeField] private float flashSpeed = 5f;
+
+    [SerializeField] private ParticleSystem feverSparkle;
+
+    private float lightTime;
+
 
     private void Awake()
     {
         gradation = GetComponent<Gradation>();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            FeverOn();
+        }
+
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            FeverOff();
+        }
+        UpdateFeverLight();
     }
 
     public bool SetColor(Color color)
@@ -43,6 +79,7 @@ public class FillColor : MonoBehaviour
     public void Consume(float amount)
     {
         if (!HasColor) return;
+        if (IsFever) return;
 
         ColorAmount -= amount;
         ColorAmount = Mathf.Clamp01(ColorAmount);
@@ -70,5 +107,66 @@ public class FillColor : MonoBehaviour
     {
         gradation.SetAmount(ColorAmount,CurrentColor);
     }
+    public void FeverOn()
+    {
+        IsFever = true;
 
+        HasColor = true;
+        ColorAmount = 1f;
+
+        if (gradation != null)
+        {
+            gradation.FeverOn();
+            gradation.Play(Color.white);
+        }
+        if (feverSparkle != null)
+            feverSparkle.Play();
+    }
+
+    public void FeverOff()
+    {
+        IsFever = false;
+
+        if (feverSparkle != null)
+            feverSparkle.Stop();
+
+        if (gradation != null)
+            gradation.FeverOff();
+    }
+
+    private void UpdateFeverLight()
+    {
+        if (feverLight == null)
+            return;
+
+
+        if (!IsFever)
+        {
+            feverLight.intensity = 0;
+            return;
+        }
+
+
+        lightTime += Time.deltaTime * flashSpeed;
+
+
+        float value = Mathf.Lerp(
+            minIntensity,
+            maxIntensity,
+            (Mathf.Sin(lightTime) + 1f) * 0.5f
+        );
+
+
+        feverLight.intensity = value;
+
+
+        // 무지개 색 변화
+        float hue = Mathf.Repeat(Time.time * 0.5f, 1f);
+
+        feverLight.color = Color.HSVToRGB(
+            hue,
+            0.8f,
+            1f
+        );
+    }
 }

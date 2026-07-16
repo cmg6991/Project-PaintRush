@@ -54,17 +54,27 @@ public class Shoot : MonoBehaviour
         //}
 
         //smoke.PlayParticle(fillColor.CurrentColor);
-        bool hitDoor = false;
-
-        foreach (var hit in hits)
+        foreach (RaycastHit2D hit in hits)
         {
-            if (hit.collider.GetComponent<DoorOpen>() != null)
+            DoorOpen door = hit.collider.GetComponent<DoorOpen>();
+
+            if (door != null)
             {
-                hitDoor = true;
-                break;
+                IPaintable paintable = door.GetComponent<IPaintable>();
+
+                if (paintable != null)
+                {
+                    paintable.Paint(fillColor.ShootColor, mouse);
+
+                    fillColor.Consume(0.1f);
+
+                    if (smoke != null)
+                        smoke.PlayParticle(fillColor.ShootColor);
+                    
+                    return; // 문만 칠하고 끝
+                }
             }
         }
-
         bool didPaint = false;
 
         foreach (var hit in hits)
@@ -74,11 +84,11 @@ public class Shoot : MonoBehaviour
             if (paintable == null)
                 continue;
 
-            // 문이 겹쳐 있으면 일반 벽은 무시
-            if (hitDoor && hit.collider.GetComponent<DoorOpen>() == null)
-                continue;
+            //// 문이 겹쳐 있으면 일반 벽은 무시
+            //if (hitDoor && hit.collider.GetComponent<DoorOpen>() == null)
+            //    continue;
 
-            paintable.Paint(fillColor.CurrentColor, mouse);
+            paintable.Paint(fillColor.ShootColor, mouse);
             didPaint = true;
         }
 
@@ -87,7 +97,7 @@ public class Shoot : MonoBehaviour
 
         if (smoke != null)
         {
-            smoke.PlayParticle(fillColor.CurrentColor);
+            smoke.PlayParticle(fillColor.ShootColor);
         }
     }
 }
