@@ -4,6 +4,7 @@ using System.Collections;
 
 public class FeverUI : MonoBehaviour
 {
+    [SerializeField] private GameObject BG;
     [SerializeField] private RawImage frame;
 
     private void Awake()
@@ -16,6 +17,7 @@ public class FeverUI : MonoBehaviour
 
     public void FeverOn()
     {
+        BG.SetActive(true);
         StopAllCoroutines();
         StartCoroutine(Fade(1));
     }
@@ -25,13 +27,14 @@ public class FeverUI : MonoBehaviour
     {
         StopAllCoroutines();
         StartCoroutine(Fade(0));
+        BG.SetActive(false);
     }
 
 
     IEnumerator Fade(float target)
     {
         Color color = frame.color;
-
+        
         float start = color.a;
         float time = 0;
 

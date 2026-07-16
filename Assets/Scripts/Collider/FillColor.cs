@@ -30,6 +30,7 @@ public class FillColor : MonoBehaviour
 
     private float lightTime;
 
+    [SerializeField] private FeverUI feverUI;
 
     private void Awake()
     {
@@ -121,6 +122,7 @@ public class FillColor : MonoBehaviour
         }
         if (feverSparkle != null)
             feverSparkle.Play();
+        feverUI.FeverOn();
     }
 
     public void FeverOff()
@@ -132,6 +134,7 @@ public class FillColor : MonoBehaviour
 
         if (gradation != null)
             gradation.FeverOff();
+        feverUI.FeverOff();
     }
 
     private void UpdateFeverLight()
