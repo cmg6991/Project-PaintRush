@@ -77,7 +77,7 @@ public class TileManager : MonoBehaviour
         if (DataManager.Instance == null) return;
 
         // DataManager에게 파일 로드 요청 -> CurrentMapData에 데이터가 채워짐
-        DataManager.Instance.LoadMapFromJson(fileName);
+        DataManager.Instance.LoadMapFromResources(fileName);
 
         // 기존 타일맵 청소
         tilemap.ClearAllTiles();
@@ -87,7 +87,8 @@ public class TileManager : MonoBehaviour
         {
             if (tileIdDictionary.TryGetValue(data.id, out TileBase tile))
             {
-                Vector3Int position = new Vector3Int(data.x, data.y, 0);
+                // float 좌표를 정수형 Vector3Int에 맞게 반올림 캐스팅하고, 대문자 오타(Int)를 교정합니다.
+                Vector3Int position = new Vector3Int(Mathf.RoundToInt(data.x), Mathf.RoundToInt(data.y), 0);
 
                 // 타일 배치
                 tilemap.SetTile(position, tile);

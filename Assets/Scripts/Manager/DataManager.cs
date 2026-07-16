@@ -6,69 +6,81 @@ using UnityEngine;
 public class TileData
 {
     public int id;
-    public int x;
+    public string name;  // 타일 프리팹/스프라이트 에셋 이름 (예: tile_grass)
+    public string type;  // 타일 타입 (Block, Ladder, Hazard 등)
+    public int x;        // 타일 위치
     public int y;
-    public string color;
+    public string color; // 타일 색상
 }
 
 [System.Serializable]
 public class MapData
 {
-    // JsonUtility는 기본 배열([])이나 List<> 모두 지원합니다. 편의상 List로 변경해두면 추가/삭제가 쉽습니다.
-    public List<TileData> tiles = new List<TileData>();
+    public List<TileData> tiles;
 }
 
-// Singleton<DataManager>를 상속
-public class DataManager : Singleton<DataManager>
+public class DataManager : MonoBehaviour
 {
-    // 오직 맵 데이터만 집중 관리하도록 변경
-    public MapData CurrentMapData { get; private set; } = new MapData();
+    public static DataManager Instance { get; private set; }
 
-    public override void Awake()
+    public MapData CurrentMapData;
+
+    private void Awake()
     {
-        base.Awake(); // 부모 Singleton의 중복 파괴 로직 호출
-
-        // 씬 시작시 맵 데이터 초기화
-        if (CurrentMapData == null)
+        if (Instance == null)
         {
-            CurrentMapData = new MapData();
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            CurrentMapData = new MapData { tiles = new List<TileData>() };
+        }
+        else
+        {
+            Destroy(gameObject);
         }
     }
 
-    // [세이브 기능]: 현재 맵 데이터를 JSON 파일로 저장
-    public void SaveMapToJson(string fileName)
+    // [세이브 기능]: 씬의 타일 정보를 지정된 JSON 물리 파일로 보존
+    public void SaveMapToJson(string mapName)
     {
-        // 빌드 후 읽기 전용인 StreamingAssets 대신 에디터 테스트 및 모바일 저장이 자유로운 persistentDataPath를 추천합니다.
-        // 만약 반드시 StreamingAssets를 써야 한다면 그대로 두셔도 됩니다.
-        string filePath = Path.Combine(Application.persistentDataPath, fileName);
-
-        string directoryPath = Path.GetDirectoryName(filePath);
-        if (!Directory.Exists(directoryPath))
+        string folderPath = Path.Combine(Application.dataPath, "Resources/Maps");
+        if (!Directory.Exists(folderPath))
         {
-            Directory.CreateDirectory(directoryPath);
+            Directory.CreateDirectory(folderPath);
         }
 
-        // CurrentMapData 객체를 JSON 문자열로 변환
+        string filePath = Path.Combine(folderPath, mapName + ".json");
         string jsonString = JsonUtility.ToJson(CurrentMapData, true);
         File.WriteAllText(filePath, jsonString);
         Debug.Log($"[DataManager] 맵 데이터 세이브 완료: {filePath}");
     }
 
-    // [로드 기능]: JSON 파일을 읽어 CurrentMapData로 복원
-    public void LoadMapFromJson(string fileName)
+    // [로드 기능]: 프로젝트 Resources 폴더에서 JSON 맵 텍스트 에셋을 로드하여 복원
+    public void LoadMapFromResources(string resourcePath)
     {
-        string filePath = Path.Combine(Application.persistentDataPath, fileName);
+        // 1. Resources.Load 시도
+        TextAsset mapTextAsset = Resources.Load<TextAsset>(resourcePath);
 
-        if (File.Exists(filePath))
+        if (mapTextAsset != null)
         {
-            string jsonString = File.ReadAllText(filePath);
+            string jsonString = mapTextAsset.text;
             CurrentMapData = JsonUtility.FromJson<MapData>(jsonString);
-            Debug.Log($"[DataManager] '{fileName}' 맵 로드 완료");
+            Debug.Log($"[DataManager] Resources '{resourcePath}' 맵 로드 완료");
         }
         else
         {
-            Debug.LogWarning($"[DataManager] 맵 파일을 찾을 수 없어 빈 맵 데이터로 초기화합니다: {filePath}");
-            CurrentMapData = new MapData();
+            // 백업: 에디터 임포트 지연 예외 방어 (실제 하드디스크 경로에서 직접 긁어오기)
+            string filePath = Path.Combine(Application.dataPath, "Resources", resourcePath + ".json");
+            if (File.Exists(filePath))
+            {
+                string jsonString = File.ReadAllText(filePath);
+                CurrentMapData = JsonUtility.FromJson<MapData>(jsonString);
+                Debug.Log($"[DataManager] 에디터 백업 로더로 '{filePath}' 파일 다이렉트 로드 성공!");
+            }
+            else
+            {
+                Debug.LogWarning($"[DataManager] Resources 및 로컬 디스크에서 '{resourcePath}' 파일을 찾을 수 없어 빈 맵 데이터로 초기화합니다.");
+                CurrentMapData = new MapData { tiles = new List<TileData>() };
+            }
         }
     }
 }

@@ -103,3 +103,37 @@ private void OnTriggerEnter2D(Collider2D collision)
   - **[팀원 배려 최적화]** 게임이 시작되자마자 코드를 통해 Player 레이어와 Item 레이어 간의 물리 충돌을 자동으로 무시하도록 설정하여 불필요한 몸통 판정 꼬임 현상을 원천 차단합니다.
 - **③ `PlayerController2D.cs` (안전 예외 처리 탑재본)**:
   - 기존의 다중 기믹(사다리, 행거 등) 오프셋과 애니메이션 연산을 철저하게 보장하면서, 날아온 아이템 충돌이나 몬스터의 원거리 감지용 범위 콜라이더 닿음으로 인해 플레이어가 억울하게 제자리에서 피격 모션을 뿜어내던 기형적인 버그를 완치합니다.
+
+---
+
+## 3. 자동 맵 스캔 & 격자 제너레이터 구현 현황 (Implementation Roadmap)
+
+### A. 기획 배경 (Background & Needs)
+* **협업 생산성 극대화**: 팀원들이 각자 디자인한 맵을 단일 씬 파일에 직접 마구잡이로 배치하다 보면 Git 충돌(Merge Conflict)이 100% 발생합니다. 이를 원천 차단하기 위해 맵 정보를 런타임에 JSON 파일로 동적 로드하는 시스템을 구축했습니다.
+* **직관적인 백업 지원**: 유니티 에디터를 잘 다루지 못하는 팀원도 씬에 타일 오브젝트를 원하는 대로 배치한 후, 마우스 클릭 딱 2번만으로 데이터 백업 및 `Stage1.json` 추출을 마칠 수 있도록 자동 스캐너를 제공합니다.
+
+### B. 구현 완료된 핵심 코드 및 기능 (Completed Features)
+
+#### ① 씬 엑스포터 및 스캐너 ([MapTestLauncher.cs](file:///d:/GitHub/Project-PaintRush/Assets/Scripts/Map/MapTestLauncher.cs))
+* 에디터 상에서 마우스 우클릭 콘텍스트 메뉴(`Scan Scene to JSON`)를 통해 구동됩니다.
+* 씬 내의 모든 낱개 `"tile_"` 오브젝트들의 위치(X, Y), 이름, 그리고 기믹 타입(`Grass`, `Bridge`, `Cog`, `Door` 등)을 동적으로 자동 분류하여 수집합니다.
+* `MapGenerator` 인스펙터에 등록되어 있는 타일 에셋 배열 순서를 대조하여 JSON 데이터의 `id` 필드를 빈틈없이 자동으로 매핑 기입합니다.
+
+#### ② 견고한 백업 맵 로더 ([DataManager.cs](file:///d:/GitHub/Project-PaintRush/Assets/Scripts/Manager/DataManager.cs))
+* `CurrentMapData`를 소수점 유실이 없도록 조율하며 JSON 파일로 변환하여 에디터 로컬 폴더에 다이렉트로 물리 저장합니다.
+* **[임포트 딜레이 방어]** 방금 구워진 JSON 텍스트 에셋이 유니티 캐싱 데이터베이스에 새로고침되기 전에 로딩되어 맵이 누락되던 버그를 해결하기 위해, `Resources.Load`가 실패하면 실제 하드디스크 디렉토리(`File.ReadAllText`)를 직접 타고 들어가 강제 로드해오는 **이중 디스크 백업 시스템**을 도입했습니다.
+
+#### ③ 스마트 격자 제너레이터 ([MapGenerator.cs](file:///d:/GitHub/Project-PaintRush/Assets/Scripts/Map/MapGenerator.cs))
+* 읽어 들인 JSON 데이터를 기반으로 정수 격자 좌표(`Vector3Int`)로 스냅을 가해 타일맵 컴포넌트 상에 `SetTile`로 타일을 깔끔하게 조립합니다.
+* **[복사본 이름 매칭 필터]** 타일 굽기(Drag) 시 유니티가 붙이는 `_0` 접미사나 공백, 언더바, 그리고 복사본 구별용 꼬리표 숫자 `1`까지 코드 단에서 유연하게 도려내어 이름 일치 여부를 매칭하는 **유연한 매칭 필터(Fuzzy Match)**를 적용하여 조립 실패 버그를 완치했습니다.
+
+#### ④ 빌드 오류 디버깅 완료 ([TileManager.cs](file:///d:/GitHub/Project-PaintRush/Assets/Scripts/Manager/TileManager.cs))
+* 데이터 캐스팅 규격이 다소 변경됨에 따라 타 스크립트에서 발생할 수 있는 오타(`Vector3int` ➡️ `Vector3Int`) 및 float 좌표 대입 타입 에러 부근에 명시적 반올림 캐스팅(`Mathf.RoundToInt`)을 적용하여 프로젝트 전체 컴파일 빌드를 성공 상태로 복구 완료했습니다.
+
+### C. 프리팹 및 에셋 점검 사항
+* **타일 에셋 복사본 정리**: `Assets/Sprites/Tiles` 폴더 내부에 `tile_brick_0 1.asset` 등 잉여 복사본 파일이 다량 생성되어 있지만, 현재 코드에 탑재된 필터 연산이 자동으로 접미사 `1`을 트리밍해 매칭하므로 수동 리네이밍 스트레스 없이 정상 구동됩니다.
+
+### D. 남은 진행 예정 사항 (Next TODOs)
+* [ ] Hierarchy의 **`MapGenerator` 오브젝트**를 선택하고, 컴포넌트의 빈 **`Tilemap` 변수 칸**에 씬 내의 `Grid/Tilemap` 오브젝트를 드래그 앤 드롭으로 연결하기. (타입 롤백으로 풀려있는 상태)
+* [ ] 유니티 플레이(▶) 버튼을 누른 뒤, 에러 로그 없이 정수 격자에 딱딱 맞물려 맵이 예쁘게 가동되는지 최종 기능 검증.
+
