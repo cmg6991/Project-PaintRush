@@ -4,72 +4,16 @@
             "id": 8,
             "name": "tile_grass_0",
             "type": "Grass",
-            "x": -4,
-            "y": -3,
-            "color": "White"
-        },
-        {
-            "id": 8,
-            "name": "tile_grass_0",
-            "type": "Grass",
-            "x": -2,
-            "y": -3,
+            "x": -19,
+            "y": -12,
             "color": "White"
         },
         {
             "id": 9,
             "name": "tile_ladder_0",
             "type": "Ladder",
-            "x": -3,
-            "y": 1,
-            "color": "White"
-        },
-        {
-            "id": 1,
-            "name": "tile_archHalf_0",
-            "type": "Block",
-            "x": 0,
-            "y": -3,
-            "color": "White"
-        },
-        {
-            "id": 9,
-            "name": "tile_ladder_0",
-            "type": "Ladder",
-            "x": -3,
-            "y": 0,
-            "color": "White"
-        },
-        {
-            "id": 2,
-            "name": "tile_brick_0",
-            "type": "Block",
-            "x": 1,
-            "y": -1,
-            "color": "White"
-        },
-        {
-            "id": 7,
-            "name": "tile_grab_0",
-            "type": "Grab",
-            "x": 2,
-            "y": 3,
-            "color": "White"
-        },
-        {
-            "id": 8,
-            "name": "tile_grass_0",
-            "type": "Grass",
-            "x": -2,
-            "y": 2,
-            "color": "White"
-        },
-        {
-            "id": 2,
-            "name": "tile_brick_0",
-            "type": "Block",
-            "x": 4,
-            "y": -1,
+            "x": -21,
+            "y": -5,
             "color": "White"
         },
         {
@@ -77,103 +21,519 @@
             "name": "tile_bridge_0",
             "type": "Bridge",
             "x": -5,
-            "y": -3,
-            "color": "White"
-        },
-        {
-            "id": 1,
-            "name": "tile_archHalf_0",
-            "type": "Block",
-            "x": -8,
-            "y": -3,
-            "color": "White"
-        },
-        {
-            "id": 1,
-            "name": "tile_archHalf_0",
-            "type": "Block",
-            "x": -7,
-            "y": -3,
-            "color": "White"
-        },
-        {
-            "id": 2,
-            "name": "tile_brick_0",
-            "type": "Block",
-            "x": 2,
-            "y": -1,
+            "y": -12,
             "color": "White"
         },
         {
             "id": 8,
             "name": "tile_grass_0",
             "type": "Grass",
-            "x": -1,
-            "y": -3,
+            "x": -8,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 9,
+            "name": "tile_ladder_0",
+            "type": "Ladder",
+            "x": -21,
+            "y": -6,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -7,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -9,
+            "y": -9,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -29,
+            "y": -12,
+            "color": "White"
+        },
+        {
+            "id": 10,
+            "name": "tile_spikes_0",
+            "type": "Hazard",
+            "x": -12,
+            "y": -12,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": -19,
+            "y": -5,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -20,
+            "y": -12,
+            "color": "White"
+        },
+        {
+            "id": 7,
+            "name": "tile_grab_0",
+            "type": "Grab",
+            "x": -12,
+            "y": -7,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": 11,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": -21,
+            "y": -8,
+            "color": "White"
+        },
+        {
+            "id": 9,
+            "name": "tile_ladder_0",
+            "type": "Ladder",
+            "x": -19,
+            "y": -10,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": 3,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": 9,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -11,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 0,
+            "name": "tile_bridge_0",
+            "type": "Bridge",
+            "x": -14,
+            "y": -10,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": 4,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -27,
+            "y": -12,
+            "color": "White"
+        },
+        {
+            "id": 9,
+            "name": "tile_ladder_0",
+            "type": "Ladder",
+            "x": -19,
+            "y": -11,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -7,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": -22,
+            "y": -5,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -10,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -23,
+            "y": -12,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": -18,
+            "y": -5,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -8,
+            "y": -9,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": 10,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 9,
+            "name": "tile_ladder_0",
+            "type": "Ladder",
+            "x": -21,
+            "y": -7,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -18,
+            "y": -12,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -6,
+            "y": -9,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": 8,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": 6,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -22,
+            "y": -12,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -24,
+            "y": -12,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": -23,
+            "y": -5,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": 12,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": -23,
+            "y": -8,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": 7,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 0,
+            "name": "tile_bridge_0",
+            "type": "Bridge",
+            "x": -2,
+            "y": -12,
+            "color": "White"
+        },
+        {
+            "id": 7,
+            "name": "tile_grab_0",
+            "type": "Grab",
+            "x": -3,
+            "y": -7,
+            "color": "White"
+        },
+        {
+            "id": 0,
+            "name": "tile_bridge_0",
+            "type": "Bridge",
+            "x": -15,
+            "y": -11,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -25,
+            "y": -12,
             "color": "White"
         },
         {
             "id": 5,
             "name": "tile_door_0",
             "type": "Door",
-            "x": 6,
-            "y": -2,
-            "color": "White"
-        },
-        {
-            "id": 9,
-            "name": "tile_ladder_0",
-            "type": "Ladder",
-            "x": -3,
-            "y": -2,
-            "color": "White"
-        },
-        {
-            "id": 0,
-            "name": "tile_arch_0",
-            "type": "Block",
-            "x": -1,
-            "y": 2,
-            "color": "White"
-        },
-        {
-            "id": 9,
-            "name": "tile_ladder_0",
-            "type": "Ladder",
-            "x": -3,
-            "y": -1,
+            "x": 13,
+            "y": -12,
             "color": "White"
         },
         {
             "id": 8,
             "name": "tile_grass_0",
             "type": "Grass",
-            "x": 2,
-            "y": -3,
+            "x": -28,
+            "y": -12,
             "color": "White"
         },
         {
-            "id": 0,
-            "name": "tile_cog_0",
-            "type": "Cog",
-            "x": 6,
-            "y": 3,
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": 5,
+            "y": -13,
             "color": "White"
         },
         {
-            "id": 1,
-            "name": "tile_archHalf_0",
-            "type": "Block",
-            "x": -6,
-            "y": -3,
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -12,
+            "y": -13,
             "color": "White"
         },
         {
             "id": 2,
             "name": "tile_brick_0",
             "type": "Block",
-            "x": 3,
-            "y": -1,
+            "x": -20,
+            "y": -5,
+            "color": "White"
+        },
+        {
+            "id": 9,
+            "name": "tile_ladder_0",
+            "type": "Ladder",
+            "x": -19,
+            "y": -9,
+            "color": "White"
+        },
+        {
+            "id": 0,
+            "name": "tile_bridge_0",
+            "type": "Bridge",
+            "x": -17,
+            "y": -11,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": 7,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": 13,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 9,
+            "name": "tile_ladder_0",
+            "type": "Ladder",
+            "x": -19,
+            "y": -8,
+            "color": "White"
+        },
+        {
+            "id": 7,
+            "name": "tile_grab_0",
+            "type": "Grab",
+            "x": 1,
+            "y": -7,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -10,
+            "y": -9,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": -23,
+            "y": -4,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": -18,
+            "y": -4,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -26,
+            "y": -12,
+            "color": "White"
+        },
+        {
+            "id": 0,
+            "name": "tile_bridge_0",
+            "type": "Bridge",
+            "x": 0,
+            "y": -12,
+            "color": "White"
+        },
+        {
+            "id": 7,
+            "name": "tile_grab_0",
+            "type": "Grab",
+            "x": -1,
+            "y": -7,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -9,
+            "y": -13,
+            "color": "White"
+        },
+        {
+            "id": 10,
+            "name": "tile_spikes_0",
+            "type": "Hazard",
+            "x": -23,
+            "y": -7,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -7,
+            "y": -9,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": -20,
+            "y": -8,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -21,
+            "y": -12,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": -22,
+            "y": -8,
             "color": "White"
         }
     ]

@@ -1,22 +1,18 @@
-
-version https://git-lfs.github.com/spec/v1
-oid sha256:e17b24fad57d38be7e05b46e39b3f9d0498f54d39bf1a41090c548c08fd98f4d
-size 544
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
   tags:
+  - Splash
   - Ground
   - Ladder
-  - Wall
-  - Monster
-  - Enemy
-  - Splash
-  - Door
   - Gun
+  - Monster
+  - Wall
   - Hanger
+  - Door
+  - Item
   layers:
   - Default
   - TransparentFX
@@ -24,10 +20,10 @@ TagManager:
   - Ground
   - Water
   - UI
-  - Enemy
-  - EnemyAttack
-  - Player
-  - Item
+  - 
+  - 
+  - 
+  - 
   - 
   - 
   - 
