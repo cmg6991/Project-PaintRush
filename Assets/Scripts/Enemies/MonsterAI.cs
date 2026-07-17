@@ -3,19 +3,27 @@ using UnityEngine;
 
 public enum MonsterState
 {
+    // 순찰 상태: 플레이어를 감지하지 못한 상태
     Patrol,
+    // 주목 상태: 플레이어를 감지했지만 아직 공격하지 않은 상태
     Notice,
+    // 추적 상태: 플레이어를 감지하고 추적 중인 상태
     Chase,
+    // 탐색 상태: 플레이어를 감지했지만 공격 범위 밖으로 벗어난 상태
     Search,
+    // 공격 상태: 플레이어를 감지하고 공격 중인 상태
     Attack,
+    // 도망 상태: 플레이어를 감지하고 도망 중인 상태
     RunAway
 }
 
+// <summary>
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(MonsterMovement))]
 [RequireComponent(typeof(MonsterVisual))]
-public class MonsterAI : MonoBehaviour, IDamageable
-{
+public class MonsterAI : MonoBehaviour, IDamageable {
+    /// <summary>
+    /// 플레이어와의 방향을 결정하는 최소 거리
     private const float DirectionThreshold = 0.2f;
 
     [Header("피격 및 사망")]
@@ -127,75 +135,39 @@ public class MonsterAI : MonoBehaviour, IDamageable
     public bool IsDead => isDead;
     public bool HasPaletteItem => hasPaletteItem;
 
-    private void Awake()
-    {
+    private void Awake() {
         rb = GetComponent<Rigidbody2D>();
         monsterMovement = GetComponent<MonsterMovement>();
         monsterVisual = GetComponent<MonsterVisual>();
 
-        if (fillColor == null)
-        {
-            fillColor = GetComponent<FillColor>();
-        }
+        // 컴포넌트가 연결되지 않은 경우, 같은 GameObject에서 자동으로 가져오기
+        if (fillColor == null) { fillColor = GetComponent<FillColor>(); }
 
-        if (attackTrigger == null)
-        {
-            attackTrigger = GetComponentInChildren<MonsterAttackTrigger>(true);
-        }
+        if (attackTrigger == null) { attackTrigger = GetComponentInChildren<MonsterAttackTrigger>(true); }
 
         currentHp = maxHp;
 
+        // 이동 속도 기본값 저장
         basePatrolSpeed = patrolSpeed;
         baseChaseSpeed = chaseSpeed;
         baseRunAwaySpeed = runAwaySpeed;
 
         rb.freezeRotation = true;
 
+        ResolvePaletteIcon();
         SetNoticeIcon(false);
         SetRunAwayIcon(false);
         SetPaletteIcon(false);
     }
 
-    private void Start()
-    {
-        monsterUniqueId = $"{gameObject.name}_{transform.position.x:F2}_{transform.position.y:F2}";
+    private void Start() {
+        // 플레이어 추적을 사용하는 몬스터는 Start에서 플레이어를 찾는다.
+        if (monsterMovement.UsesPlayerTracking && player == null) { FindPlayer(); }
 
-        if (DataManager.Instance != null && DataManager.Instance.HasMonsterStat(monsterUniqueId))
-        {
-            var stat = DataManager.Instance.GetMonsterStat(monsterUniqueId);
-            currentHp = stat.currentHp;
-            patrolSpeed = stat.patrolSpeed;
-            chaseSpeed = stat.chaseSpeed;
-            detectRange = stat.detectRange;
-            attackRange = stat.attackRange;
-            attackDamage = stat.attackDamage;
+        // 몬스터 매니저가 연결되지 않은 경우, 싱글톤 인스턴스나 씬에서 첫 번째 MonsterManager를 찾아 연결
+        if (monsterManager == null) { monsterManager = MonsterManager.Instance;
 
-            if (System.Enum.TryParse(stat.currentElement, out ElementType savedElement))
-            {
-                currentElement = savedElement;
-            }
-
-            if (currentHp <= 0)
-            {
-                isDead = true;
-                gameObject.SetActive(false);
-                return;
-            }
-        }
-
-        if (monsterMovement.UsesPlayerTracking && player == null)
-        {
-            FindPlayer();
-        }
-
-        if (monsterManager == null)
-        {
-            monsterManager = MonsterManager.Instance;
-
-            if (monsterManager == null)
-            {
-                monsterManager = FindAnyObjectByType<MonsterManager>();
-            }
+            if (monsterManager == null) { monsterManager = FindFirstObjectByType<MonsterManager>(); }
         }
 
         RegisterToManager();
@@ -347,8 +319,7 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
     private void HandlePlayerDetected(float distance)
     {
-        if (!hasNoticedPlayer &&
-            currentState == MonsterState.Patrol)
+        if (!hasNoticedPlayer && currentState == MonsterState.Patrol)
         {
             EnterNotice();
             return;
@@ -359,11 +330,15 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
+        // 실제 공격 가능 여부는 거리 수치보다 AttackRange 트리거를 우선한다.
+        // 기존에는 attackRange가 0.4처럼 작으면 플레이어가 트리거 안에 있어도
+        // 계속 Chase 상태에 머무는 문제가 있었다.
         bool hasAttackTarget =
             attackTrigger != null &&
             attackTrigger.HasTarget;
 
-        currentState = hasAttackTarget
+        currentState = hasAttackTarget ||
+                       distance <= attackRange
             ? MonsterState.Attack
             : MonsterState.Chase;
     }
@@ -860,6 +835,18 @@ public class MonsterAI : MonoBehaviour, IDamageable
             return;
         }
 
+        // 일반 사격 코드를 수정하지 않고도 피버 공격을 적용한다.
+        // 피버 중에는 데미지를 강화하고 몬스터 색상 검사를 무시한다.
+        PaletteSpecialAttack specialAttack =
+            PaletteSpecialAttack.Instance;
+
+        bool feverApplied =
+            specialAttack != null &&
+            specialAttack.ApplyMonsterDamageModifiers(
+                ref damage,
+                ref ignoreElement
+            );
+
         SyncElementFromFillColor();
 
         if (!ignoreElement)
@@ -879,7 +866,15 @@ public class MonsterAI : MonoBehaviour, IDamageable
 
         currentHp = Mathf.Max(0, currentHp - damage);
 
-        Debug.Log($"{gameObject.name} 피격! 남은 체력: {currentHp}");
+        string feverText = feverApplied
+            ? " (피버 공격)"
+            : string.Empty;
+
+        Debug.Log(
+            $"{gameObject.name} 피격! " +
+            $"데미지: {damage}, 남은 체력: {currentHp}" +
+            feverText
+        );
 
         // DataManager 스탯 실시간 동기화
         SyncStatsToDataManager();
@@ -1098,6 +1093,34 @@ public class MonsterAI : MonoBehaviour, IDamageable
         }
     }
 
+    private void ResolvePaletteIcon()
+    {
+        if (paletteIcon != null)
+        {
+            return;
+        }
+
+        Transform[] children =
+            GetComponentsInChildren<Transform>(true);
+
+        foreach (Transform child in children)
+        {
+            if (child == transform)
+            {
+                continue;
+            }
+
+            if (string.Equals(
+                    child.name,
+                    "PaletteIcon",
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                paletteIcon = child.gameObject;
+                return;
+            }
+        }
+    }
+
     private void SetPaletteIcon(bool isActive)
     {
         if (paletteIcon != null)
@@ -1180,6 +1203,37 @@ public class MonsterAI : MonoBehaviour, IDamageable
                 Vector3.right *
                 moveDirection *
                 wallCheckDistance
+            );
+        }
+    }
+
+    public void SetPaletteCarrier(
+    bool isCarrier,
+    GameObject overridePaletteItemPrefab = null)
+    {
+        hasPaletteItem = isCarrier;
+
+        if (overridePaletteItemPrefab != null)
+        {
+            paletteItemPrefab = overridePaletteItemPrefab;
+        }
+
+        ResolvePaletteIcon();
+        SetPaletteIcon(hasPaletteItem);
+
+        if (hasPaletteItem)
+        {
+            if (paletteIcon == null)
+            {
+                Debug.LogWarning(
+                    $"{gameObject.name}: PaletteIcon이 연결되지 않았습니다. " +
+                    "몬스터 프리팹 자식에 PaletteIcon 오브젝트를 만들거나 " +
+                    "Inspector의 Palette Icon에 연결하세요."
+                );
+            }
+
+            Debug.Log(
+                $"{gameObject.name}: 팔레트 보유 몬스터로 지정됨"
             );
         }
     }

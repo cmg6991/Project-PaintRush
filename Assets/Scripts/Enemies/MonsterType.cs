@@ -1,4 +1,4 @@
-public enum MonsterType
+﻿public enum MonsterType
 {
     Slime,
     Ghost,
