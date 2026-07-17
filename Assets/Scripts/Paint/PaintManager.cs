@@ -11,6 +11,10 @@ public class PaintManager : MonoBehaviour
     [Header("브러시 스플래시 매니저 (사다리/몬스터/타일)")]
     [SerializeField] private RandomSplash brushSplashManager;
 
+    [Header("피버 스플래시 매니저")]
+    [SerializeField] private RandomSplash feverSplashManager;
+
+
     private void Awake()
     {
         if (instance == null)
@@ -37,6 +41,15 @@ public class PaintManager : MonoBehaviour
         if (brushSplashManager != null)
         {
             return brushSplashManager.Spawn(position, color,true);
+        }
+        return null;
+    }
+
+    public GameObject SpawnFeverSplash(Vector2 position, Color color)
+    {
+        if (feverSplashManager != null)
+        {
+            return feverSplashManager.Spawn(position, color, true);
         }
         return null;
     }
