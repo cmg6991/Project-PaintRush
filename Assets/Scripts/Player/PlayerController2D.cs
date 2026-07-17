@@ -68,6 +68,37 @@ namespace Project.Player
             originalGravityScale = rb.gravityScale;
         }
 
+        private void Start()
+        {
+            // 🎯 [신규 추가] DataManager로부터 플레이어 총의 물감 충전 게이지 복원
+            if (DataManager.Instance != null)
+            {
+                PlayerStat stat = DataManager.Instance.CurrentPlayerStat;
+                if (stat.hasColor)
+                {
+                    FillColor fillColor = GetComponentInChildren<FillColor>();
+                    if (fillColor != null)
+                    {
+                        if (UnityEngine.ColorUtility.TryParseHtmlString(stat.currentColorHex, out Color loadedColor))
+                        {
+                            fillColor.GunSetColor(loadedColor);
+                            
+                            // 만약 게이지 양이 1.0f가 아니었다면 복원 후 갱신
+                            if (stat.colorAmount < 0.99f)
+                            {
+                                System.Reflection.FieldInfo field = typeof(FillColor).GetField("<ColorAmount>k__BackingField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                                if (field != null)
+                                {
+                                    field.SetValue(fillColor, stat.colorAmount);
+                                }
+                                fillColor.UpdateVisual();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         void Update()
         {
             // 원을 계속 그려서 ground 있는지 검사

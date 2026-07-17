@@ -28,6 +28,48 @@ public class TileManager : MonoBehaviour
         InitTileDictionaries();
     }
 
+    void Start()
+    {
+        //  씬 내의 3개 타일맵 자동 바인딩 (이름 기반 검색)
+        Tilemap[] childTilemaps = FindObjectsByType<Tilemap>(FindObjectsInactive.Include);
+        foreach (var map in childTilemaps)
+        {
+            string nameLower = map.gameObject.name.ToLower();
+            if (nameLower.Contains("solid") || nameLower.Contains("ground") || nameLower.Contains("block"))
+            {
+                solidTilemap = map;
+            }
+            else if (nameLower.Contains("ladder"))
+            {
+                ladderTilemap = map;
+            }
+            else if (nameLower.Contains("grab") || nameLower.Contains("hanger"))
+            {
+                grabTilemap = map;
+            }
+        }
+
+        // 백업: 만약 자동 바인딩 후에도 solidTilemap이 없으면 아무 타일맵이나 잡음
+        if (solidTilemap == null)
+        {
+            solidTilemap = FindAnyObjectByType<Tilemap>();
+        }
+
+        // 런타임 게임 구동용 맵 로딩 자동 실행 (기존 MapTestLauncher 역할 흡수)
+        LoadMap("Stage1");
+        Debug.Log("<color=green>[TileManager]</color> 런타임 시작 시 'Stage1' 맵 복원 완료!");
+
+        // 씬 상에 잔존해 있는 임시 스캔용 낱개 오브젝트 자동 소각 (비활성화)
+        GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsInactive.Include);
+        foreach (GameObject obj in allObjects)
+        {
+            if (obj != null && obj.name.ToLower().StartsWith("tile_"))
+            {
+                obj.SetActive(false);
+            }
+        }
+    }
+
     // 인스펙터 등록 순서(Index)를 기반으로 ID 딕셔너리 세팅
     void InitTileDictionaries()
     {
@@ -91,6 +133,12 @@ public class TileManager : MonoBehaviour
     // JSON을 읽어오고 각 물리 타일맵에 분기 배치 및 Grid Cell Size 복원
     public void LoadMap(string fileName)
     {
+        // Awake가 호출되지 않는 비플레이 모드에서 실행할 경우 딕셔너리를 즉석에서 자동 강제 빌드
+        if (tileIdDictionary == null || tileIdDictionary.Count == 0 || tileAssetDictionary == null || tileAssetDictionary.Count == 0)
+        {
+            InitTileDictionaries();
+        }
+
         // 3개 타일맵 각각에 대해 Grid Cell Size 자동 복원
         SyncGridCellSize(solidTilemap);
         SyncGridCellSize(ladderTilemap);
@@ -108,39 +156,116 @@ public class TileManager : MonoBehaviour
         // 로드된 데이터를 기반으로 물리적 분기 배치 및 색상 적용
         foreach (var data in mapData.tiles)
         {
-            if (tileIdDictionary.TryGetValue(data.id, out TileBase tile))
+            Vector3Int position = new Vector3Int(Mathf.RoundToInt(data.x), Mathf.RoundToInt(data.y), 0);
+
+            if (data.type == "Block" || data.type == "Ladder" || data.type == "Grab")
             {
-                Vector3Int position = new Vector3Int(Mathf.RoundToInt(data.x), Mathf.RoundToInt(data.y), 0);
-
-                // 지형 타입(type)에 맞춰 타일맵 분기 선택
-                Tilemap targetMap = solidTilemap;
-                if (data.type == "Ladder")
+                if (tileIdDictionary.TryGetValue(data.id, out TileBase tile))
                 {
-                    targetMap = ladderTilemap != null ? ladderTilemap : solidTilemap;
-                }
-                else if (data.type == "Grab")
-                {
-                    targetMap = grabTilemap != null ? grabTilemap : solidTilemap;
-                }
-
-                if (targetMap != null)
-                {
-                    targetMap.SetTile(position, tile);
-
-                    // 색상 동기화
-                    if (ColorUtility.TryParseHtmlString(data.color, out Color customColor))
+                    // 지형 타입(type)에 맞춰 타일맵 분기 선택
+                    Tilemap targetMap = solidTilemap;
+                    if (data.type == "Ladder")
                     {
-                        targetMap.SetTileFlags(position, TileFlags.None);
-                        targetMap.SetColor(position, customColor);
+                        targetMap = ladderTilemap != null ? ladderTilemap : solidTilemap;
                     }
+                    else if (data.type == "Grab")
+                    {
+                        targetMap = grabTilemap != null ? grabTilemap : solidTilemap;
+                    }
+
+                    if (targetMap != null)
+                    {
+                        targetMap.SetTile(position, tile);
+
+                        // 색상 동기화
+                        if (ColorUtility.TryParseHtmlString(data.color, out Color customColor))
+                        {
+                            targetMap.SetTileFlags(position, TileFlags.None);
+                            targetMap.SetColor(position, customColor);
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"[TileManager] 프리셋 ID {data.id}에 해당하는 타일 에셋이 없습니다.");
                 }
             }
             else
             {
-                Debug.LogWarning($"[TileManager] 프리셋 ID {data.id}에 해당하는 타일 에셋이 없습니다.");
+                // [기믹 및 장식물 계열: Spike, Decoration, Door, ItemBox, Belt]
+                // 런타임에 전용 스크립트 및 충돌 처리를 위해 실제 낱개 게임오브젝트로 직접 복제 스폰
+                GameObject prefab = GetGimmickPrefab(data.name);
+                if (prefab != null)
+                {
+                    Vector3 spawnPos = new Vector3(data.x * gridUnitSize, data.y * gridUnitSize, 0f);
+                    
+                    // 런타임 Instantiate로 안전 스폰
+                    GameObject instance = Instantiate(prefab, spawnPos, Quaternion.identity, transform);
+                    instance.name = prefab.name;
+
+                    // 색상 복원
+                    SpriteRenderer sr = instance.GetComponentInChildren<SpriteRenderer>();
+                    if (sr != null && ColorUtility.TryParseHtmlString(data.color, out Color customColor))
+                    {
+                        sr.color = customColor;
+                    }
+
+                    // ColorMinus 컴포넌트 복원 처리 (리플렉션 + 셰이더)
+                    ColorMinus colorMinus = instance.GetComponent<ColorMinus>();
+                    if (colorMinus != null)
+                    {
+                        if (data.isColorAbsorbed)
+                        {
+                            System.Reflection.FieldInfo field = typeof(ColorMinus).GetField("isAbsorbed", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                            if (field != null)
+                            {
+                                field.SetValue(colorMinus, true);
+                            }
+                            if (sr != null)
+                            {
+                                sr.color = Color.white;
+                                sr.material.SetFloat("_Progress", 1f);
+                            }
+                        }
+                        else if (ColorUtility.TryParseHtmlString(data.originalColorHex, out Color origColor))
+                        {
+                            if (sr != null)
+                            {
+                                sr.color = origColor;
+                                sr.material.SetColor("_OriginalColor", origColor);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"[TileManager] 기믹 프리팹 '{data.name}'을 MapEditor 프리팹 리스트에서 찾을 수 없습니다.");
+                }
             }
         }
-        Debug.Log("[TileManager] 다중 물리 타일맵 배치 및 컬러 동기화 완료!");
+        Debug.Log("[TileManager] 하이브리드 지형 조립 및 기믹 스포닝 완료!");
+    }
+
+    // 이름 매칭을 통해 MapEditor의 프리팹 리스트에서 기믹 프리팹 찾기
+    private GameObject GetGimmickPrefab(string name)
+    {
+        MapEditor editor = FindAnyObjectByType<MapEditor>();
+        if (editor != null && editor.tilePrefabs != null)
+        {
+            string cleanNameInput = name.ToLower().Replace("_0", "").Replace(" ", "").Replace("_", "").Replace("1", "");
+            foreach (var prefab in editor.tilePrefabs)
+            {
+                if (prefab != null)
+                {
+                    string cleanPrefabName = prefab.name.ToLower().Replace("_0", "").Replace(" ", "").Replace("_", "").Replace("1", "");
+                    if (cleanPrefabName == cleanNameInput)
+                    {
+                        return prefab;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     // 그리드 크기 자동 동기화 헬퍼
@@ -172,7 +297,7 @@ public class TileManager : MonoBehaviour
     // JSON 파일 로딩 및 복원 헬퍼
     private MapData LoadMapData(string resourcePath)
     {
-        // Resources.Load 시도
+        // Resources.Load 
         TextAsset mapTextAsset = Resources.Load<TextAsset>(resourcePath);
 
         if (mapTextAsset != null)
@@ -182,7 +307,7 @@ public class TileManager : MonoBehaviour
         }
         else
         {
-            // 백업: 에디터 임포트 지연 예외 방어
+            // 에디터 임포트 지연 예외 방어
             string filePath = Path.Combine(Application.dataPath, "Resources", resourcePath + ".json");
             if (File.Exists(filePath))
             {
@@ -208,6 +333,10 @@ public class TileData
     public int x;        // 타일의 정밀 정규화 격자 x 좌표
     public int y;        // 타일의 정밀 정규화 격자 y 좌표
     public string color; // 타일 색상
+
+    // 물감 충전 타일(ColorMinus)의 흡수 완료 여부 및 원색 저장
+    public bool isColorAbsorbed;
+    public string originalColorHex;
 }
 
 [System.Serializable]

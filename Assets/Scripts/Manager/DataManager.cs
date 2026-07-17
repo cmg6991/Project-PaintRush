@@ -10,6 +10,11 @@ public class PlayerStat
     public int redInk;
     public int greenInk;
     public int blueInk;
+
+    // 🎯 [신규 추가] 총의 물감 충전(FillColor) 세이브/로드 정보
+    public bool hasColor;
+    public string currentColorHex;
+    public float colorAmount;
 }
 
 [System.Serializable]

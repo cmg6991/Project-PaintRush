@@ -1,180 +1,414 @@
 {
     "tiles": [
         {
-            "id": 8,
-            "name": "tile_grass_0",
-            "type": "Grass",
-            "x": -4,
-            "y": -3,
-            "color": "White"
-        },
-        {
-            "id": 8,
-            "name": "tile_grass_0",
-            "type": "Grass",
-            "x": -2,
-            "y": -3,
-            "color": "White"
-        },
-        {
-            "id": 9,
-            "name": "tile_ladder_0",
-            "type": "Ladder",
-            "x": -3,
-            "y": 1,
-            "color": "White"
-        },
-        {
-            "id": 1,
-            "name": "tile_archHalf_0",
-            "type": "Block",
-            "x": 0,
-            "y": -3,
-            "color": "White"
-        },
-        {
-            "id": 9,
-            "name": "tile_ladder_0",
-            "type": "Ladder",
-            "x": -3,
-            "y": 0,
-            "color": "White"
-        },
-        {
-            "id": 2,
-            "name": "tile_brick_0",
-            "type": "Block",
-            "x": 1,
-            "y": -1,
-            "color": "White"
-        },
-        {
-            "id": 7,
-            "name": "tile_grab_0",
-            "type": "Grab",
-            "x": 2,
-            "y": 3,
-            "color": "White"
-        },
-        {
-            "id": 8,
-            "name": "tile_grass_0",
-            "type": "Grass",
-            "x": -2,
-            "y": 2,
-            "color": "White"
-        },
-        {
-            "id": 2,
-            "name": "tile_brick_0",
-            "type": "Block",
-            "x": 4,
-            "y": -1,
-            "color": "White"
-        },
-        {
             "id": 0,
-            "name": "tile_bridge_0",
-            "type": "Bridge",
-            "x": -5,
-            "y": -3,
-            "color": "White"
-        },
-        {
-            "id": 1,
-            "name": "tile_archHalf_0",
+            "name": "tile_arch",
             "type": "Block",
-            "x": -8,
-            "y": -3,
-            "color": "White"
-        },
-        {
-            "id": 1,
-            "name": "tile_archHalf_0",
-            "type": "Block",
-            "x": -7,
-            "y": -3,
-            "color": "White"
-        },
-        {
-            "id": 2,
-            "name": "tile_brick_0",
-            "type": "Block",
-            "x": 2,
-            "y": -1,
-            "color": "White"
-        },
-        {
-            "id": 8,
-            "name": "tile_grass_0",
-            "type": "Grass",
-            "x": -1,
-            "y": -3,
-            "color": "White"
+            "x": -6,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
         },
         {
             "id": 5,
-            "name": "tile_door_0",
-            "type": "Door",
-            "x": 6,
-            "y": -2,
-            "color": "White"
+            "name": "tile_brick",
+            "type": "Block",
+            "x": -5,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
         },
         {
-            "id": 9,
-            "name": "tile_ladder_0",
-            "type": "Ladder",
+            "id": 5,
+            "name": "tile_brick",
+            "type": "Block",
+            "x": -4,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 5,
+            "name": "tile_brick",
+            "type": "Block",
             "x": -3,
-            "y": -2,
-            "color": "White"
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
         },
         {
-            "id": 0,
-            "name": "tile_arch_0",
+            "id": 5,
+            "name": "tile_brick",
+            "type": "Block",
+            "x": -2,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 5,
+            "name": "tile_brick",
             "type": "Block",
             "x": -1,
-            "y": 2,
-            "color": "White"
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
         },
         {
-            "id": 9,
-            "name": "tile_ladder_0",
-            "type": "Ladder",
-            "x": -3,
-            "y": -1,
-            "color": "White"
-        },
-        {
-            "id": 8,
-            "name": "tile_grass_0",
-            "type": "Grass",
-            "x": 2,
-            "y": -3,
-            "color": "White"
-        },
-        {
-            "id": 0,
-            "name": "tile_cog_0",
-            "type": "Cog",
-            "x": 6,
-            "y": 3,
-            "color": "White"
-        },
-        {
-            "id": 1,
-            "name": "tile_archHalf_0",
+            "id": 5,
+            "name": "tile_brick",
             "type": "Block",
-            "x": -6,
-            "y": -3,
-            "color": "White"
+            "x": -1,
+            "y": -8,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
         },
         {
-            "id": 2,
-            "name": "tile_brick_0",
+            "id": 6,
+            "name": "tile_bridge",
+            "type": "Block",
+            "x": 0,
+            "y": -7,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 6,
+            "name": "tile_bridge",
+            "type": "Block",
+            "x": 1,
+            "y": -7,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 6,
+            "name": "tile_bridge",
+            "type": "Block",
+            "x": 2,
+            "y": -7,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 6,
+            "name": "tile_bridge",
             "type": "Block",
             "x": 3,
-            "y": -1,
-            "color": "White"
+            "y": -6,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 6,
+            "name": "tile_bridge",
+            "type": "Block",
+            "x": 4,
+            "y": -6,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 6,
+            "name": "tile_bridge",
+            "type": "Block",
+            "x": 5,
+            "y": -6,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 11,
+            "name": "tile_door",
+            "type": "Door",
+            "x": 5,
+            "y": -5,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 15,
+            "name": "tile_grass",
+            "type": "Block",
+            "x": -7,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 15,
+            "name": "tile_grass",
+            "type": "Block",
+            "x": -9,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 15,
+            "name": "tile_grass",
+            "type": "Block",
+            "x": -8,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 15,
+            "name": "tile_grass",
+            "type": "Block",
+            "x": -10,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 20,
+            "name": "tile_spikes",
+            "type": "Spike",
+            "x": 0,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 20,
+            "name": "tile_spikes",
+            "type": "Spike",
+            "x": 1,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 20,
+            "name": "tile_spikes",
+            "type": "Spike",
+            "x": 2,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 20,
+            "name": "tile_spikes",
+            "type": "Spike",
+            "x": 3,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 20,
+            "name": "tile_spikes",
+            "type": "Spike",
+            "x": 4,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 20,
+            "name": "tile_spikes",
+            "type": "Spike",
+            "x": 5,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 17,
+            "name": "tile_ladder",
+            "type": "Ladder",
+            "x": -10,
+            "y": -8,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 17,
+            "name": "tile_ladder",
+            "type": "Ladder",
+            "x": -10,
+            "y": -7,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 17,
+            "name": "tile_ladder",
+            "type": "Ladder",
+            "x": -10,
+            "y": -6,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 17,
+            "name": "tile_ladder",
+            "type": "Ladder",
+            "x": -10,
+            "y": -5,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 17,
+            "name": "tile_ladder",
+            "type": "Ladder",
+            "x": -10,
+            "y": -4,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 4,
+            "name": "tile_belt",
+            "type": "Belt",
+            "x": -13,
+            "y": -4,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 4,
+            "name": "tile_belt",
+            "type": "Belt",
+            "x": -14,
+            "y": -4,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 7,
+            "name": "tile_castle",
+            "type": "Block",
+            "x": -1,
+            "y": -7,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 10,
+            "name": "tile_crate",
+            "type": "ItemBox",
+            "x": -11,
+            "y": -9,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 13,
+            "name": "tile_flag",
+            "type": "Decoration",
+            "x": -1,
+            "y": -6,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 5,
+            "name": "tile_brick",
+            "type": "Block",
+            "x": -12,
+            "y": -4,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 5,
+            "name": "tile_brick",
+            "type": "Block",
+            "x": -11,
+            "y": -4,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 5,
+            "name": "tile_brick",
+            "type": "Block",
+            "x": -9,
+            "y": -4,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 5,
+            "name": "tile_brick",
+            "type": "Block",
+            "x": -8,
+            "y": -4,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 5,
+            "name": "tile_brick",
+            "type": "Block",
+            "x": -7,
+            "y": -4,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 5,
+            "name": "tile_brick",
+            "type": "Block",
+            "x": -6,
+            "y": -4,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 5,
+            "name": "tile_brick",
+            "type": "Block",
+            "x": -5,
+            "y": -4,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
         }
     ]
 }
