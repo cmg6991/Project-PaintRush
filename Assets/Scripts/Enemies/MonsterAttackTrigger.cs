@@ -1,160 +1,148 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Collider2D))]
+/// <summary>
+/// 공격 범위 안에 들어온 플레이어의 실제 몸체 Collider를 추적합니다.
+/// </summary>
 public class MonsterAttackTrigger : MonoBehaviour
 {
-    // 실제 공격 시점과 쿨타임은 MonsterAI가 관리한다.
-    // 이 컴포넌트는 공격 범위 안에 있는 플레이어의 "본체 Collider"만 추적한다.
-    //
-    // 플레이어 자식의 MagnetSensor처럼 큰 Trigger Collider까지 플레이어로
-    // 인식하면 멀리 떨어져 있어도 공격하는 문제가 생기므로 Trigger Collider는 제외한다.
+    [SerializeField] private bool showDebugLogs;
 
-    private readonly Dictionary<Collider2D, PlayerHealth> targetsByCollider =
-        new Dictionary<Collider2D, PlayerHealth>();
-
-    private Collider2D attackCollider;
+    private readonly Dictionary<Collider2D, PlayerHealth> targets = new();
 
     public bool HasTarget
     {
         get
         {
-            return TryGetTarget(out _);
-        }
-    }
-
-    private void Awake()
-    {
-        attackCollider = GetComponent<Collider2D>();
-
-        if (!attackCollider.isTrigger)
-        {
-            Debug.LogWarning(
-                $"{gameObject.name}: 공격 범위 Collider2D의 Is Trigger가 꺼져 있습니다."
-            );
+            RemoveInvalidTargets();
+            return targets.Count > 0;
         }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        TrackTarget(other);
+        TryRegisterTarget(other);
     }
 
     private void OnTriggerStay2D(Collider2D other)
     {
-        TrackTarget(other);
+        TryRegisterTarget(other);
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        targetsByCollider.Remove(other);
+        if (other != null)
+        {
+            targets.Remove(other);
+        }
     }
 
     public bool TryGetTarget(out PlayerHealth target)
     {
+        RemoveInvalidTargets();
+
+        foreach (PlayerHealth playerHealth in targets.Values)
+        {
+            if (playerHealth != null)
+            {
+                target = playerHealth;
+                return true;
+            }
+        }
+
         target = null;
-
-        if (attackCollider == null ||
-            !attackCollider.enabled ||
-            !gameObject.activeInHierarchy)
-        {
-            targetsByCollider.Clear();
-            return false;
-        }
-
-        if (targetsByCollider.Count == 0)
-        {
-            return false;
-        }
-
-        List<Collider2D> invalidColliders = null;
-
-        foreach (KeyValuePair<Collider2D, PlayerHealth> pair
-                 in targetsByCollider)
-        {
-            Collider2D targetCollider = pair.Key;
-            PlayerHealth playerHealth = pair.Value;
-
-            bool isInvalid =
-                targetCollider == null ||
-                playerHealth == null ||
-                !targetCollider.enabled ||
-                !targetCollider.gameObject.activeInHierarchy ||
-                targetCollider.isTrigger ||
-                !IsActuallyOverlapping(targetCollider);
-
-            if (isInvalid)
-            {
-                invalidColliders ??= new List<Collider2D>();
-                invalidColliders.Add(targetCollider);
-                continue;
-            }
-
-            target = playerHealth;
-            break;
-        }
-
-        if (invalidColliders != null)
-        {
-            foreach (Collider2D invalidCollider in invalidColliders)
-            {
-                targetsByCollider.Remove(invalidCollider);
-            }
-        }
-
-        return target != null;
+        return false;
     }
 
-    private void TrackTarget(Collider2D other)
+    private void TryRegisterTarget(Collider2D other)
     {
-        // MagnetSensor, GroundCheck 등 플레이어 자식의 센서용 Trigger는 무시한다.
         if (other == null || other.isTrigger)
         {
             return;
         }
 
-        PlayerHealth playerHealth = FindPlayerHealth(other);
+        Transform playerRoot = FindTaggedParent(
+            other.transform,
+            "Player");
 
-        if (playerHealth == null)
+        if (playerRoot == null)
         {
             return;
         }
 
-        targetsByCollider[other] = playerHealth;
-    }
-
-    private bool IsActuallyOverlapping(Collider2D other)
-    {
-        if (other == null || attackCollider == null)
-        {
-            return false;
-        }
-
-        ColliderDistance2D distance =
-            Physics2D.Distance(
-                attackCollider,
-                other
-            );
-
-        return distance.isOverlapped;
-    }
-
-    private static PlayerHealth FindPlayerHealth(Collider2D other)
-    {
         PlayerHealth playerHealth =
-            other.GetComponent<PlayerHealth>();
+            playerRoot.GetComponent<PlayerHealth>() ??
+            playerRoot.GetComponentInChildren<PlayerHealth>(true);
 
         if (playerHealth == null)
         {
-            playerHealth =
-                other.GetComponentInParent<PlayerHealth>();
+            Debug.LogWarning(
+                $"[공격범위] {playerRoot.name}에서 " +
+                "PlayerHealth를 찾지 못했습니다.");
+
+            return;
         }
 
-        return playerHealth;
+        bool isNewTarget = !targets.ContainsKey(other);
+        targets[other] = playerHealth;
+
+        if (showDebugLogs && isNewTarget)
+        {
+            Debug.Log(
+                $"[공격범위] 플레이어 등록: {other.name}");
+        }
+    }
+
+    private static Transform FindTaggedParent(
+        Transform start,
+        string tagName)
+    {
+        for (Transform current = start;
+             current != null;
+             current = current.parent)
+        {
+            if (current.CompareTag(tagName))
+            {
+                return current;
+            }
+        }
+
+        return null;
+    }
+
+    private void RemoveInvalidTargets()
+    {
+        if (targets.Count == 0)
+        {
+            return;
+        }
+
+        List<Collider2D> invalidColliders = new();
+
+        foreach (
+            KeyValuePair<Collider2D, PlayerHealth> pair
+            in targets)
+        {
+            Collider2D targetCollider = pair.Key;
+            PlayerHealth targetHealth = pair.Value;
+
+            if (targetCollider == null ||
+                targetHealth == null ||
+                !targetCollider.enabled ||
+                !targetCollider.gameObject.activeInHierarchy)
+            {
+                invalidColliders.Add(targetCollider);
+            }
+        }
+
+        foreach (Collider2D invalidCollider in invalidColliders)
+        {
+            targets.Remove(invalidCollider);
+        }
     }
 
     private void OnDisable()
     {
-        targetsByCollider.Clear();
+        targets.Clear();
     }
 }

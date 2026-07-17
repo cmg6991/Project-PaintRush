@@ -1,61 +1,112 @@
+using System.Collections.Generic;
 using System.IO;
-using UnityEditor.Overlays;
 using UnityEngine;
 
 [System.Serializable]
-public class TileData { public int id; public int x; public int y; public string color; }
+public class PlayerStat
+{
+    public int currentHp;
+    public int maxHp;
+    public int redInk;
+    public int greenInk;
+    public int blueInk;
+}
 
 [System.Serializable]
-public class MapData { public TileData[] tiles; }
-
-// Singleton<DataManager>를 상속
-public class DataManager : Singleton<DataManager>
+public class MonsterStat
 {
-    public SaveData CurrentSaveData { get; private set; } = new SaveData();
+    public int currentHp;
+    public int maxHp;
+    public float patrolSpeed;
+    public float chaseSpeed;
+    public float detectRange;
+    public float attackRange;
+    public int attackDamage;
+    public string currentElement; // ElementType enum을 문자열로 호환 보장하며 보존
+}
 
-    // 싱글톤 유지 방법
-    public override void Awake()
+public class DataManager : MonoBehaviour
+{
+    public static DataManager Instance { get; private set; }
+
+    public PlayerStat CurrentPlayerStat = new PlayerStat();
+
+    // 몬스터 ID를 키로 하는 스탯 데이터 맵
+    private Dictionary<string, MonsterStat> monsterStatMap = new Dictionary<string, MonsterStat>();
+
+    private void Awake()
     {
-        base.Awake();       // 부모 Singleton의 중복 파괴 로직 호출
-        
-        // 씬 시작시 데이터 초기화
-        if (CurrentSaveData == null)
+        if (Instance == null)
         {
-            CurrentSaveData = new SaveData();
-        }
-    }
-
-    // [세이브 기능]: CurrentSaveData를 JSON 파일로 디스크에 물리적 저장
-    public void SaveGameToJson(string fileName)
-    {
-        string filePath = Path.Combine(Application.streamingAssetsPath, fileName);
-        
-        // 디렉토리가 없으면 생성 (StreamingAssets)
-        string directoryPath = Path.GetDirectoryName(filePath);
-        if (!Directory.Exists(directoryPath))
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
-
-        string jsonString = JsonUtility.ToJson(CurrentSaveData, true);
-        File.WriteAllText(filePath, jsonString);
-        Debug.Log($"[DataManager] 세이브 완료: {filePath}");
-    }
-
-    // [로드 기능]: JSON 파일을 읽어 CurrentSaveData로 복원
-    public void LoadGameFromJson(string fileName)
-    {
-        string filePath = Path.Combine(Application.streamingAssetsPath, fileName);
-        if (File.Exists(filePath))
-        {
-            string jsonString = File.ReadAllText(filePath);
-            CurrentSaveData = JsonUtility.FromJson<SaveData>(jsonString);
-            Debug.Log($"[DataManager] '{fileName}' 로드 완료");
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            InitDefaultData();
         }
         else
         {
-            Debug.LogWarning($"[DataManager] 세이브 파일을 찾을 수 없어 기본 데이터로 초기화합니다: {filePath}");
-            CurrentSaveData = new SaveData();
+            Destroy(gameObject);
         }
+    }
+
+    private void InitDefaultData()
+    {
+        CurrentPlayerStat.maxHp = 5;
+        CurrentPlayerStat.currentHp = 5;
+        CurrentPlayerStat.redInk = 0;
+        CurrentPlayerStat.greenInk = 0;
+        CurrentPlayerStat.blueInk = 0;
+    }
+
+    // 플레이어 HP 갱신
+    public void UpdatePlayerHp(int currentHp, int maxHp)
+    {
+        CurrentPlayerStat.currentHp = currentHp;
+        CurrentPlayerStat.maxHp = maxHp;
+        Debug.Log($"[DataManager] 플레이어 HP 동기화: {currentHp}/{maxHp}");
+    }
+
+    // 플레이어 잉크 보유량 갱신
+    public void UpdatePlayerInk(int red, int green, int blue)
+    {
+        CurrentPlayerStat.redInk = red;
+        CurrentPlayerStat.greenInk = green;
+        CurrentPlayerStat.blueInk = blue;
+    }
+
+    // 몬스터 스탯이 저장되어 있는지 확인
+    public bool HasMonsterStat(string id)
+    {
+        return monsterStatMap.ContainsKey(id);
+    }
+
+    // 몬스터 스탯 조회
+    public MonsterStat GetMonsterStat(string id)
+    {
+        if (monsterStatMap.TryGetValue(id, out MonsterStat stat))
+        {
+            return stat;
+        }
+        return null;
+    }
+
+    // 몬스터 개별 스탯 갱신 API (느슨한 결합 제공)
+    public void UpdateMonsterStat(string id, int currentHp, int maxHp, float patrolSpeed, float chaseSpeed, float detectRange, float attackRange, int attackDamage, string element)
+    {
+        if (!monsterStatMap.TryGetValue(id, out MonsterStat stat))
+        {
+            stat = new MonsterStat();
+            monsterStatMap[id] = stat;
+        }
+
+        stat.currentHp = currentHp;
+        stat.maxHp = maxHp;
+        stat.patrolSpeed = patrolSpeed;
+        stat.chaseSpeed = chaseSpeed;
+        stat.detectRange = detectRange;
+        stat.attackRange = attackRange;
+        stat.attackDamage = attackDamage;
+        stat.currentElement = element;
+
+        Debug.Log($"[DataManager] 몬스터 '{id}' 동적 스탯/속성 동기화 (HP: {currentHp}/{maxHp}, Element: {element})");
     }
 }

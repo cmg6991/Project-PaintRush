@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerHealth : MonoBehaviour, IDamageable
 {
     [SerializeField] private int maxHp = 5;
-    [SerializeField] private PlayerHeartUI heartUI; // 머리 위 하트 UI 스크립트 참조
+    [SerializeField, HideInInspector] private PlayerHeartUI heartUI; // 머리 위 하트 UI 스크립트 참조 (Awake에서 자동 탐색)
 
     private int currentHp;
     private bool isDead;
@@ -21,6 +21,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     private void Start()
     {
+        // DataManager에 저장된 이전 체력이 있다면 불러오기 (느슨한 연동)
+        if (DataManager.Instance != null)
+        {
+            currentHp = DataManager.Instance.CurrentPlayerStat.currentHp;
+        }
+
         // 게임 시작 시 하트 UI에 현재 체력(100%)을 전송해 꽉 채워둡니다.
         if (heartUI != null)
         {
@@ -44,6 +50,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         if (heartUI != null)
         {
             heartUI.UpdateHeartFill(currentHp, maxHp);
+        }
+
+        // DataManager 실시간 데이터 동기화 (기존 코드를 건드리지 않고 1줄 추가)
+        if (DataManager.Instance != null)
+        {
+            DataManager.Instance.UpdatePlayerHp(currentHp, maxHp);
         }
 
         if (currentHp <= 0)
