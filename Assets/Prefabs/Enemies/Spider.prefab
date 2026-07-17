@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7244877739171756331}
   - component: {fileID: 7527141659320275616}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: BodyColider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 2670152161981951735}
   - component: {fileID: 3355229271856859646}
   - component: {fileID: 3320745401781235770}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Spider
   m_TagString: Monster
   m_Icon: {fileID: 0}
@@ -371,6 +371,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00b52dc1544996b4f82898db72c4d51a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FillColor
+  feverLight: {fileID: 0}
+  minIntensity: 0.5
+  maxIntensity: 2
+  flashSpeed: 5
+  feverSparkle: {fileID: 0}
 --- !u!114 &2670152161981951735
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -383,6 +388,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af9f6c31fe8079049bc894a7880b3ab3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gradation
+  rainbowSpeed: 0.5
+  glowSpeed: 5
+  glowPower: 1.5
 --- !u!61 &3355229271856859646
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -452,7 +460,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6324345845437255891}
   - component: {fileID: 2796267967680783129}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: PaletteIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -635,7 +643,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3277402480686969038}
   - component: {fileID: 5870748187586308859}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: StateIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -726,7 +734,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5627928387689697150}
   - component: {fileID: 5888065789710443228}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: emote_drops_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1315367429538672647}
   m_Layer: 9
   m_Name: BluePalettePiece
-  m_TagString: Untagged
+  m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

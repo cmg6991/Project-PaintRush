@@ -20,10 +20,10 @@ TagManager:
   - Ground
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Enemy
+  - EnemiesAttack
+  - Item
   - 
   - 
   - 

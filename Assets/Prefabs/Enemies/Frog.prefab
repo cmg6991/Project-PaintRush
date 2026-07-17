@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6969674523710361086}
   - component: {fileID: 3715069682092030171}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: StateIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -110,7 +110,7 @@ GameObject:
   - component: {fileID: 882782983448701617}
   - component: {fileID: 1916228864058531852}
   - component: {fileID: 4643946212496530276}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Frog
   m_TagString: Monster
   m_Icon: {fileID: 0}
@@ -385,6 +385,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00b52dc1544996b4f82898db72c4d51a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FillColor
+  feverLight: {fileID: 0}
+  minIntensity: 0.5
+  maxIntensity: 2
+  flashSpeed: 5
+  feverSparkle: {fileID: 0}
 --- !u!114 &882782983448701617
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -397,6 +402,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af9f6c31fe8079049bc894a7880b3ab3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gradation
+  rainbowSpeed: 0.5
+  glowSpeed: 5
+  glowPower: 1.5
 --- !u!61 &1916228864058531852
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -466,7 +474,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3272025500941931918}
   - component: {fileID: 1456381696186789534}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: PaletteIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -556,7 +564,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 564165833680426708}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -588,7 +596,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4424767690708020662}
   - component: {fileID: 7930796306870517165}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: emote_drops_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -680,7 +688,7 @@ GameObject:
   - component: {fileID: 872113298368266964}
   - component: {fileID: 4249938085278718039}
   - component: {fileID: 4379420007570854437}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: AttackRange
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -771,7 +779,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6907388330492249761}
   - component: {fileID: 372873836236968837}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: BodyColider
   m_TagString: Untagged
   m_Icon: {fileID: 0}

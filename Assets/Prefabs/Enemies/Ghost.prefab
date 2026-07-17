@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 39937661720411949}
   - component: {fileID: 2255208213904780210}
   - component: {fileID: 7011519852887212104}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Ghost
   m_TagString: Monster
   m_Icon: {fileID: 0}
@@ -339,6 +339,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af9f6c31fe8079049bc894a7880b3ab3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rainbowSpeed: 0.5
+  glowSpeed: 5
+  glowPower: 1.5
 --- !u!114 &2255208213904780210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -351,6 +354,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00b52dc1544996b4f82898db72c4d51a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  feverLight: {fileID: 0}
+  minIntensity: 0.5
+  maxIntensity: 2
+  flashSpeed: 5
+  feverSparkle: {fileID: 0}
 --- !u!114 &7011519852887212104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -374,7 +382,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3753522468378658674}
   - component: {fileID: 8174485198136970023}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: StateIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -465,7 +473,7 @@ GameObject:
   m_Component:
   - component: {fileID: 414355078713428671}
   - component: {fileID: 3104287016337007393}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: BodyColider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -544,7 +552,7 @@ GameObject:
   - component: {fileID: 8115553829700930352}
   - component: {fileID: 85096981998304414}
   - component: {fileID: 7408318927167950386}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: AttackRange
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -635,7 +643,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8078356963409219956}
   - component: {fileID: 4385103430127665007}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: emote_drops_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -726,7 +734,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6454652292016408589}
   - component: {fileID: 7023971836140618578}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: PaletteIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7243046065793941343}
   - component: {fileID: 8272053142541227520}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: PaletteIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6045544105343131745}
   - component: {fileID: 2058325028454774866}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: StateIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -193,7 +193,7 @@ GameObject:
   - component: {fileID: 8226125298219393632}
   - component: {fileID: 3363131162095708944}
   - component: {fileID: 1394889508654362423}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: AttackRange
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -284,7 +284,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2259188903982005789}
   - component: {fileID: 3885561808139899029}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: emote_drops_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -375,7 +375,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5521755408925770288}
   - component: {fileID: 3219581872190974646}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: BodyColider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -462,7 +462,7 @@ GameObject:
   - component: {fileID: 1705242022708387044}
   - component: {fileID: 4702932556192648702}
   - component: {fileID: 6409559262831644406}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Snail
   m_TagString: Monster
   m_Icon: {fileID: 0}
@@ -736,6 +736,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00b52dc1544996b4f82898db72c4d51a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FillColor
+  feverLight: {fileID: 0}
+  minIntensity: 0.5
+  maxIntensity: 2
+  flashSpeed: 5
+  feverSparkle: {fileID: 0}
 --- !u!114 &1705242022708387044
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -748,6 +753,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af9f6c31fe8079049bc894a7880b3ab3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gradation
+  rainbowSpeed: 0.5
+  glowSpeed: 5
+  glowPower: 1.5
 --- !u!61 &4702932556192648702
 BoxCollider2D:
   m_ObjectHideFlags: 0

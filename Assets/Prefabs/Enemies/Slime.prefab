@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 8441497138155235533}
   - component: {fileID: 5198273107439228541}
   - component: {fileID: 4234544759499069904}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Slime
   m_TagString: Monster
   m_Icon: {fileID: 0}
@@ -293,6 +293,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00b52dc1544996b4f82898db72c4d51a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FillColor
+  feverLight: {fileID: 0}
+  minIntensity: 0.5
+  maxIntensity: 2
+  flashSpeed: 5
+  feverSparkle: {fileID: 0}
 --- !u!114 &8441497138155235533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305,6 +310,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af9f6c31fe8079049bc894a7880b3ab3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gradation
+  rainbowSpeed: 0.5
+  glowSpeed: 5
+  glowPower: 1.5
 --- !u!61 &5198273107439228541
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -374,7 +382,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4488153592964680484}
   - component: {fileID: 2292084098386982615}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: PaletteIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -465,7 +473,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5962364859395275282}
   - component: {fileID: 1353347558963604791}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: emote_drops_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -556,7 +564,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2318233629067174681}
   - component: {fileID: 7951323829866933958}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: StateIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -648,7 +656,7 @@ GameObject:
   - component: {fileID: 7787847264684792201}
   - component: {fileID: 57106413043544901}
   - component: {fileID: 1465348869692272794}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: AttackRange
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -739,7 +747,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8476408427737644407}
   - component: {fileID: 8277875306448813442}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: BodyColider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
