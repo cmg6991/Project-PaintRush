@@ -6038,17 +6038,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cfd439188d80ec40a67009dc77ba244, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaletteSpecialAttack
-  paletteManager: {fileID: 0}
-  feverDuration: 7
-  feverDamage: 100
-  enableDirectInput: 1
-  useQKey: 1
-  useEKey: 1
-  useRightMouseButton: 1
-  feverEffectPrefab: {fileID: 0}
-  effectSpawnPoint: {fileID: 0}
-  isFeverActive: 0
-  remainingTime: 0
 --- !u!4 &1698690566
 Transform:
   m_ObjectHideFlags: 0
