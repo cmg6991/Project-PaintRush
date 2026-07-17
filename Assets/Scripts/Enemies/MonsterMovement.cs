@@ -1,32 +1,32 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class MonsterMovement : MonoBehaviour
 {
-    [Header("¸ó½ºÅÍ Á¾·ù")]
+    [Header("ëª¬ìŠ¤í„° ì¢…ë¥˜")]
     [SerializeField] private MonsterType monsterType;
 
-    [Header("°øÅë ÀÌµ¿")]
+    [Header("ê³µí†µ ì´ë™")]
     [SerializeField] private float acceleration = 5f;
     [SerializeField] private float groundGravityScale = 1.5f;
 
-    [Header("¸ó½ºÅÍº° ¼Óµµ ¹èÀ²")]
+    [Header("ëª¬ìŠ¤í„°ë³„ ì†ë„ ë°°ìœ¨")]
     [SerializeField] private float slimeSpeedMultiplier = 0.45f;
     [SerializeField] private float ghostSpeedMultiplier = 0.55f;
     [SerializeField] private float spiderSpeedMultiplier = 0.75f;
     [SerializeField] private float frogSpeedMultiplier = 0.55f;
 
-    [Header("À¯·É ÀÌµ¿")]
+    [Header("ìœ ë ¹ ì´ë™")]
     [SerializeField] private float ghostFloatHeight = 0.2f;
     [SerializeField] private float ghostFloatFrequency = 1.5f;
     [SerializeField] private float ghostVerticalCorrection = 4f;
     [SerializeField] private float ghostMaxVerticalSpeed = 1.2f;
 
-    [Header("ÇÇ¶ó³Ä ÀÌµ¿")]
+    [Header("í”¼ë¼ëƒ ì´ë™")]
     [SerializeField] private float piranhaJumpHeight = 1.8f;
     [SerializeField] private float piranhaFrequency = 1.5f;
 
-    [Header("°³±¸¸® ÀÌµ¿")]
+    [Header("ê°œêµ¬ë¦¬ ì´ë™")]
     [SerializeField] private Transform frogGroundCheck;
     [SerializeField] private LayerMask frogGroundLayer;
     [SerializeField] private float frogGroundCheckRadius = 0.2f;
@@ -75,7 +75,7 @@ public class MonsterMovement : MonoBehaviour
             frogGroundCheck == null)
         {
             Debug.LogError(
-                $"{gameObject.name}: Frog Ground Check°¡ ¿¬°áµÇÁö ¾Ê¾Ò½À´Ï´Ù."
+                $"{gameObject.name}: Frog Ground Checkê°€ ì—°ê²°ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤."
             );
         }
     }
@@ -141,7 +141,7 @@ public class MonsterMovement : MonoBehaviour
                 break;
 
             case MonsterType.Frog:
-                // °³±¸¸®´Â °øÁß¿¡¼­ ¼öÆò ¼Óµµ¸¦ °­Á¦·Î ¾ø¾ÖÁö ¾ÊÀ½
+                // ê°œêµ¬ë¦¬ëŠ” ê³µì¤‘ì—ì„œ ìˆ˜í‰ ì†ë„ë¥¼ ê°•ì œë¡œ ì—†ì• ì§€ ì•ŠìŒ
                 if (IsFrogGrounded())
                 {
                     SetHorizontalVelocity(0f);
@@ -206,7 +206,7 @@ public class MonsterMovement : MonoBehaviour
             startPosition.y +
             normalizedHeight * piranhaJumpHeight;
 
-        // ÄÚ»çÀÎ °ªÀ¸·Î ÇöÀç ÀÌµ¿ ¹æÇâ ÆÇ´Ü
+        // ì½”ì‚¬ì¸ ê°’ìœ¼ë¡œ í˜„ì¬ ì´ë™ ë°©í–¥ íŒë‹¨
         float verticalVelocity = Mathf.Cos(phase);
 
         if (verticalVelocity > 0.01f)
@@ -233,13 +233,13 @@ public class MonsterMovement : MonoBehaviour
             return;
         }
 
-        // °øÁß¿¡¼­´Â ÇöÀç Á¡ÇÁ ¼Óµµ¸¦ À¯Áö
+        // ê³µì¤‘ì—ì„œëŠ” í˜„ì¬ ì í”„ ì†ë„ë¥¼ ìœ ì§€
         if (!IsFrogGrounded())
         {
             return;
         }
 
-        // ÂøÁö ÈÄ ´ÙÀ½ Á¡ÇÁ ½Ã°£±îÁö ´ë±â
+        // ì°©ì§€ í›„ ë‹¤ìŒ ì í”„ ì‹œê°„ê¹Œì§€ ëŒ€ê¸°
         if (Time.time < nextFrogJumpTime)
         {
             SetHorizontalVelocity(0f);

@@ -1,10 +1,14 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 공격 범위 안에 들어온 플레이어의 실제 몸체 Collider를 추적합니다.
+/// </summary>
 public class MonsterAttackTrigger : MonoBehaviour
 {
-    private readonly Dictionary<Collider2D, PlayerHealth> targets =
-        new Dictionary<Collider2D, PlayerHealth>();
+    [SerializeField] private bool showDebugLogs;
+
+    private readonly Dictionary<Collider2D, PlayerHealth> targets = new();
 
     public bool HasTarget
     {
@@ -27,65 +31,9 @@ public class MonsterAttackTrigger : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other == null)
+        if (other != null)
         {
-            return;
-        }
-
-        targets.Remove(other);
-    }
-
-    private void TryRegisterTarget(Collider2D other)
-    {
-        if (other == null)
-        {
-            return;
-        }
-
-        // MagnetSensor 같은 플레이어 자식 Trigger는 공격 대상으로 사용하지 않음
-        if (other.isTrigger)
-        {
-            return;
-        }
-
-        // Collider에서 부모 방향으로 올라가며 Player 태그 오브젝트를 찾음
-        Transform playerRoot = FindPlayerRoot(other.transform);
-
-        if (playerRoot == null)
-        {
-            return;
-        }
-
-        // PlayerHealth가 플레이어 루트나 자식 어디에 있어도 찾음
-        PlayerHealth playerHealth =
-            playerRoot.GetComponent<PlayerHealth>();
-
-        if (playerHealth == null)
-        {
-            playerHealth =
-                playerRoot.GetComponentInChildren<PlayerHealth>(true);
-        }
-
-        if (playerHealth == null)
-        {
-            Debug.LogWarning(
-                $"[공격범위] {playerRoot.name}에서 PlayerHealth를 찾지 못했습니다."
-            );
-
-            return;
-        }
-
-        if (!targets.ContainsKey(other))
-        {
-            targets.Add(other, playerHealth);
-
-            Debug.Log(
-                $"[공격범위] 플레이어 등록: {other.name}"
-            );
-        }
-        else
-        {
-            targets[other] = playerHealth;
+            targets.Remove(other);
         }
     }
 
@@ -93,33 +41,70 @@ public class MonsterAttackTrigger : MonoBehaviour
     {
         RemoveInvalidTargets();
 
-        foreach (KeyValuePair<Collider2D, PlayerHealth> pair in targets)
+        foreach (PlayerHealth playerHealth in targets.Values)
         {
-            if (pair.Value == null)
+            if (playerHealth != null)
             {
-                continue;
+                target = playerHealth;
+                return true;
             }
-
-            target = pair.Value;
-            return true;
         }
 
         target = null;
         return false;
     }
 
-    private static Transform FindPlayerRoot(Transform start)
+    private void TryRegisterTarget(Collider2D other)
     {
-        Transform current = start;
-
-        while (current != null)
+        if (other == null || other.isTrigger)
         {
-            if (current.CompareTag("Player"))
+            return;
+        }
+
+        Transform playerRoot = FindTaggedParent(
+            other.transform,
+            "Player");
+
+        if (playerRoot == null)
+        {
+            return;
+        }
+
+        PlayerHealth playerHealth =
+            playerRoot.GetComponent<PlayerHealth>() ??
+            playerRoot.GetComponentInChildren<PlayerHealth>(true);
+
+        if (playerHealth == null)
+        {
+            Debug.LogWarning(
+                $"[공격범위] {playerRoot.name}에서 " +
+                "PlayerHealth를 찾지 못했습니다.");
+
+            return;
+        }
+
+        bool isNewTarget = !targets.ContainsKey(other);
+        targets[other] = playerHealth;
+
+        if (showDebugLogs && isNewTarget)
+        {
+            Debug.Log(
+                $"[공격범위] 플레이어 등록: {other.name}");
+        }
+    }
+
+    private static Transform FindTaggedParent(
+        Transform start,
+        string tagName)
+    {
+        for (Transform current = start;
+             current != null;
+             current = current.parent)
+        {
+            if (current.CompareTag(tagName))
             {
                 return current;
             }
-
-            current = current.parent;
         }
 
         return null;
@@ -132,10 +117,11 @@ public class MonsterAttackTrigger : MonoBehaviour
             return;
         }
 
-        List<Collider2D> invalidTargets =
-            new List<Collider2D>();
+        List<Collider2D> invalidColliders = new();
 
-        foreach (KeyValuePair<Collider2D, PlayerHealth> pair in targets)
+        foreach (
+            KeyValuePair<Collider2D, PlayerHealth> pair
+            in targets)
         {
             Collider2D targetCollider = pair.Key;
             PlayerHealth targetHealth = pair.Value;
@@ -145,13 +131,13 @@ public class MonsterAttackTrigger : MonoBehaviour
                 !targetCollider.enabled ||
                 !targetCollider.gameObject.activeInHierarchy)
             {
-                invalidTargets.Add(targetCollider);
+                invalidColliders.Add(targetCollider);
             }
         }
 
-        foreach (Collider2D invalidTarget in invalidTargets)
+        foreach (Collider2D invalidCollider in invalidColliders)
         {
-            targets.Remove(invalidTarget);
+            targets.Remove(invalidCollider);
         }
     }
 

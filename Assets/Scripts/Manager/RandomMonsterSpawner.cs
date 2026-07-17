@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -488,7 +488,7 @@ public class RandomMonsterSpawner : MonoBehaviour
         if (monsterManager == null)
         {
             monsterManager =
-                FindFirstObjectByType
+                FindAnyObjectByType
                 <MonsterManager>();
         }
     }

@@ -153,6 +153,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
 
         rb.freezeRotation = true;
 
+        ResolvePaletteIcon();
         SetNoticeIcon(false);
         SetRunAwayIcon(false);
         SetPaletteIcon(false);
@@ -812,6 +813,18 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             return;
         }
 
+        // 일반 사격 코드를 수정하지 않고도 피버 공격을 적용한다.
+        // 피버 중에는 데미지를 강화하고 몬스터 색상 검사를 무시한다.
+        PaletteSpecialAttack specialAttack =
+            PaletteSpecialAttack.Instance;
+
+        bool feverApplied =
+            specialAttack != null &&
+            specialAttack.ApplyMonsterDamageModifiers(
+                ref damage,
+                ref ignoreElement
+            );
+
         SyncElementFromFillColor();
 
         if (!ignoreElement)
@@ -831,7 +844,15 @@ public class MonsterAI : MonoBehaviour, IDamageable {
 
         currentHp = Mathf.Max(0, currentHp - damage);
 
-        Debug.Log($"{gameObject.name} 피격! 남은 체력: {currentHp}");
+        string feverText = feverApplied
+            ? " (피버 공격)"
+            : string.Empty;
+
+        Debug.Log(
+            $"{gameObject.name} 피격! " +
+            $"데미지: {damage}, 남은 체력: {currentHp}" +
+            feverText
+        );
 
         if (currentHp <= 0)
         {
@@ -1047,6 +1068,34 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         }
     }
 
+    private void ResolvePaletteIcon()
+    {
+        if (paletteIcon != null)
+        {
+            return;
+        }
+
+        Transform[] children =
+            GetComponentsInChildren<Transform>(true);
+
+        foreach (Transform child in children)
+        {
+            if (child == transform)
+            {
+                continue;
+            }
+
+            if (string.Equals(
+                    child.name,
+                    "PaletteIcon",
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                paletteIcon = child.gameObject;
+                return;
+            }
+        }
+    }
+
     private void SetPaletteIcon(bool isActive)
     {
         if (paletteIcon != null)
@@ -1144,10 +1193,20 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             paletteItemPrefab = overridePaletteItemPrefab;
         }
 
+        ResolvePaletteIcon();
         SetPaletteIcon(hasPaletteItem);
 
         if (hasPaletteItem)
         {
+            if (paletteIcon == null)
+            {
+                Debug.LogWarning(
+                    $"{gameObject.name}: PaletteIcon이 연결되지 않았습니다. " +
+                    "몬스터 프리팹 자식에 PaletteIcon 오브젝트를 만들거나 " +
+                    "Inspector의 Palette Icon에 연결하세요."
+                );
+            }
+
             Debug.Log(
                 $"{gameObject.name}: 팔레트 보유 몬스터로 지정됨"
             );

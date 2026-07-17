@@ -2,29 +2,33 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// ìŠ¤í…Œì´ì§€ì˜ íŒ”ë ˆíŠ¸ ì•„ì´í…œ, ìˆ˜ì§‘ ìƒ‰ìƒ, íŠ¹ìˆ˜ê³µê²© ì§„í–‰ ìƒíƒœë¥¼ ê´€ë¦¬í•œë‹¤.
+/// ì‹¤ì œ ì…ë ¥ê³¼ ë°ë¯¸ì§€ëŠ” PaletteSpecialAttackì´ ë‹´ë‹¹í•œë‹¤.
+/// </summary>
 public class StagePaletteManager : MonoBehaviour
 {
     public static StagePaletteManager Instance { get; private set; }
 
-    [Header("½ºÅ×ÀÌÁö ¼³Á¤")]
-    [Tooltip("ÇöÀç ½ºÅ×ÀÌÁö¿¡¼­ ¸ğ¾Æ¾ß ÇÏ´Â »ö»ó ID")]
+    [Header("ìŠ¤í…Œì´ì§€ ì„¤ì •")]
+    [Tooltip("í˜„ì¬ ìŠ¤í…Œì´ì§€ì—ì„œ ëª¨ì•„ì•¼ í•˜ëŠ” ìƒ‰ìƒ ID")]
     [SerializeField]
     private List<string> requiredColorIds = new List<string>();
 
-    [Header("ÇÇ¹ö »ç¿ë ±ÔÄ¢")]
-    [Tooltip("ÇÇ¹ö ½ÃÀÛ ½Ã ÆÈ·¹Æ® ¾ÆÀÌÅÛÀ» ¼ÒºñÇÒÁö")]
+    [Header("í”¼ë²„ ì¢…ë£Œ ê·œì¹™")]
+    [Tooltip("í”¼ë²„ê°€ ëë‚¬ì„ ë•Œ íŒ”ë ˆíŠ¸ ì•„ì´í…œì„ ì´ˆê¸°í™”")]
     [SerializeField]
-    private bool consumePaletteItemOnUse = false;
+    private bool resetPaletteItemOnFeverEnd = true;
 
-    [Tooltip("ÇÇ¹ö ½ÃÀÛ ½Ã »öÀ» ÃÊ±âÈ­ÇÒÁö")]
+    [Tooltip("í”¼ë²„ê°€ ëë‚¬ì„ ë•Œ ìˆ˜ì§‘í•œ ìƒ‰ì„ ì´ˆê¸°í™”")]
     [SerializeField]
-    private bool clearCollectedColorsOnUse = false;
+    private bool resetCollectedColorsOnFeverEnd = true;
 
-    [Header("¾À ÀüÈ¯")]
+    [Header("ì”¬ ì „í™˜")]
     [SerializeField]
     private bool persistAcrossScenes = false;
 
-    [Header("·±Å¸ÀÓ È®ÀÎ")]
+    [Header("ëŸ°íƒ€ì„ í™•ì¸")]
     [SerializeField]
     private List<string> collectedColorIds = new List<string>();
 
@@ -37,39 +41,46 @@ public class StagePaletteManager : MonoBehaviour
     [SerializeField]
     private bool canUseSpecialAttack;
 
+    [SerializeField]
+    private bool isSpecialAttackActive;
+
     private readonly HashSet<string> collectedColorSet =
-        new HashSet<string>(
-            StringComparer.OrdinalIgnoreCase
-        );
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-    public IReadOnlyList<string> RequiredColorIds =>
-        requiredColorIds;
+    public IReadOnlyList<string> RequiredColorIds => requiredColorIds;
+    public IReadOnlyList<string> CollectedColorIds => collectedColorIds;
 
-    public IReadOnlyList<string> CollectedColorIds =>
-        collectedColorIds;
+    public int RequiredColorCount => requiredColorIds.Count;
+    public int CollectedRequiredColorCount => CountCollectedRequiredColors();
+    public int PaletteItemCount => paletteItemCount;
 
-    public int RequiredColorCount =>
-        requiredColorIds.Count;
+    public float Progress01
+    {
+        get
+        {
+            if (RequiredColorCount <= 0)
+            {
+                return 0f;
+            }
 
-    public int CollectedRequiredColorCount =>
-        CountCollectedRequiredColors();
+            return Mathf.Clamp01(
+                (float)CollectedRequiredColorCount /
+                RequiredColorCount
+            );
+        }
+    }
 
-    public int PaletteItemCount =>
-        paletteItemCount;
-
-    public bool HasPaletteItem =>
-        paletteItemCount > 0;
-
-    public bool HasAllRequiredColors =>
-        hasAllRequiredColors;
-
-    public bool CanUseSpecialAttack =>
-        canUseSpecialAttack;
+    public bool HasPaletteItem => paletteItemCount > 0;
+    public bool HasAllRequiredColors => hasAllRequiredColors;
+    public bool CanUseSpecialAttack => canUseSpecialAttack;
+    public bool IsSpecialAttackActive => isSpecialAttackActive;
 
     public event Action OnPaletteStateChanged;
     public event Action<string> OnColorCollected;
     public event Action<int> OnPaletteItemCountChanged;
     public event Action OnSpecialAttackReady;
+    public event Action OnSpecialAttackStarted;
+    public event Action OnSpecialAttackEnded;
 
     private void Awake()
     {
@@ -95,122 +106,160 @@ public class StagePaletteManager : MonoBehaviour
     {
         if (!HasPaletteItem)
         {
-            Debug.Log(
-                "[ÆÈ·¹Æ®] ÆÈ·¹Æ® ¾ÆÀÌÅÛÀ» ÀåÂøÇÏÁö ¾Ê¾Æ " +
-                "»ö»óÀ» µî·ÏÇÒ ¼ö ¾ø½À´Ï´Ù."
-            );
-
             return false;
         }
 
-        string normalizedId =
-            NormalizeColorId(colorId);
+        string normalizedId = NormalizeColorId(colorId);
 
         if (string.IsNullOrEmpty(normalizedId))
         {
             Debug.LogWarning(
-                "[StagePaletteManager] " +
-                "ºñ¾î ÀÖ´Â »ö»ó ID´Â µî·ÏÇÒ ¼ö ¾ø½À´Ï´Ù."
+                "[StagePaletteManager] ë¹„ì–´ ìˆëŠ” ìƒ‰ìƒ IDëŠ” ë“±ë¡í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤."
             );
-
             return false;
         }
 
         if (!IsRequiredColor(normalizedId))
         {
-            Debug.Log(
-                $"[ÆÈ·¹Æ®] ÇöÀç ½ºÅ×ÀÌÁö ÇÊ¿ä »ö»óÀÌ ¾Æ´Õ´Ï´Ù: " +
-                $"{normalizedId}"
-            );
-
             return false;
         }
 
-        if (collectedColorSet.Contains(normalizedId))
+        if (!collectedColorSet.Add(normalizedId))
         {
-            Debug.Log(
-                $"[ÆÈ·¹Æ®] ÀÌ¹Ì ¼öÁıÇÑ »ö»ó: {normalizedId}"
-            );
-
             return false;
         }
 
-        collectedColorSet.Add(normalizedId);
         collectedColorIds.Add(normalizedId);
 
         Debug.Log(
-            $"[ÆÈ·¹Æ®] »ö»ó ¼öÁı: {normalizedId} " +
-            $"({CollectedRequiredColorCount}/" +
-            $"{RequiredColorCount})"
+            $"[íŒ”ë ˆíŠ¸] ìƒ‰ìƒ ìˆ˜ì§‘: {normalizedId} " +
+            $"({CollectedRequiredColorCount}/{RequiredColorCount})"
         );
 
         OnColorCollected?.Invoke(normalizedId);
-
         RefreshState(true);
         return true;
     }
 
-    public void EquipPaletteItem(int amount = 1)
+    public int EquipPaletteItem(int amount = 1)
     {
         if (amount <= 0)
         {
-            return;
+            return paletteItemCount;
         }
 
         paletteItemCount += amount;
 
         Debug.Log(
-            $"[ÆÈ·¹Æ®] ÆÈ·¹Æ® ¾ÆÀÌÅÛ ÀåÂø. " +
-            $"ÇöÀç º¸À¯: {paletteItemCount}"
+            $"[íŒ”ë ˆíŠ¸] íŒ”ë ˆíŠ¸ ì•„ì´í…œ ì¥ì°©. í˜„ì¬ ë³´ìœ : {paletteItemCount}"
         );
 
-        OnPaletteItemCountChanged?.Invoke(
-            paletteItemCount
-        );
+        OnPaletteItemCountChanged?.Invoke(paletteItemCount);
+        RefreshState(true);
 
+        return paletteItemCount;
+    }
+
+    /// <summary>
+    /// ì´ì „ PaletteInventoryì™€ì˜ í˜¸í™˜ìš©.
+    /// ì§€ì •í•œ ê°œìˆ˜ë§Œí¼ íŒ”ë ˆíŠ¸ ì•„ì´í…œì„ ì†Œë¹„í•œë‹¤.
+    /// </summary>
+    public bool TryConsumePaletteItems(int amount = 1)
+    {
+        if (amount <= 0 || paletteItemCount < amount)
+        {
+            return false;
+        }
+
+        paletteItemCount -= amount;
+        OnPaletteItemCountChanged?.Invoke(paletteItemCount);
+        RefreshState(true);
+
+        return true;
+    }
+
+    /// <summary>
+    /// ì´ì „ PaletteInventoryì™€ì˜ í˜¸í™˜ìš©.
+    /// ë³´ìœ  ì¤‘ì¸ íŒ”ë ˆíŠ¸ ì•„ì´í…œì„ ëª¨ë‘ ì œê±°í•œë‹¤.
+    /// </summary>
+    public void ClearPaletteItems()
+    {
+        if (paletteItemCount == 0)
+        {
+            return;
+        }
+
+        paletteItemCount = 0;
+        OnPaletteItemCountChanged?.Invoke(paletteItemCount);
         RefreshState(true);
     }
 
-    public bool TryConsumeForSpecialAttack()
+    /// <summary>
+    /// í”¼ë²„ ì‹œì‘ ì¡°ê±´ì„ í™•ì¸í•˜ê³  ì‚¬ìš© ì¤‘ ìƒíƒœë¡œ ì˜ˆì•½í•œë‹¤.
+    /// PaletteSpecialAttack.TryActivate()ì—ì„œ í˜¸ì¶œí•œë‹¤.
+    /// </summary>
+    public bool TryStartSpecialAttack()
     {
         if (!CanUseSpecialAttack)
         {
             Debug.Log(
-                "[ÆÈ·¹Æ®] ÇÇ¹ö »ç¿ë ºÒ°¡. " +
-                $"»ö»ó ¿Ï·á: {HasAllRequiredColors}, " +
-                $"ÆÈ·¹Æ® ÀåÂø: {HasPaletteItem}"
+                "[íŒ”ë ˆíŠ¸] í”¼ë²„ ì‚¬ìš© ë¶ˆê°€. " +
+                $"ìƒ‰ìƒ ì™„ë£Œ={HasAllRequiredColors}, " +
+                $"íŒ”ë ˆíŠ¸ ì¥ì°©={HasPaletteItem}, " +
+                $"ì´ë¯¸ ì‚¬ìš© ì¤‘={IsSpecialAttackActive}"
             );
 
             return false;
         }
 
-        if (consumePaletteItemOnUse)
-        {
-            paletteItemCount =
-                Mathf.Max(0, paletteItemCount - 1);
+        isSpecialAttackActive = true;
+        RefreshState(true);
+        OnSpecialAttackStarted?.Invoke();
 
-            OnPaletteItemCountChanged?.Invoke(
-                paletteItemCount
-            );
+        return true;
+    }
+
+    /// <summary>
+    /// í”¼ë²„ ì¢…ë£Œ í›„ íŒ”ë ˆíŠ¸ì™€ ìˆ˜ì§‘ ìƒ‰ì„ ì´ˆê¸°í™”í•œë‹¤.
+    /// </summary>
+    public void CompleteSpecialAttack()
+    {
+        if (!isSpecialAttackActive)
+        {
+            return;
         }
 
-        if (clearCollectedColorsOnUse)
+        isSpecialAttackActive = false;
+
+        if (resetPaletteItemOnFeverEnd)
+        {
+            paletteItemCount = 0;
+            OnPaletteItemCountChanged?.Invoke(paletteItemCount);
+        }
+
+        if (resetCollectedColorsOnFeverEnd)
         {
             collectedColorIds.Clear();
             collectedColorSet.Clear();
         }
 
         RefreshState(true);
-        return true;
+        OnSpecialAttackEnded?.Invoke();
+    }
+
+    /// <summary>
+    /// ì´ì „ ì½”ë“œì™€ì˜ í˜¸í™˜ìš©. ìƒˆ ì½”ë“œëŠ” TryStartSpecialAttackì„ ì‚¬ìš©í•œë‹¤.
+    /// </summary>
+    public bool TryConsumeForSpecialAttack()
+    {
+        return TryStartSpecialAttack();
     }
 
     public bool IsRequiredColor(string colorId)
     {
-        string normalizedId =
-            NormalizeColorId(colorId);
+        string normalizedId = NormalizeColorId(colorId);
 
-        foreach (string requiredId
-                 in requiredColorIds)
+        foreach (string requiredId in requiredColorIds)
         {
             if (string.Equals(
                     requiredId,
@@ -226,11 +275,8 @@ public class StagePaletteManager : MonoBehaviour
 
     public bool IsColorCollected(string colorId)
     {
-        string normalizedId =
-            NormalizeColorId(colorId);
-
         return collectedColorSet.Contains(
-            normalizedId
+            NormalizeColorId(colorId)
         );
     }
 
@@ -242,20 +288,16 @@ public class StagePaletteManager : MonoBehaviour
 
         if (newRequiredColors != null)
         {
-            foreach (string colorId
-                     in newRequiredColors)
+            foreach (string colorId in newRequiredColors)
             {
-                string normalizedId =
-                    NormalizeColorId(colorId);
+                string normalizedId = NormalizeColorId(colorId);
 
                 if (string.IsNullOrEmpty(normalizedId))
                 {
                     continue;
                 }
 
-                if (!ContainsIgnoreCase(
-                        requiredColorIds,
-                        normalizedId))
+                if (!ContainsIgnoreCase(requiredColorIds, normalizedId))
                 {
                     requiredColorIds.Add(normalizedId);
                 }
@@ -278,10 +320,7 @@ public class StagePaletteManager : MonoBehaviour
         if (clearPaletteItems)
         {
             paletteItemCount = 0;
-
-            OnPaletteItemCountChanged?.Invoke(
-                paletteItemCount
-            );
+            OnPaletteItemCountChanged?.Invoke(paletteItemCount);
         }
 
         if (clearCollectedColors)
@@ -295,25 +334,20 @@ public class StagePaletteManager : MonoBehaviour
 
     private void RefreshState(bool invokeEvent)
     {
-        bool wasAvailable =
-            canUseSpecialAttack;
+        bool wasAvailable = canUseSpecialAttack;
 
         hasAllRequiredColors =
             requiredColorIds.Count > 0 &&
-            CountCollectedRequiredColors() >=
-            requiredColorIds.Count;
+            CountCollectedRequiredColors() >= requiredColorIds.Count;
 
         canUseSpecialAttack =
             hasAllRequiredColors &&
-            HasPaletteItem;
+            HasPaletteItem &&
+            !isSpecialAttackActive;
 
-        if (!wasAvailable &&
-            canUseSpecialAttack)
+        if (!wasAvailable && canUseSpecialAttack)
         {
-            Debug.Log(
-                "[ÆÈ·¹Æ®] ¸ğµç Á¶°Ç ¿Ï·á! ÇÇ¹ö »ç¿ë °¡´É"
-            );
-
+            Debug.Log("[íŒ”ë ˆíŠ¸] ëª¨ë“  ì¡°ê±´ ì™„ë£Œ! í”¼ë²„ ì‚¬ìš© ê°€ëŠ¥");
             OnSpecialAttackReady?.Invoke();
         }
 
@@ -327,11 +361,9 @@ public class StagePaletteManager : MonoBehaviour
     {
         int count = 0;
 
-        foreach (string requiredId
-                 in requiredColorIds)
+        foreach (string requiredId in requiredColorIds)
         {
-            if (collectedColorSet.Contains(
-                    requiredId))
+            if (collectedColorSet.Contains(requiredId))
             {
                 count++;
             }
@@ -342,23 +374,18 @@ public class StagePaletteManager : MonoBehaviour
 
     private void NormalizeRequiredColorIds()
     {
-        List<string> normalizedList =
-            new List<string>();
+        List<string> normalizedList = new List<string>();
 
-        foreach (string colorId
-                 in requiredColorIds)
+        foreach (string colorId in requiredColorIds)
         {
-            string normalizedId =
-                NormalizeColorId(colorId);
+            string normalizedId = NormalizeColorId(colorId);
 
             if (string.IsNullOrEmpty(normalizedId))
             {
                 continue;
             }
 
-            if (!ContainsIgnoreCase(
-                    normalizedList,
-                    normalizedId))
+            if (!ContainsIgnoreCase(normalizedList, normalizedId))
             {
                 normalizedList.Add(normalizedId);
             }
@@ -371,14 +398,11 @@ public class StagePaletteManager : MonoBehaviour
     {
         collectedColorSet.Clear();
 
-        List<string> normalizedList =
-            new List<string>();
+        List<string> normalizedList = new List<string>();
 
-        foreach (string colorId
-                 in collectedColorIds)
+        foreach (string colorId in collectedColorIds)
         {
-            string normalizedId =
-                NormalizeColorId(colorId);
+            string normalizedId = NormalizeColorId(colorId);
 
             if (string.IsNullOrEmpty(normalizedId))
             {
@@ -394,15 +418,11 @@ public class StagePaletteManager : MonoBehaviour
         collectedColorIds = normalizedList;
     }
 
-    private static string NormalizeColorId(
-        string colorId)
+    private static string NormalizeColorId(string colorId)
     {
-        if (string.IsNullOrWhiteSpace(colorId))
-        {
-            return string.Empty;
-        }
-
-        return colorId.Trim();
+        return string.IsNullOrWhiteSpace(colorId)
+            ? string.Empty
+            : colorId.Trim();
     }
 
     private static bool ContainsIgnoreCase(

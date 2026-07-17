@@ -2,13 +2,16 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// 팔레트 피버의 입력, 지속시간, 데미지 강화, 연출을 담당한다.
+///
+/// 일반 사격 코드는 수정하지 않는다.
+/// MonsterAI.TakeDamage가 이 컴포넌트의 피버 상태를 확인해
+/// 데미지를 강화하고 속성 검사를 무시한다.
+/// </summary>
 public class PaletteSpecialAttack : MonoBehaviour
 {
-    public static PaletteSpecialAttack Instance
-    {
-        get;
-        private set;
-    }
+    public static PaletteSpecialAttack Instance { get; private set; }
 
     [Header("참조")]
     [SerializeField]
@@ -18,15 +21,23 @@ public class PaletteSpecialAttack : MonoBehaviour
     [SerializeField, Min(0.1f)]
     private float feverDuration = 7f;
 
+    [Tooltip("피버 중 일반 사격 한 발이 주는 최소 데미지")]
     [SerializeField, Min(1)]
     private int feverDamage = 100;
 
-    [Header("Q키 테스트")]
+    [Header("직접 입력")]
+    [Tooltip("PlayerInput 없이 이 컴포넌트가 직접 키 입력을 확인")]
     [SerializeField]
-    private bool enableKeyboardInput = true;
+    private bool enableDirectInput = true;
 
     [SerializeField]
-    private Key feverKey = Key.Q;
+    private bool useQKey = true;
+
+    [SerializeField]
+    private bool useEKey = true;
+
+    [SerializeField]
+    private bool useRightMouseButton = true;
 
     [Header("연출")]
     [SerializeField]
@@ -45,39 +56,49 @@ public class PaletteSpecialAttack : MonoBehaviour
     private Coroutine feverCoroutine;
     private GameObject spawnedEffect;
 
-    public bool IsFeverActive =>
-        isFeverActive;
-
-    public int FeverDamage =>
-        feverDamage;
-
-    public float RemainingTime =>
-        remainingTime;
+    public bool IsFeverActive => isFeverActive;
+    public int FeverDamage => feverDamage;
+    public float RemainingTime => remainingTime;
 
     private void Awake()
     {
-        if (Instance != null &&
-            Instance != this)
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
 
         Instance = this;
-
         ResolvePaletteManager();
     }
 
     private void Update()
     {
-        if (!enableKeyboardInput ||
-            Keyboard.current == null)
+        if (!enableDirectInput)
         {
             return;
         }
 
-        if (Keyboard.current[feverKey]
-            .wasPressedThisFrame)
+        bool requested = false;
+
+        if (Keyboard.current != null)
+        {
+            requested =
+                (useQKey &&
+                 Keyboard.current.qKey.wasPressedThisFrame) ||
+                (useEKey &&
+                 Keyboard.current.eKey.wasPressedThisFrame);
+        }
+
+        if (!requested &&
+            useRightMouseButton &&
+            Mouse.current != null)
+        {
+            requested =
+                Mouse.current.rightButton.wasPressedThisFrame;
+        }
+
+        if (requested)
         {
             TryActivate();
         }
@@ -89,10 +110,6 @@ public class PaletteSpecialAttack : MonoBehaviour
 
         if (isFeverActive)
         {
-            Debug.Log(
-                "[피버] 이미 피버 타임이 진행 중입니다."
-            );
-
             return false;
         }
 
@@ -101,29 +118,35 @@ public class PaletteSpecialAttack : MonoBehaviour
             Debug.LogWarning(
                 "[피버] StagePaletteManager가 없습니다."
             );
-
             return false;
         }
 
-        if (!paletteManager.CanUseSpecialAttack)
+        if (!paletteManager.TryStartSpecialAttack())
         {
-            Debug.Log(
-                "[피버] 발동 조건 부족. " +
-                $"색상 완료={paletteManager.HasAllRequiredColors}, " +
-                $"팔레트 장착={paletteManager.HasPaletteItem}"
-            );
-
             return false;
         }
+
+        isFeverActive = true;
+        remainingTime = feverDuration;
+
+        SpawnEffect();
 
         feverCoroutine =
             StartCoroutine(FeverRoutine());
 
+        Debug.Log(
+            $"[피버] 시작! {feverDuration:F1}초 동안 " +
+            $"일반 사격이 속성을 무시하고 최소 {feverDamage} 데미지"
+        );
+
         return true;
     }
 
-    public void OnPaletteAttack(
-        InputValue value)
+    /// <summary>
+    /// PlayerInput의 PaletteAttack 액션과 연결할 수 있다.
+    /// 직접 입력을 사용할 경우에는 연결하지 않아도 된다.
+    /// </summary>
+    public void OnPaletteAttack(InputValue value)
     {
         if (value.isPressed)
         {
@@ -131,20 +154,31 @@ public class PaletteSpecialAttack : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// MonsterAI가 일반 피격값을 피버 공격값으로 변환할 때 사용한다.
+    /// 피버가 아니면 아무 값도 변경하지 않는다.
+    /// </summary>
+    public bool ApplyMonsterDamageModifiers(
+        ref int damage,
+        ref bool ignoreElement)
+    {
+        if (!isFeverActive)
+        {
+            return false;
+        }
+
+        damage = Mathf.Max(damage, feverDamage);
+        ignoreElement = true;
+        return true;
+    }
+
     private IEnumerator FeverRoutine()
     {
-        isFeverActive = true;
-        remainingTime = feverDuration;
-
-        SpawnEffect();
-
-        Debug.Log(
-            $"[피버] 피버 타임 시작! {feverDuration:F1}초"
-        );
-
         while (remainingTime > 0f)
         {
-            remainingTime -= Time.deltaTime;
+            remainingTime =
+                Mathf.Max(0f, remainingTime - Time.deltaTime);
+
             yield return null;
         }
 
@@ -153,6 +187,11 @@ public class PaletteSpecialAttack : MonoBehaviour
 
     private void EndFever()
     {
+        if (!isFeverActive)
+        {
+            return;
+        }
+
         isFeverActive = false;
         remainingTime = 0f;
         feverCoroutine = null;
@@ -163,21 +202,13 @@ public class PaletteSpecialAttack : MonoBehaviour
             spawnedEffect = null;
         }
 
-        /*
-         * 피버 종료 시:
-         * - 팔레트 아이템 초기화
-         * - 수집한 색 전부 초기화
-         */
         if (paletteManager != null)
         {
-            paletteManager.ResetPaletteProgress(
-                true,
-                true
-            );
+            paletteManager.CompleteSpecialAttack();
         }
 
         Debug.Log(
-            "[피버] 피버 종료. 팔레트와 수집 색 초기화"
+            "[피버] 종료. 팔레트 아이템과 수집 색 초기화"
         );
     }
 
@@ -188,23 +219,17 @@ public class PaletteSpecialAttack : MonoBehaviour
             return;
         }
 
-        Vector3 spawnPosition =
+        Transform parent =
             effectSpawnPoint != null
-                ? effectSpawnPoint.position
-                : transform.position;
+                ? effectSpawnPoint
+                : transform;
 
         spawnedEffect = Instantiate(
             feverEffectPrefab,
-            spawnPosition,
-            Quaternion.identity
+            parent.position,
+            Quaternion.identity,
+            parent
         );
-
-        if (effectSpawnPoint != null)
-        {
-            spawnedEffect.transform.SetParent(
-                effectSpawnPoint
-            );
-        }
     }
 
     private void ResolvePaletteManager()
@@ -214,8 +239,7 @@ public class PaletteSpecialAttack : MonoBehaviour
             return;
         }
 
-        paletteManager =
-            StagePaletteManager.Instance;
+        paletteManager = StagePaletteManager.Instance;
 
         if (paletteManager == null)
         {
