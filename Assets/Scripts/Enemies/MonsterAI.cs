@@ -3,19 +3,27 @@ using UnityEngine;
 
 public enum MonsterState
 {
+    // 순찰 상태: 플레이어를 감지하지 못한 상태
     Patrol,
+    // 주목 상태: 플레이어를 감지했지만 아직 공격하지 않은 상태
     Notice,
+    // 추적 상태: 플레이어를 감지하고 추적 중인 상태
     Chase,
+    // 탐색 상태: 플레이어를 감지했지만 공격 범위 밖으로 벗어난 상태
     Search,
+    // 공격 상태: 플레이어를 감지하고 공격 중인 상태
     Attack,
+    // 도망 상태: 플레이어를 감지하고 도망 중인 상태
     RunAway
 }
 
+// <summary>
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(MonsterMovement))]
 [RequireComponent(typeof(MonsterVisual))]
-public class MonsterAI : MonoBehaviour, IDamageable
-{
+public class MonsterAI : MonoBehaviour, IDamageable {
+    /// <summary>
+    /// 플레이어와의 방향을 결정하는 최소 거리
     private const float DirectionThreshold = 0.2f;
 
     [Header("피격 및 사망")]
@@ -126,24 +134,19 @@ public class MonsterAI : MonoBehaviour, IDamageable
     public bool IsDead => isDead;
     public bool HasPaletteItem => hasPaletteItem;
 
-    private void Awake()
-    {
+    private void Awake() {
         rb = GetComponent<Rigidbody2D>();
         monsterMovement = GetComponent<MonsterMovement>();
         monsterVisual = GetComponent<MonsterVisual>();
 
-        if (fillColor == null)
-        {
-            fillColor = GetComponent<FillColor>();
-        }
+        // 컴포넌트가 연결되지 않은 경우, 같은 GameObject에서 자동으로 가져오기
+        if (fillColor == null) { fillColor = GetComponent<FillColor>(); }
 
-        if (attackTrigger == null)
-        {
-            attackTrigger = GetComponentInChildren<MonsterAttackTrigger>(true);
-        }
+        if (attackTrigger == null) { attackTrigger = GetComponentInChildren<MonsterAttackTrigger>(true); }
 
         currentHp = maxHp;
 
+        // 이동 속도 기본값 저장
         basePatrolSpeed = patrolSpeed;
         baseChaseSpeed = chaseSpeed;
         baseRunAwaySpeed = runAwaySpeed;
@@ -155,21 +158,15 @@ public class MonsterAI : MonoBehaviour, IDamageable
         SetPaletteIcon(false);
     }
 
-    private void Start()
-    {
-        if (monsterMovement.UsesPlayerTracking && player == null)
-        {
-            FindPlayer();
-        }
 
-        if (monsterManager == null)
-        {
-            monsterManager = MonsterManager.Instance;
+    private void Start() {
+        // 플레이어 추적을 사용하는 몬스터는 Start에서 플레이어를 찾는다.
+        if (monsterMovement.UsesPlayerTracking && player == null) { FindPlayer(); }
 
-            if (monsterManager == null)
-            {
-                monsterManager = FindFirstObjectByType<MonsterManager>();
-            }
+        // 몬스터 매니저가 연결되지 않은 경우, 싱글톤 인스턴스나 씬에서 첫 번째 MonsterManager를 찾아 연결
+        if (monsterManager == null) { monsterManager = MonsterManager.Instance;
+
+            if (monsterManager == null) { monsterManager = FindFirstObjectByType<MonsterManager>(); }
         }
 
         RegisterToManager();
