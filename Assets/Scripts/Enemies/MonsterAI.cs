@@ -106,6 +106,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
 
     private int currentHp;
     private int moveDirection = 1;
+    private string monsterUniqueId; // DataManager 스탯 동기화용 고유 ID
 
     private float startX;
     private float lastPatrolTurnTime;
@@ -158,7 +159,6 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         SetRunAwayIcon(false);
         SetPaletteIcon(false);
     }
-
 
     private void Start() {
         // 플레이어 추적을 사용하는 몬스터는 Start에서 플레이어를 찾는다.
@@ -691,6 +691,28 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         ApplyElementVisualAndStats();
 
         Debug.Log($"{gameObject.name}: 속성 확정 - {currentElement}");
+
+        // 속성이 변경되었으므로 DataManager에도 실시간 동기화
+        SyncStatsToDataManager();
+    }
+
+    // DataManager에 자신의 현재 스탯을 전송하는 느슨한 결합용 헬퍼 함수
+    private void SyncStatsToDataManager()
+    {
+        if (DataManager.Instance != null && !string.IsNullOrEmpty(monsterUniqueId))
+        {
+            DataManager.Instance.UpdateMonsterStat(
+                monsterUniqueId,
+                currentHp,
+                maxHp,
+                patrolSpeed,
+                chaseSpeed,
+                detectRange,
+                attackRange,
+                attackDamage,
+                currentElement.ToString()
+            );
+        }
     }
 
     private void ApplyElementVisualAndStats()
@@ -853,6 +875,9 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             $"데미지: {damage}, 남은 체력: {currentHp}" +
             feverText
         );
+
+        // DataManager 스탯 실시간 동기화
+        SyncStatsToDataManager();
 
         if (currentHp <= 0)
         {

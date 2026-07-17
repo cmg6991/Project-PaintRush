@@ -80,7 +80,6 @@ public class PaletteSpecialAttack : MonoBehaviour
         }
 
         bool requested = false;
-
         if (Keyboard.current != null)
         {
             requested =

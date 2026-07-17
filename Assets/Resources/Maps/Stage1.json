@@ -1,0 +1,180 @@
+{
+    "tiles": [
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -4,
+            "y": -3,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -2,
+            "y": -3,
+            "color": "White"
+        },
+        {
+            "id": 9,
+            "name": "tile_ladder_0",
+            "type": "Ladder",
+            "x": -3,
+            "y": 1,
+            "color": "White"
+        },
+        {
+            "id": 1,
+            "name": "tile_archHalf_0",
+            "type": "Block",
+            "x": 0,
+            "y": -3,
+            "color": "White"
+        },
+        {
+            "id": 9,
+            "name": "tile_ladder_0",
+            "type": "Ladder",
+            "x": -3,
+            "y": 0,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": 1,
+            "y": -1,
+            "color": "White"
+        },
+        {
+            "id": 7,
+            "name": "tile_grab_0",
+            "type": "Grab",
+            "x": 2,
+            "y": 3,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -2,
+            "y": 2,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": 4,
+            "y": -1,
+            "color": "White"
+        },
+        {
+            "id": 0,
+            "name": "tile_bridge_0",
+            "type": "Bridge",
+            "x": -5,
+            "y": -3,
+            "color": "White"
+        },
+        {
+            "id": 1,
+            "name": "tile_archHalf_0",
+            "type": "Block",
+            "x": -8,
+            "y": -3,
+            "color": "White"
+        },
+        {
+            "id": 1,
+            "name": "tile_archHalf_0",
+            "type": "Block",
+            "x": -7,
+            "y": -3,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": 2,
+            "y": -1,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": -1,
+            "y": -3,
+            "color": "White"
+        },
+        {
+            "id": 5,
+            "name": "tile_door_0",
+            "type": "Door",
+            "x": 6,
+            "y": -2,
+            "color": "White"
+        },
+        {
+            "id": 9,
+            "name": "tile_ladder_0",
+            "type": "Ladder",
+            "x": -3,
+            "y": -2,
+            "color": "White"
+        },
+        {
+            "id": 0,
+            "name": "tile_arch_0",
+            "type": "Block",
+            "x": -1,
+            "y": 2,
+            "color": "White"
+        },
+        {
+            "id": 9,
+            "name": "tile_ladder_0",
+            "type": "Ladder",
+            "x": -3,
+            "y": -1,
+            "color": "White"
+        },
+        {
+            "id": 8,
+            "name": "tile_grass_0",
+            "type": "Grass",
+            "x": 2,
+            "y": -3,
+            "color": "White"
+        },
+        {
+            "id": 0,
+            "name": "tile_cog_0",
+            "type": "Cog",
+            "x": 6,
+            "y": 3,
+            "color": "White"
+        },
+        {
+            "id": 1,
+            "name": "tile_archHalf_0",
+            "type": "Block",
+            "x": -6,
+            "y": -3,
+            "color": "White"
+        },
+        {
+            "id": 2,
+            "name": "tile_brick_0",
+            "type": "Block",
+            "x": 3,
+            "y": -1,
+            "color": "White"
+        }
+    ]
+}

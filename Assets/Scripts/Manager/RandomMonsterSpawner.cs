@@ -94,6 +94,7 @@ public class RandomMonsterSpawner : MonoBehaviour
             spawnedMonsterParent = transform;
         }
 
+
         ResolveMonsterManager();
     }
 
