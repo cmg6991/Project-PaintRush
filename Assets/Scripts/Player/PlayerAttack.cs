@@ -8,15 +8,15 @@ public class PlayerAttack : MonoBehaviour
     [Header("--- Gun Settings ---")]
     [SerializeField] private Transform gunTransform;            // 오브젝트
     [SerializeField] private Transform attackPoint;             // 여기서 레이캐스트 발사
-    [SerializeField] private float attackRange = 15f;           // 레이캐스트 사정거리
+    [SerializeField] private float attackRange = 14f;           // 레이캐스트 사정거리
     [SerializeField] private LayerMask enemyLayer;              // 몬스터 레이어
 
     [Header("--- Recoil (반동) Settings ---")]
-    [SerializeField] private float recoilForce = 0.15f;         // 총이 뒤로 밀리는 거리
+    [SerializeField] private float recoilForce = 0.14f;         // 총이 뒤로 밀리는 거리
     [SerializeField] private float recoilDuration = 0.05f;      // 반동 속도
 
     [Header("--- Gun Sway(총기 흔들림) Settings ---")]
-    [SerializeField] private float swaySpeed = 14f;             // 달릴때 흔들리는 속도
+    [SerializeField] private float swaySpeed = 13f;             // 달릴때 흔들리는 속도
     [SerializeField] private float swayAmount = 0.05f;          // 달릴때 흔들리는 높이
 
     [Header("--- Gun Target Settings ---")]
