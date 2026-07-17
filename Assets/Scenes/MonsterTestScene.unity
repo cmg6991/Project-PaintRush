@@ -3230,10 +3230,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2540531999560551335, guid: a8f70397d7af667488197b208d0627ec, type: 3}
-      propertyPath: paletteItemPrefab
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 6303588748897362065, guid: a8f70397d7af667488197b208d0627ec, type: 3}
       propertyPath: m_LocalPosition.x
       value: -11.98
@@ -5901,13 +5897,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cfd439188d80ec40a67009dc77ba244, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaletteSpecialAttack
-  inventory: {fileID: 0}
-  monsterManager: {fileID: 0}
-  damage: 999
-  consumeCount: 1
-  consumeWhenNoMonster: 0
-  effectPrefab: {fileID: 0}
-  effectSpawnPoint: {fileID: 0}
 --- !u!4 &1698690566
 Transform:
   m_ObjectHideFlags: 0
@@ -6644,7 +6633,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4444331247302514543, guid: 9f19562aed0c1184f9e3f38cade9cec7, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7782270020169511331, guid: 9f19562aed0c1184f9e3f38cade9cec7, type: 3}
       propertyPath: m_LocalPosition.x

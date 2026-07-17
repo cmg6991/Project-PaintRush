@@ -94,7 +94,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -7802691104615874314, guid: 24eeefc61b1570648a386d40c8757ebb, type: 3}
+  m_Sprite: {fileID: -7633230877233678835, guid: 6e44ff0491a0c8244bc3eade0d996b7f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -272,12 +272,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterVisual
   spriteRenderer: {fileID: 0}
-  normalSprite: {fileID: -7802691104615874314, guid: 24eeefc61b1570648a386d40c8757ebb, type: 3}
-  moveSprite1: {fileID: -7802691104615874314, guid: 24eeefc61b1570648a386d40c8757ebb, type: 3}
-  moveSprite2: {fileID: 1652814496420128917, guid: 6639bad26210aba449ef99993558b186, type: 3}
-  attackSprite: {fileID: -6093378718414725311, guid: 19956793910a6f54bb97998bee1f8c84, type: 3}
+  normalSprite: {fileID: -7633230877233678835, guid: 6e44ff0491a0c8244bc3eade0d996b7f, type: 3}
+  moveSprite1: {fileID: -7633230877233678835, guid: 6e44ff0491a0c8244bc3eade0d996b7f, type: 3}
+  moveSprite2: {fileID: 4108690698792937887, guid: 54e391e28576042438a53e784679bb22, type: 3}
+  attackSprite: {fileID: 2152884570553553005, guid: 6982f91fd6e35ee48887d60b1974e8b5, type: 3}
   hitSprite: {fileID: 1339042613600276651, guid: 7a0b396b99507ce4682e2fddb0609502, type: 3}
-  deadSprite: {fileID: -5914970437212030713, guid: 374f634e94ed01b44ac5b913a583036e, type: 3}
+  deadSprite: {fileID: -2585162918604191078, guid: 17bb0656be5ccfe458f1d82c08092313, type: 3}
   moveFrameInterval: 0.2
   facesRightByDefault: 0
 --- !u!114 &7000753292814942898
