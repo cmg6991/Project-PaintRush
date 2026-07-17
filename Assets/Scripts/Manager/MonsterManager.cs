@@ -1,20 +1,22 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 현재 씬에서 살아 있는 몬스터와 처치 수를 관리합니다.
+/// </summary>
 public class MonsterManager : MonoBehaviour
 {
     public static MonsterManager Instance { get; private set; }
 
-    private readonly HashSet<MonsterAI> aliveMonsters =
-        new HashSet<MonsterAI>();
+    private readonly HashSet<MonsterAI> aliveMonsters = new();
 
     [Header("런타임 확인")]
     [SerializeField] private int killCount;
     [SerializeField] private int aliveCount;
 
     public int KillCount => killCount;
-    public int AliveCount => aliveMonsters.Count;
+    public int AliveCount => aliveCount;
 
     public event Action<int> OnKillCountChanged;
     public event Action<int> OnAliveCountChanged;
@@ -23,9 +25,7 @@ public class MonsterManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Debug.LogError(
-                "MonsterManager가 씬에 두 개 이상 존재합니다."
-            );
+            Debug.LogError("MonsterManager가 씬에 두 개 이상 존재합니다.");
             Destroy(gameObject);
             return;
         }
@@ -37,15 +37,12 @@ public class MonsterManager : MonoBehaviour
     {
         MonsterAI[] sceneMonsters =
             FindObjectsByType<MonsterAI>(
-                FindObjectsSortMode.None
-            );
+                FindObjectsInactive.Exclude);
 
         foreach (MonsterAI monster in sceneMonsters)
         {
             Register(monster);
         }
-
-        RefreshAliveCount();
     }
 
     public bool Register(MonsterAI monster)
@@ -55,58 +52,49 @@ public class MonsterManager : MonoBehaviour
             return false;
         }
 
-        bool added = aliveMonsters.Add(monster);
-
-        if (added)
+        if (!aliveMonsters.Add(monster))
         {
-            RefreshAliveCount();
+            return false;
         }
 
-        return added;
+        RefreshAliveCount();
+        return true;
     }
 
     public bool Unregister(MonsterAI monster)
     {
-        if (monster == null)
+        if (monster == null || !aliveMonsters.Remove(monster))
         {
             return false;
         }
 
-        bool removed = aliveMonsters.Remove(monster);
-
-        if (removed)
-        {
-            RefreshAliveCount();
-        }
-
-        return removed;
+        RefreshAliveCount();
+        return true;
     }
 
     public bool RegisterDeath(MonsterAI monster)
     {
-        if (monster == null)
-        {
-            return false;
-        }
-
-        // 이미 목록에서 제거된 몬스터의 사망은 중복 집계하지 않는다.
-        if (!aliveMonsters.Remove(monster))
+        if (monster == null || !aliveMonsters.Remove(monster))
         {
             return false;
         }
 
         killCount++;
-        RefreshAliveCount();
 
+        RefreshAliveCount();
         OnKillCountChanged?.Invoke(killCount);
 
         Debug.Log(
-            $"몬스터 처치 수: {killCount}, 생존 몬스터 수: {aliveMonsters.Count}"
-        );
+            $"몬스터 처치 수: {killCount}, " +
+            $"생존 몬스터 수: {aliveCount}");
 
         return true;
     }
 
+    /// <summary>
+    /// 팔레트 특수 공격용이 아닙니다.
+    /// 다른 광역 기믹이 필요할 때만 사용합니다.
+    /// </summary>
     public int DamageAll(
         int damage,
         Color attackColor,
@@ -132,8 +120,7 @@ public class MonsterManager : MonoBehaviour
                 damage,
                 attackColor,
                 attacker,
-                ignoreElement
-            );
+                ignoreElement);
 
             attackedCount++;
         }
@@ -144,8 +131,7 @@ public class MonsterManager : MonoBehaviour
     public MonsterAI[] GetAliveMonstersSnapshot()
     {
         aliveMonsters.RemoveWhere(
-            monster => monster == null || monster.IsDead
-        );
+            monster => monster == null || monster.IsDead);
 
         RefreshAliveCount();
 
@@ -153,19 +139,30 @@ public class MonsterManager : MonoBehaviour
             new MonsterAI[aliveMonsters.Count];
 
         aliveMonsters.CopyTo(snapshot);
-
         return snapshot;
     }
 
     public void ResetKillCount()
     {
+        if (killCount == 0)
+        {
+            return;
+        }
+
         killCount = 0;
         OnKillCountChanged?.Invoke(killCount);
     }
 
     private void RefreshAliveCount()
     {
-        aliveCount = aliveMonsters.Count;
+        int newCount = aliveMonsters.Count;
+
+        if (aliveCount == newCount)
+        {
+            return;
+        }
+
+        aliveCount = newCount;
         OnAliveCountChanged?.Invoke(aliveCount);
     }
 
@@ -175,7 +172,5 @@ public class MonsterManager : MonoBehaviour
         {
             Instance = null;
         }
-
-        aliveMonsters.Clear();
     }
 }

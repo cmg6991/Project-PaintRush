@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public enum MonsterVisualState
 {
@@ -10,10 +10,10 @@ public enum MonsterVisualState
 
 public class MonsterVisual : MonoBehaviour
 {
-    [Header("·»´õ·¯")]
+    [Header("ë Œë”ëŸ¬")]
     [SerializeField] private SpriteRenderer spriteRenderer;
 
-    [Header("½ºÇÁ¶óÀÌÆ®")]
+    [Header("ìŠ¤í”„ë¼ì´íŠ¸")]
     [SerializeField] private Sprite normalSprite;
     [SerializeField] private Sprite moveSprite1;
     [SerializeField] private Sprite moveSprite2;
@@ -21,12 +21,12 @@ public class MonsterVisual : MonoBehaviour
     [SerializeField] private Sprite hitSprite;
     [SerializeField] private Sprite deadSprite;
 
-    [Header("¾Ö´Ï¸ŞÀÌ¼Ç")]
+    [Header("ì• ë‹ˆë©”ì´ì…˜")]
     [SerializeField, Min(0.02f)]
     private float moveFrameInterval = 0.2f;
 
-    [Header("±âº» ¹æÇâ")]
-    [Tooltip("¿øº» ½ºÇÁ¶óÀÌÆ®°¡ ¿À¸¥ÂÊÀ» ¹Ù¶óº¸¸é Ã¼Å©")]
+    [Header("ê¸°ë³¸ ë°©í–¥")]
+    [Tooltip("ì›ë³¸ ìŠ¤í”„ë¼ì´íŠ¸ê°€ ì˜¤ë¥¸ìª½ì„ ë°”ë¼ë³´ë©´ ì²´í¬")]
     [SerializeField] private bool facesRightByDefault = true;
 
     private MonsterVisualState currentState = MonsterVisualState.Idle;
@@ -60,7 +60,7 @@ public class MonsterVisual : MonoBehaviour
         if (spriteRenderer == null)
         {
             Debug.LogError(
-                $"{gameObject.name}: SpriteRenderer¸¦ Ã£Áö ¸øÇß½À´Ï´Ù."
+                $"{gameObject.name}: SpriteRendererë¥¼ ì°¾ì§€ ëª»í–ˆìŠµë‹ˆë‹¤."
             );
         }
     }
@@ -77,7 +77,7 @@ public class MonsterVisual : MonoBehaviour
             return;
         }
 
-        // ÇÇ°İ ½Ã°£ÀÌ ³²¾Æ ÀÖÀ¸¸é ÇÇ°İ ½ºÇÁ¶óÀÌÆ® ¿ì¼±
+        // í”¼ê²© ì‹œê°„ì´ ë‚¨ì•„ ìˆìœ¼ë©´ í”¼ê²© ìŠ¤í”„ë¼ì´íŠ¸ ìš°ì„ 
         if (Time.time < hitEndTime)
         {
             spriteRenderer.color = Color.white;
@@ -114,7 +114,7 @@ public class MonsterVisual : MonoBehaviour
     {
         if (verticalDirection > 0)
         {
-            // À§·Î ¿Ã¶ó°¡´Â ÀÌ¹ÌÁö
+            // ìœ„ë¡œ ì˜¬ë¼ê°€ëŠ” ì´ë¯¸ì§€
             SetSprite(
                 moveSprite2 != null
                     ? moveSprite2
@@ -123,7 +123,7 @@ public class MonsterVisual : MonoBehaviour
         }
         else
         {
-            // ¾Æ·¡·Î ³»·Á¿À´Â ÀÌ¹ÌÁö
+            // ì•„ë˜ë¡œ ë‚´ë ¤ì˜¤ëŠ” ì´ë¯¸ì§€
             SetSprite(
                 moveSprite1 != null
                     ? moveSprite1
