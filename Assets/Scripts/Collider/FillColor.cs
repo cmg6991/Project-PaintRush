@@ -128,7 +128,10 @@ public class FillColor : MonoBehaviour
             gradation.Play(Color.white);
         }
         if (feverSparkle != null)
+        {
             feverSparkle.Play();
+            Debug.Log(feverSparkle.isPlaying);
+        }
         UIManager.Instance.ShowFeverUI();
         //StartCoroutine(FeverTimer());
     }
