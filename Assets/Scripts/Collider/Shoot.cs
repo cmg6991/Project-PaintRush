@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Shoot : MonoBehaviour
 {
@@ -14,7 +15,10 @@ public class Shoot : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
             ShootPaint();
+            SoundManager.Instance.PlaySFX(SFXType.Shoot);
         }
     }
 

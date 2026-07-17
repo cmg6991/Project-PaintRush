@@ -79,7 +79,11 @@ public class FeverUI : MonoBehaviour
 
             yield return Pop();
 
-            yield return new WaitForSeconds(1f);
+            if (i == 1)
+                yield return new WaitForSeconds(1.3f);   // 마지막만 조금 길게
+            else
+                yield return new WaitForSeconds(1f);
+
         }
     }
 
@@ -116,6 +120,7 @@ public class FeverUI : MonoBehaviour
 
     IEnumerator FadeOut()
     {
+        yield return new WaitForSeconds(0.3f);
         yield return Fade(0);
 
         BG.SetActive(false);

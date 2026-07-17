@@ -3,7 +3,11 @@ using UnityEngine.UI;
 
 public class SettingUI : MonoBehaviour
 {
-    //[SerializeField] private GameObject panel;
+    [SerializeField] private GameObject panel;
+    public GameObject SettingPanel => panel;
+
+    [SerializeField] private Button settingButton;
+    public Button SettingButton => settingButton;
 
     [SerializeField] private Slider bgmSlider;
     [SerializeField] private Slider effectSlider;

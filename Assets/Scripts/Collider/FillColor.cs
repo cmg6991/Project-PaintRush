@@ -42,15 +42,15 @@ public class FillColor : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            FeverOn();
-        }
+        //if (Input.GetKeyDown(KeyCode.F))
+        //{
+        //    FeverOn();
+        //}
 
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            FeverOff();
-        }
+        //if (Input.GetKeyDown(KeyCode.G))
+        //{
+        //    FeverOff();
+        //}
         UpdateFeverLight();
     }
 
@@ -130,15 +130,15 @@ public class FillColor : MonoBehaviour
         if (feverSparkle != null)
             feverSparkle.Play();
         UIManager.Instance.ShowFeverUI();
-        StartCoroutine(FeverTimer());
+        //StartCoroutine(FeverTimer());
     }
 
-    IEnumerator FeverTimer()
-    {
-        yield return new WaitForSeconds(5f);
+    //IEnumerator FeverTimer()
+    //{
+    //    yield return new WaitForSeconds(5f);
 
-        FeverOff();
-    }
+    //    FeverOff();
+    //}
 
     public void FeverOff()
     {

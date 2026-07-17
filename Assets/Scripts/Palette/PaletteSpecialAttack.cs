@@ -19,7 +19,7 @@ public class PaletteSpecialAttack : MonoBehaviour
 
     [Header("피버 설정")]
     [SerializeField, Min(0.1f)]
-    private float feverDuration = 7f;
+    private float feverDuration = 5f;
 
     [Tooltip("피버 중 일반 사격 한 발이 주는 최소 데미지")]
     [SerializeField, Min(1)]
@@ -56,6 +56,8 @@ public class PaletteSpecialAttack : MonoBehaviour
     private Coroutine feverCoroutine;
     private GameObject spawnedEffect;
 
+    private FillColor fillColor;
+
     public bool IsFeverActive => isFeverActive;
     public int FeverDamage => feverDamage;
     public float RemainingTime => remainingTime;
@@ -70,6 +72,7 @@ public class PaletteSpecialAttack : MonoBehaviour
 
         Instance = this;
         ResolvePaletteManager();
+        fillColor = GetComponentInChildren<FillColor>();
     }
 
     private void Update()
@@ -127,6 +130,7 @@ public class PaletteSpecialAttack : MonoBehaviour
 
         isFeverActive = true;
         remainingTime = feverDuration;
+        fillColor?.FeverOn();
 
         SpawnEffect();
 
@@ -192,6 +196,9 @@ public class PaletteSpecialAttack : MonoBehaviour
         }
 
         isFeverActive = false;
+
+        fillColor?.FeverOff();
+
         remainingTime = 0f;
         feverCoroutine = null;
 

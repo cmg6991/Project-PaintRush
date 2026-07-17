@@ -81,6 +81,7 @@ namespace Project.Player
             // 땅에 있고, 사다리/행거 안 탈 때 점프 키 누르면 Y축위로 속도를 줌
             if (inputHandler.JumpTriggered && isGrounded && !isClimbing && !isHanging)
             {
+                SoundManager.Instance.PlaySFX(SFXType.PlayerJump);
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             }
 
@@ -270,7 +271,7 @@ namespace Project.Player
         {
             if (collision.GetComponent<ColorDropItem>() != null) return;
 
-            if (collision.CompareTag("Enemy") && collision.isTrigger) return;
+            //if (collision.CompareTag("Enemy") && collision.isTrigger) return;
 
             if (collision.CompareTag("Ladder"))
             {

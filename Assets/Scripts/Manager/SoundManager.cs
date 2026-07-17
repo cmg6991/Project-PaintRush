@@ -4,7 +4,8 @@ public enum SFXType
 {
     Click,
     Shoot,
-    Hit,
+    PlayerWalk,
+    PlayerJump,
     Paint
 }
 public class SoundManager : Singleton<SoundManager>
@@ -32,6 +33,12 @@ public class SoundManager : Singleton<SoundManager>
     }
     private void Start()
     {
+        BGMVolume = PlayerPrefs.GetFloat("BGMVolume", 1f);
+        SFXVolume = PlayerPrefs.GetFloat("SFXVolume", 1f);
+
+        bgmSource.volume = BGMVolume;
+        sfxSource.volume = SFXVolume;
+
         PlayBGM();
     }
 
@@ -67,11 +74,15 @@ public class SoundManager : Singleton<SoundManager>
     {
         BGMVolume = value;
         bgmSource.volume = value;
+
+        PlayerPrefs.SetFloat("BGMVolume", value);
     }
 
     public void SetSFXVolume(float value)
     {
         SFXVolume = value;
         sfxSource.volume = value;
+
+        PlayerPrefs.SetFloat("SFXVolume", value);
     }
 }
