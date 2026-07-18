@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: cf29d259b6102f1479799983d462f6cb
+guid: f419c97909dcb5a4d8e5df6808cc5dd0
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Crunchyfont
+  - ??? ???
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
