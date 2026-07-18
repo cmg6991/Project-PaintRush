@@ -331,6 +331,7 @@ MonoBehaviour:
   acceleration: 10
   groundGravityScale: 1
   slimeSpeedMultiplier: 0.45
+  snailSpeedMultiplier: 0.3
   ghostSpeedMultiplier: 0.55
   spiderSpeedMultiplier: 0.75
   frogSpeedMultiplier: 0.55
@@ -344,9 +345,20 @@ MonoBehaviour:
   frogGroundLayer:
     serializedVersion: 2
     m_Bits: 0
-  frogGroundCheckRadius: 0.15
+  frogGroundCheckDistance: 0.18
+  frogGroundCheckWidth: 0.7
+  frogGroundedMaxUpSpeed: 0.05
   frogJumpPower: 6
   frogJumpInterval: 1.2
+  frogLandingPadding: 0.08
+  platformProbeDistance: 2
+  platformEdgePadding: 0.05
+  warnWhenPlatformMissing: 1
+  slimeAttackCooldownMultiplier: 1
+  snailAttackCooldownMultiplier: 1.35
+  ghostAttackCooldownMultiplier: 0.9
+  spiderAttackCooldownMultiplier: 0.7
+  frogAttackCooldownMultiplier: 1.2
   slimeAttack:
     windupTime: 0.12
     windupDistance: 0.18
@@ -354,6 +366,13 @@ MonoBehaviour:
     arcHeight: 0.65
     recoilTime: 0.16
     recoilDistance: 0.55
+  snailAttack:
+    windupTime: 0.22
+    windupDistance: 0.08
+    lungeTime: 0.32
+    arcHeight: 0.05
+    recoilTime: 0.24
+    recoilDistance: 0.32
   ghostAttack:
     windupTime: 0.08
     windupDistance: 0.12
