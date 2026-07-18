@@ -82,13 +82,11 @@ public class FillColor : MonoBehaviour
 
     public void Consume(float amount)
     {
-        Debug.Log($"[Consume 시작] 현재 ColorAmount: {ColorAmount}, 소모할 amount: {amount}");
         if (!HasColor) return;
         if (IsFever) return;
 
         if (ColorAmount < amount - 0.001f)
         {
-            Debug.Log($"[Consume 차단] 남은 양({ColorAmount})이 부족하여 차단됨. ClearColor 실행.");
             HasColor = false;
             ClearColor();
             return;
@@ -96,8 +94,6 @@ public class FillColor : MonoBehaviour
 
         ColorAmount -= amount;
         ColorAmount = Mathf.Clamp01(ColorAmount);
-
-        Debug.Log($"[Consume 차감 완료] 차감 후 ColorAmount: {ColorAmount}");
         UpdateVisual();
 
         if (ColorAmount <= 0f)
