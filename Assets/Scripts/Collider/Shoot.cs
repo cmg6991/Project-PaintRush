@@ -87,8 +87,7 @@ public class Shoot : MonoBehaviour
 
         foreach (var hit in hits)
         {
-            IPaintable paintable = hit.collider.GetComponent<IPaintable>();
-
+            IPaintable paintable = hit.collider.GetComponentInParent<IPaintable>();
             if (paintable == null)
                 continue;
 
