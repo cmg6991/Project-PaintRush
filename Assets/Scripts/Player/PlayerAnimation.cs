@@ -12,6 +12,7 @@ namespace Project.Player
         private Rigidbody2D rb;
         private PlayerInputHandler inputHandler;
         private PlayerController2D playerController;
+        private PlayerHealth playerHealth;
 
         private void Awake()
         {
@@ -19,14 +20,21 @@ namespace Project.Player
             rb = GetComponent<Rigidbody2D>();
             inputHandler = GetComponent<PlayerInputHandler>();
             playerController = GetComponent<PlayerController2D>();
+            playerHealth = GetComponent<PlayerHealth>();
         }
 
         private void Update()
         {
             if (playerController == null) return;
 
-            // Check Running Condition
-            bool isMoving = Mathf.Abs(inputHandler.MoveInput.x) > 0.1f;
+            // 이미 사망했다면 애니메이션 노드를 Dead로 고정하기 위해 다른 상태값 업데이트 정지
+            if (playerHealth != null && playerHealth.IsDead)
+            {
+                return;
+            }
+
+            // Check Running Condition (사다리 낙하 중일 때는 이동 입력을 해도 걷기 모션이 재생되지 않도록 방어)
+            bool isMoving = Mathf.Abs(inputHandler.MoveInput.x) > 0.1f && !playerController.IsFallingFromLadder;
             animator.SetBool("isMoving", isMoving);
 
             // jump Condition 

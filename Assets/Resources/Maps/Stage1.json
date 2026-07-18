@@ -171,6 +171,16 @@
             "originalColorHex": "#FFFFFFFF"
         },
         {
+            "id": 14,
+            "name": "tile_grab",
+            "type": "Grab",
+            "x": -3.0,
+            "y": -6.0,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
             "id": 7,
             "name": "tile_castle",
             "type": "Block",
@@ -184,28 +194,8 @@
             "id": 14,
             "name": "tile_grab",
             "type": "Grab",
-            "x": -3.0,
-            "y": -6.0,
-            "color": "#FFFFFFFF",
-            "isColorAbsorbed": false,
-            "originalColorHex": "#FFFFFFFF"
-        },
-        {
-            "id": 14,
-            "name": "tile_grab",
-            "type": "Grab",
             "x": -8.0,
             "y": -6.0,
-            "color": "#FFFFFFFF",
-            "isColorAbsorbed": false,
-            "originalColorHex": "#FFFFFFFF"
-        },
-        {
-            "id": 8,
-            "name": "tile_chest",
-            "type": "ItemBox",
-            "x": -2.0,
-            "y": -8.0,
             "color": "#FFFFFFFF",
             "isColorAbsorbed": false,
             "originalColorHex": "#FFFFFFFF"
@@ -336,6 +326,46 @@
             "type": "Block",
             "x": 1.0,
             "y": -3.0,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 6,
+            "name": "tile_bridge",
+            "type": "Block",
+            "x": 2.0,
+            "y": -3.0,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 6,
+            "name": "tile_bridge",
+            "type": "Block",
+            "x": 3.0,
+            "y": -3.0,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 6,
+            "name": "tile_bridge",
+            "type": "Block",
+            "x": -11.0,
+            "y": -5.0,
+            "color": "#FFFFFFFF",
+            "isColorAbsorbed": false,
+            "originalColorHex": "#FFFFFFFF"
+        },
+        {
+            "id": 6,
+            "name": "tile_bridge",
+            "type": "Block",
+            "x": -12.0,
+            "y": -5.0,
             "color": "#FFFFFFFF",
             "isColorAbsorbed": false,
             "originalColorHex": "#FFFFFFFF"
