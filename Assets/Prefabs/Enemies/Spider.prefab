@@ -113,7 +113,7 @@ Transform:
   m_GameObject: {fileID: 4611108732706083873}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.09, y: 0.65, z: 0}
+  m_LocalPosition: {x: -28.25, y: -10.329778, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -354,7 +354,7 @@ MonoBehaviour:
   normalSprite: {fileID: -6435710888531977222, guid: 4858dcc96f34dbd46ac1bc7336fa4406, type: 3}
   moveSprite1: {fileID: 8098348782527506775, guid: 5731c25986955b54b867d94f5aaa7764, type: 3}
   moveSprite2: {fileID: 1564946327855494811, guid: 2e9511d9ab468c047901210172db84e9, type: 3}
-  attackSprite: {fileID: 3873087697204469031, guid: 79567a3f5ee603e4190652cb4d40ee03, type: 3}
+  attackSprite: {fileID: -6435710888531977222, guid: 4858dcc96f34dbd46ac1bc7336fa4406, type: 3}
   hitSprite: {fileID: -2385591359512014999, guid: e02be49a8471b3d428633e2d3e021635, type: 3}
   deadSprite: {fileID: 5914718276044935763, guid: 62ee601a882571c48874c233563af283, type: 3}
   moveFrameInterval: 0.2
