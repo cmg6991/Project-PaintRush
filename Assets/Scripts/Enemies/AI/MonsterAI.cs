@@ -61,6 +61,18 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     [SerializeField, Min(0f)] private float deadSpriteTime = 1.2f;
     [SerializeField, Min(0f)] private float deadFadeDuration = 0.9f;
     [SerializeField] private bool stopWhileHit;
+    [Header("공격 이펙트")]
+    [SerializeField] private GameObject attackHitEffectPrefab;
+    [SerializeField, Min(0.1f)] private float attackHitEffectScale = 5f;
+    [SerializeField, Min(0.1f)] private float attackHitEffectLifetime = 1f;
+    [SerializeField] private Vector3 attackHitEffectOffset;
+    [Header("피격 이펙트")]
+    [SerializeField] private GameObject monsterHitEffectPrefab;
+    [SerializeField] private Vector3 monsterHitEffectOffset = Vector3.zero;
+    [SerializeField, Min(0.1f)] private float monsterHitEffectLifetime = 1f;
+    [Header("팔레트 이펙트")]
+    [SerializeField] private GameObject sparkleEffectPrefab;
+    private GameObject sparkleInstance;
     [Header("속성")]
     [SerializeField] private ElementType currentElement = ElementType.None;
     [SerializeField] private Color redElementColor = Color.red;
@@ -147,9 +159,14 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         if (!CanReceiveDamage(attackColor, ignoreElement))
             return;
         currentHp = Mathf.Max(0, currentHp - damage);
+
+        // 실제 데미지가 적용됐을 때 몬스터 피격 이펙트 생성
+        SpawnMonsterHitEffect();
+
         Debug.Log(
             $"{name} 피격! 데미지: {damage}, 남은 체력: {currentHp}" +
             (feverApplied ? " (피버 공격)" : string.Empty));
+
         SyncStatsToDataManager();
         if (currentHp <= 0) {
             isDead = true;
@@ -159,6 +176,32 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         RestartHitRoutine();
         if (currentHp <= runAwayHp)
             EnterRunAway();
+    }
+
+    private void SpawnMonsterHitEffect()
+    {
+        if (monsterHitEffectPrefab == null)
+            return;
+
+        Vector3 spawnPosition =
+            GetMonsterEffectPosition() + monsterHitEffectOffset;
+
+        GameObject effect = Instantiate(
+            monsterHitEffectPrefab,
+            spawnPosition,
+            Quaternion.identity);
+
+        Destroy(effect, monsterHitEffectLifetime);
+    }
+
+    private Vector3 GetMonsterEffectPosition()
+    {
+        Collider2D bodyCollider = GetComponent<Collider2D>();
+
+        if (bodyCollider != null)
+            return bodyCollider.bounds.center;
+
+        return transform.position;
     }
     /// <summary>팔레트 아이템 보유 여부와 드롭 프리팹을 설정합니다.</summary>
 
@@ -170,6 +213,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             paletteItemPrefab = overridePaletteItemPrefab;
         ResolvePaletteIcon();
         SetActive(paletteIcon, hasPaletteItem);
+        UpdateSparkleEffect();
         if (!hasPaletteItem)
             return;
         if (paletteIcon == null) {
@@ -178,6 +222,25 @@ public class MonsterAI : MonoBehaviour, IDamageable {
                 "프리팹 자식에 만들거나 Inspector에서 연결하세요.");
         }
         Debug.Log($"{name}: 팔레트 보유 몬스터로 지정됨");
+    }
+
+    private void UpdateSparkleEffect()
+    {
+        if (sparkleEffectPrefab == null)
+            return;
+
+        // 처음 한 번만 생성
+        if (sparkleInstance == null)
+        {
+            sparkleInstance = Instantiate(
+                sparkleEffectPrefab,
+                transform);
+
+            sparkleInstance.transform.localPosition = Vector3.up * 0.6f;
+        }
+
+        // 팔레트 보유 여부에 따라 활성/비활성
+        sparkleInstance.SetActive(hasPaletteItem);
     }
 
     #endregion
@@ -219,22 +282,29 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     private void Update() {
         if (isDead)
             return;
+
         SyncElementFromFillColor();
-        if (movement.UsesPlayerTracking)
+
+        // 공격 모션 중에는 거리 판정으로 상태가 바뀌지 않도록 잠급니다.
+        if (!movement.IsAttacking && movement.UsesPlayerTracking)
             UpdatePlayerState();
+
         UpdateFacing();
     }
 
     private void FixedUpdate() {
-        if (isDead)
+        if (isDead || movement.IsAttacking)
             return;
+
         if (isHit && stopWhileHit) {
             movement.Stop();
             return;
         }
-        // 피라냐도 공격 트리거 안의 플레이어에게 접촉 피해를 줍니다.
-        if (!movement.UsesPlayerTracking)
-            TryAttack();
+
+        // 피라냐처럼 추적 FSM을 사용하지 않는 몬스터도 공격 모션은 실행합니다.
+        if (!movement.UsesPlayerTracking && TryStartAttack())
+            return;
+
         UpdateCurrentState();
     }
 
@@ -363,10 +433,12 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     private void UpdateAttack() {
         SetStateIcons(false, false);
         visual.SetState(MonsterVisualState.Attack);
+
         if (player != null)
             FacePlayer();
+
         movement.Stop();
-        TryAttack();
+        TryStartAttack();
     }
 
     private void UpdateRunAway() {
@@ -481,12 +553,89 @@ public class MonsterAI : MonoBehaviour, IDamageable {
 
     #region Combat And Element
 
-    private bool TryAttack() {
-        if (attackTrigger == null || !attackTrigger.TryGetTarget(out PlayerHealth target) || Time.time - lastAttackTime < attackCooldown) { return false; }
+    /// <summary>
+    /// 공격 범위 안의 플레이어를 향해 몬스터별 공격 모션을 시작합니다.
+    /// 데미지는 플레이어와 완전히 겹친 순간 적용됩니다.
+    /// </summary>
+    private bool TryStartAttack() {
+        if (attackTrigger == null ||
+            movement.IsAttacking ||
+            Time.time - lastAttackTime < attackCooldown ||
+            !attackTrigger.TryGetTarget(out PlayerHealth target)) {
+            return false;
+        }
+
+        FaceTargetImmediately(target.transform);
+
+        bool started = movement.TryStartAttackMotion(
+            target.transform,
+            () => ApplyAttackDamage(target),
+            OnAttackMotionComplete);
+
+        if (!started)
+            return false;
+
         lastAttackTime = Time.time;
-        target.TakeDamage(attackDamage, Color.white, gameObject, true);
-        Debug.Log($"{name}: 플레이어 공격, 데미지 {attackDamage}");
         return true;
+    }
+
+    /// <summary>공격 모션이 플레이어 중심에 도달했을 때 피해를 적용합니다.</summary>
+    /// 
+    private void ApplyAttackDamage(PlayerHealth target)
+    {
+        if (isDead || target == null)
+            return;
+
+        SpawnAttackHitEffect(target);
+
+        target.TakeDamage(
+            attackDamage,
+            Color.white,
+            gameObject,
+            true);
+
+        Debug.Log(
+            $"{name}: 플레이어와 겹쳐 공격, 데미지 {attackDamage}");
+    }
+
+
+    private void SpawnAttackHitEffect(PlayerHealth target)
+    {
+        if (attackHitEffectPrefab == null || target == null)
+            return;
+
+        Vector3 spawnPosition =
+            target.transform.position + attackHitEffectOffset;
+
+        GameObject effect = Instantiate(
+            attackHitEffectPrefab,
+            spawnPosition,
+            Quaternion.identity);
+
+        Destroy(effect, attackHitEffectLifetime);
+    }
+
+    /// <summary>공격 반동이 끝나면 기본 행동 상태로 복귀합니다.</summary>
+    private void OnAttackMotionComplete() {
+        if (isDead)
+            return;
+
+        currentState = movement.UsesPlayerTracking
+            ? MonsterState.Chase
+            : MonsterState.Patrol;
+    }
+
+    /// <summary>공격 시작 직전에 회전 지연 없이 대상을 바라봅니다.</summary>
+    private void FaceTargetImmediately(Transform target) {
+        if (target == null)
+            return;
+
+        float deltaX = target.position.x - transform.position.x;
+
+        if (Mathf.Abs(deltaX) > DirectionThreshold)
+            moveDirection = deltaX > 0f ? 1 : -1;
+
+        UpdateFacing();
     }
 
     private bool CanReceiveDamage(Color attackColor, bool ignoreElement) {
@@ -616,6 +765,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
 
     private void PrepareDeath() {
         StopHitRoutine();
+        movement.CancelAttackMotion();
         movement.Stop();
         HideAllIcons();
         visual.PlayDead();
@@ -630,6 +780,8 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
         rb.simulated = false;
+        if (sparkleInstance != null)
+            Destroy(sparkleInstance);
     }
 
     private IEnumerator FadeOutSprites() {
