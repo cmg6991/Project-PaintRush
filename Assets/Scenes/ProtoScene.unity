@@ -447,7 +447,7 @@ Transform:
   m_GameObject: {fileID: 44297144}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20, y: 0, z: 0}
+  m_LocalPosition: {x: -20, y: -0.46, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -638,7 +638,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2526,6 +2526,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 987761179}
     m_Modifications:
+    - target: {fileID: 3771476197844438024, guid: 387b5d0ec9e1dd3439fa1b87f4796d61, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 3771476197844438024, guid: 387b5d0ec9e1dd3439fa1b87f4796d61, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 3771476197844438024, guid: 387b5d0ec9e1dd3439fa1b87f4796d61, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -56.4
+      objectReference: {fileID: 0}
     - target: {fileID: 4513474985019073760, guid: 387b5d0ec9e1dd3439fa1b87f4796d61, type: 3}
       propertyPath: m_Name
       value: FeverTimeText
@@ -3165,7 +3177,7 @@ MonoBehaviour:
     CustomLookAtTarget: 0
   Lens:
     FieldOfView: 60
-    OrthographicSize: 10
+    OrthographicSize: 5
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -6389,6 +6401,26 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 1171997406777115195, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1171997406777115195, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1171997406777115195, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1171997406777115195, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.13
+      objectReference: {fileID: 0}
+    - target: {fileID: 1171997406777115195, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1512200422439018863, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -6440,6 +6472,10 @@ PrefabInstance:
     - target: {fileID: 2019474185779283751, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2019474185779283751, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2900608756335561063, guid: 3124db22288ce464990ce3fb8a8957c2, type: 3}
       propertyPath: feverLight
@@ -8895,7 +8931,6 @@ GameObject:
   - component: {fileID: 1496392797}
   - component: {fileID: 1496392796}
   - component: {fileID: 1496392798}
-  - component: {fileID: 1496392799}
   - component: {fileID: 1496392800}
   m_Layer: 0
   m_Name: tile_door_0
@@ -8994,18 +9029,6 @@ MonoBehaviour:
   - {r: 0.98039216, g: 0, b: 0, a: 0}
   - {r: 0.98039216, g: 0.98039216, b: 0, a: 0}
   - {r: 0, g: 0, b: 0.98039216, a: 0}
---- !u!114 &1496392799
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1496392795}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b1fad973b51c7ce43bd2f742dd7c28d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PaintableWall
 --- !u!61 &1496392800
 BoxCollider2D:
   m_ObjectHideFlags: 0

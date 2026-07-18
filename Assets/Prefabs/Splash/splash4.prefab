@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8642495969322162883}
   - component: {fileID: 2042300153991318928}
+  - component: {fileID: 5383984904394431920}
   m_Layer: 0
   m_Name: splash4
   m_TagString: Splash
@@ -91,3 +92,15 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &5383984904394431920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5914289684482106114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adbe7d588fb04774d98d03bd3edfe8ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PaintFade

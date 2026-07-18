@@ -35,49 +35,53 @@ public class Shoot : MonoBehaviour
 
         RaycastHit2D[] hits = Physics2D.RaycastAll(mouse, Vector2.zero);
 
-        //bool didPaint = false;
-
-        //foreach (var hit in hits)
-        //{
-        //    IPaintable paintable = hit.collider.GetComponent<IPaintable>();
-
-        //    Debug.Log("IPaintable 찾음: " + hit.collider.name);
-
-
-        //    if (paintable != null)
-        //    {
-        //        paintable.Paint(fillColor.CurrentColor, hit.point);
-
-        //        didPaint = true;
-        //    }
-        //}
-
-        //if (didPaint)
-        //{
-        //    fillColor.Consume(0.3f);
-        //}
-
-        //smoke.PlayParticle(fillColor.CurrentColor);
         foreach (RaycastHit2D hit in hits)
         {
+            //DoorOpen door = hit.collider.GetComponent<DoorOpen>();
+
+            //if (door != null)
+            //{
+            //    IPaintable paintable = door.GetComponent<IPaintable>();
+
+            //    if (paintable != null)
+            //    {
+            //        paintable.Paint(fillColor.ShootColor, mouse);
+
+            //        fillColor.Consume(0.1f);
+
+            //        if (smoke != null)
+            //            smoke.PlayParticle(fillColor.ShootColor);
+
+            //        return; // 문만 칠하고 끝
+            //    }
+            //}
             DoorOpen door = hit.collider.GetComponent<DoorOpen>();
 
             if (door != null)
             {
-                IPaintable paintable = door.GetComponent<IPaintable>();
+                // 문 색 저장
+                door.AddPaintColor(fillColor.ShootColor);
 
-                if (paintable != null)
-                {
-                    paintable.Paint(fillColor.ShootColor, mouse);
 
-                    fillColor.Consume(0.1f);
+                // 문 전용 물감 (천천히 유지)
+                PaintManager.instance.SpawnDefaultSplash(
+                    mouse,
+                    fillColor.ShootColor,
+                    20f,
+                    0.5f
+                );
 
-                    if (smoke != null)
-                        smoke.PlayParticle(fillColor.ShootColor);
-                    
-                    return; // 문만 칠하고 끝
-                }
+
+                fillColor.Consume(0.1f);
+
+
+                if (smoke != null)
+                    smoke.PlayParticle(fillColor.ShootColor);
+
+
+                return; // 문이면 여기서 종료
             }
+
         }
         bool didPaint = false;
 
@@ -97,7 +101,7 @@ public class Shoot : MonoBehaviour
         }
 
         if (didPaint)
-            fillColor.Consume(0.1f);
+            fillColor.Consume(0.3f);
 
         if (smoke != null)
         {

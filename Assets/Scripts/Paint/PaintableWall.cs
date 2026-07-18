@@ -4,7 +4,7 @@ public class PaintableWall : MonoBehaviour,IPaintable
 {
     public void Paint(Color color, Vector2 hitPoint)
     {
-        PaintManager.instance.SpawnDefaultSplash(hitPoint, color);
+        PaintManager.instance.SpawnDefaultSplash(hitPoint, color,10f,0f);
 
         DoorOpen door = GetComponent<DoorOpen>();
 

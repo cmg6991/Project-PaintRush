@@ -27,11 +27,25 @@ public class PaintManager : MonoBehaviour
         }
     }
 
-    public void SpawnDefaultSplash(Vector2 position, Color color)
+    //public void SpawnDefaultSplash(Vector2 position, Color color)
+    //{
+    //    if (defaultSplashManager != null)
+    //    {
+    //        defaultSplashManager.Spawn(position, color,false);
+    //    }
+    //}
+    public void SpawnDefaultSplash(Vector2 position,Color color, float fadeTime,float targetAlpha)
     {
         if (defaultSplashManager != null)
         {
-            defaultSplashManager.Spawn(position, color,false);
+            GameObject splash = defaultSplashManager.Spawn(position,color,false);
+
+            PaintFade fade = splash.GetComponent<PaintFade>();
+
+            if (fade != null)
+            {
+                fade.StartFade( fadeTime,targetAlpha);
+            }
         }
     }
 
