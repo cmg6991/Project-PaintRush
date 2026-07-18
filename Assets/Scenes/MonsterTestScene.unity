@@ -586,6 +586,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9113593768300729752, guid: 9f19562aed0c1184f9e3f38cade9cec7, type: 3}
+      propertyPath: moveSprite1
+      value: 
+      objectReference: {fileID: 8931930817930245661, guid: d1ed769bf059d6740be4487ebf2ac338, type: 3}
+    - target: {fileID: 9113593768300729752, guid: 9f19562aed0c1184f9e3f38cade9cec7, type: 3}
+      propertyPath: moveSprite2
+      value: 
+      objectReference: {fileID: 6554660598349768955, guid: 5b9a70baac7e9ef44802c7ee62482da8, type: 3}
+    - target: {fileID: 9113593768300729752, guid: 9f19562aed0c1184f9e3f38cade9cec7, type: 3}
+      propertyPath: normalSprite
+      value: 
+      objectReference: {fileID: 8931930817930245661, guid: d1ed769bf059d6740be4487ebf2ac338, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4371,6 +4383,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Slime (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 643513439215655364, guid: a8f70397d7af667488197b208d0627ec, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2540531999560551335, guid: a8f70397d7af667488197b208d0627ec, type: 3}
       propertyPath: attackHitEffectScale
       value: 50
@@ -4643,17 +4659,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2033231249367362212, guid: eb5c2e3591ad6e24f8266d58a5188e57, type: 3}
-      propertyPath: attackHitEffectScale
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 2033231249367362212, guid: eb5c2e3591ad6e24f8266d58a5188e57, type: 3}
-      propertyPath: attackHitEffectPrefab
-      value: 
-      objectReference: {fileID: 2393111809793729749, guid: 05609566f0df27848962c113cb77d33c, type: 3}
     - target: {fileID: 2198724670472549822, guid: eb5c2e3591ad6e24f8266d58a5188e57, type: 3}
       propertyPath: m_Name
       value: Frog
+      objectReference: {fileID: 0}
+    - target: {fileID: 2198724670472549822, guid: eb5c2e3591ad6e24f8266d58a5188e57, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8773827803027127903, guid: eb5c2e3591ad6e24f8266d58a5188e57, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5281,6 +5293,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ghost
       objectReference: {fileID: 0}
+    - target: {fileID: 1153601307852431748, guid: 55d9d545cbe913c46933cef3169c70df, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4069891513874710721, guid: 55d9d545cbe913c46933cef3169c70df, type: 3}
       propertyPath: m_LocalPosition.x
       value: -42.612843
@@ -5321,14 +5337,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8805637147778564622, guid: 55d9d545cbe913c46933cef3169c70df, type: 3}
-      propertyPath: attackHitEffectScale
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 8805637147778564622, guid: 55d9d545cbe913c46933cef3169c70df, type: 3}
-      propertyPath: attackHitEffectPrefab
-      value: 
-      objectReference: {fileID: 2393111809793729749, guid: 05609566f0df27848962c113cb77d33c, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6639,6 +6647,10 @@ PrefabInstance:
     - target: {fileID: 9061653057824467790, guid: 22a2d7c71cf5fa0428ab4d3b16cc2631, type: 3}
       propertyPath: m_Name
       value: Snail (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 9061653057824467790, guid: 22a2d7c71cf5fa0428ab4d3b16cc2631, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8351,16 +8363,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 643513439215655364, guid: a8f70397d7af667488197b208d0627ec, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2540531999560551335, guid: a8f70397d7af667488197b208d0627ec, type: 3}
       propertyPath: groundCheck
       value: 
       objectReference: {fileID: 1237909354}
-    - target: {fileID: 2540531999560551335, guid: a8f70397d7af667488197b208d0627ec, type: 3}
-      propertyPath: attackHitEffectPrefab
-      value: 
-      objectReference: {fileID: 3912242300694112348, guid: 9e59038de397032448cf9b329c247777, type: 3}
     - target: {fileID: 6303588748897362065, guid: a8f70397d7af667488197b208d0627ec, type: 3}
       propertyPath: m_LocalPosition.x
       value: -33.66
@@ -8704,6 +8712,10 @@ PrefabInstance:
     - target: {fileID: 4611108732706083873, guid: 751580212517d264c931cca339e6b628, type: 3}
       propertyPath: m_Name
       value: Spider (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4611108732706083873, guid: 751580212517d264c931cca339e6b628, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -10147,6 +10159,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9113593768300729752, guid: 9f19562aed0c1184f9e3f38cade9cec7, type: 3}
+      propertyPath: moveSprite1
+      value: 
+      objectReference: {fileID: 8931930817930245661, guid: d1ed769bf059d6740be4487ebf2ac338, type: 3}
+    - target: {fileID: 9113593768300729752, guid: 9f19562aed0c1184f9e3f38cade9cec7, type: 3}
+      propertyPath: moveSprite2
+      value: 
+      objectReference: {fileID: 6554660598349768955, guid: 5b9a70baac7e9ef44802c7ee62482da8, type: 3}
+    - target: {fileID: 9113593768300729752, guid: 9f19562aed0c1184f9e3f38cade9cec7, type: 3}
+      propertyPath: normalSprite
+      value: 
+      objectReference: {fileID: 8931930817930245661, guid: d1ed769bf059d6740be4487ebf2ac338, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -11703,6 +11727,10 @@ PrefabInstance:
     - target: {fileID: 4444331247302514543, guid: 9f19562aed0c1184f9e3f38cade9cec7, type: 3}
       propertyPath: m_Name
       value: Piranha (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4444331247302514543, guid: 9f19562aed0c1184f9e3f38cade9cec7, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7782270020169511331, guid: 9f19562aed0c1184f9e3f38cade9cec7, type: 3}
       propertyPath: m_LocalPosition.x

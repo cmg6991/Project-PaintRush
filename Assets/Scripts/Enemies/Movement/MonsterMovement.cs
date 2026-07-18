@@ -56,6 +56,12 @@ public class MonsterMovement : MonoBehaviour
     [SerializeField] private float piranhaJumpHeight = 1.8f;
     [SerializeField] private float piranhaFrequency = 1.5f;
 
+    [Header("피라냐 공격 조건")]
+    [SerializeField, Range(0f, 1f)] private float piranhaEngageHeightRatio = 0.6f;
+    [SerializeField, Min(0.1f)] private float piranhaEngageDistance = 2.5f;
+    [SerializeField, Min(0.1f)] private float piranhaReturnSpeed = 3f;
+    [SerializeField, Min(0.01f)] private float piranhaReturnThreshold = 0.08f;
+
     [Header("개구리 이동")]
     [SerializeField] private Transform frogGroundCheck;
     [SerializeField] private LayerMask frogGroundLayer;
@@ -132,6 +138,8 @@ public class MonsterMovement : MonoBehaviour
     private float spawnTime;
     private float ghostPhase;
     private float nextFrogJumpTime;
+    private float piranhaHeightRatio;
+    private bool piranhaAttackUsedThisCycle;
 
     private LayerMask platformLayer;
 
@@ -139,13 +147,16 @@ public class MonsterMovement : MonoBehaviour
     public int VerticalDirection => verticalDirection;
     public bool IsAttacking { get; private set; }
 
-    /// <summary>피라냐는 플레이어를 추적하지 않고 시작 위치에서 상하 이동만 합니다.</summary>
-    public bool UsesPlayerTracking =>
-        monsterType != MonsterType.Piranha;
+    public bool IsPiranha =>
+        monsterType == MonsterType.Piranha;
 
-    /// <summary>피라냐는 접촉 공격 모션도 실행하지 않습니다.</summary>
-    public bool CanAttackPlayer =>
-        monsterType != MonsterType.Piranha;
+    public bool UsesPlayerTracking =>
+        !IsPiranha;
+
+    public bool CanAttackPlayer => true;
+
+    public bool IsPiranhaRising =>
+        IsPiranha && verticalDirection > 0;
 
     public float AttackCooldownMultiplier {
         get {
@@ -673,12 +684,12 @@ public class MonsterMovement : MonoBehaviour
             elapsedTime * piranhaFrequency -
             Mathf.PI * 0.5f;
 
-        float normalizedHeight =
+        piranhaHeightRatio =
             (Mathf.Sin(phase) + 1f) * 0.5f;
 
         float targetY =
             startPosition.y +
-            normalizedHeight * piranhaJumpHeight;
+            piranhaHeightRatio * piranhaJumpHeight;
 
         float verticalVelocity = Mathf.Cos(phase);
 
@@ -687,8 +698,79 @@ public class MonsterMovement : MonoBehaviour
         else if (verticalVelocity < -0.01f)
             verticalDirection = -1;
 
+        if (piranhaHeightRatio <= 0.03f &&
+            verticalDirection >= 0)
+        {
+            piranhaAttackUsedThisCycle = false;
+        }
+
         rb.MovePosition(
             new Vector2(startPosition.x, targetY));
+    }
+
+    public bool CanPiranhaEngage(Transform target)
+    {
+        if (!IsPiranha ||
+            target == null ||
+            piranhaAttackUsedThisCycle ||
+            !IsPiranhaRising)
+        {
+            return false;
+        }
+
+        float distance = Vector2.Distance(
+            transform.position,
+            target.position);
+
+        return piranhaHeightRatio >= piranhaEngageHeightRatio &&
+               distance <= piranhaEngageDistance;
+    }
+
+    public void ConsumePiranhaAttack()
+    {
+        if (IsPiranha)
+            piranhaAttackUsedThisCycle = true;
+    }
+
+    public void ReturnPiranhaToStart()
+    {
+        if (!IsPiranha || rb == null)
+            return;
+
+        Vector2 nextPosition = Vector2.MoveTowards(
+            rb.position,
+            startPosition,
+            piranhaReturnSpeed * Time.fixedDeltaTime);
+
+        rb.MovePosition(nextPosition);
+
+        Vector2 difference =
+            startPosition - rb.position;
+
+        if (Mathf.Abs(difference.y) > 0.01f)
+            verticalDirection =
+                difference.y > 0f ? 1 : -1;
+    }
+
+    public bool IsNearPiranhaStartPosition()
+    {
+        return IsPiranha &&
+               Vector2.Distance(
+                   rb.position,
+                   startPosition) <= piranhaReturnThreshold;
+    }
+
+    public void ResetPiranhaCycle()
+    {
+        if (!IsPiranha || rb == null)
+            return;
+
+        rb.position = startPosition;
+        rb.linearVelocity = Vector2.zero;
+        spawnTime = Time.time;
+        piranhaHeightRatio = 0f;
+        verticalDirection = 1;
+        piranhaAttackUsedThisCycle = false;
     }
 
     private void MoveFrog(int direction, float speed)

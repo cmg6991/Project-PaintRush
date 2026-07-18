@@ -117,6 +117,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     private bool isDead;
     private bool deathReported;
     private bool registeredToManager;
+    private bool isPiranhaReturning;
     private Coroutine hitRoutine;
 
     #endregion
@@ -271,8 +272,12 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         SyncElementFromFillColor();
 
         // 공격 모션 중에는 거리 판정으로 상태가 바뀌지 않도록 잠급니다.
-        if (!movement.IsAttacking && movement.UsesPlayerTracking)
+        if (!movement.IsAttacking &&
+            movement.UsesPlayerTracking &&
+            !movement.IsPiranha)
+        {
             UpdatePlayerState();
+        }
 
         UpdateFacing();
     }
@@ -286,10 +291,9 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             return;
         }
 
-        // 피라냐는 추적과 공격 없이 시작 위치에서 상하 이동만 합니다.
-        if (!movement.UsesPlayerTracking)
+        if (movement.IsPiranha)
         {
-            UpdatePiranhaOnly();
+            UpdatePiranhaBehavior();
             return;
         }
 
@@ -328,21 +332,101 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     }
 
     /// <summary>
-    /// 피라냐 전용 갱신입니다.
-    /// 플레이어 추적과 공격 없이 생성 위치에서 위아래로만 이동합니다.
+    /// 평상시에는 위아래로 이동하고,
+    /// 상승 중 플레이어가 가까우면 한 번 공격한 뒤 원위치로 복귀합니다.
     /// </summary>
-    private void UpdatePiranhaOnly() {
+    private void UpdatePiranhaBehavior()
+    {
+        if (isPiranhaReturning)
+        {
+            UpdatePiranhaReturn();
+            return;
+        }
+
+        if (movement.IsAttacking)
+            return;
+
         currentState = MonsterState.Patrol;
         SetStateIcons(false, false);
 
-        // 이동은 시작 X를 유지한 채 위아래로만 반복합니다.
         movement.Move(0, 0f);
         visual.SetState(MonsterVisualState.VerticalMove);
         visual.SetVerticalDirection(movement.VerticalDirection);
 
-        // 플레이어를 추적하거나 돌진하지는 않지만,
-        // 공격 Trigger에 닿아 있는 동안 접촉 데미지는 적용합니다.
-        TryPiranhaContactDamage();
+        if (player == null)
+        {
+            FindPlayer();
+            return;
+        }
+
+        if (movement.CanPiranhaEngage(player))
+            TryStartPiranhaAttack();
+    }
+
+    private bool TryStartPiranhaAttack()
+    {
+        if (!movement.IsPiranha ||
+            player == null ||
+            movement.IsAttacking ||
+            Time.time - lastAttackTime < attackCooldown)
+        {
+            return false;
+        }
+
+        PlayerHealth target =
+            player.GetComponent<PlayerHealth>();
+
+        if (target == null)
+            target =
+                player.GetComponentInChildren<PlayerHealth>();
+
+        if (target == null)
+        {
+            Debug.LogWarning(
+                $"{name}: 피라냐가 PlayerHealth를 찾지 못했습니다.");
+            return false;
+        }
+
+        FaceTargetImmediately(target.transform);
+
+        bool started = movement.TryStartAttackMotion(
+            target.transform,
+            () => ApplyAttackDamage(target),
+            OnAttackMotionComplete);
+
+        if (!started)
+            return false;
+
+        movement.ConsumePiranhaAttack();
+        lastAttackTime = Time.time;
+        currentState = MonsterState.Attack;
+        visual.SetState(MonsterVisualState.Attack);
+
+        return true;
+    }
+
+    private void BeginPiranhaReturn()
+    {
+        isPiranhaReturning = true;
+        currentState = MonsterState.Search;
+        SetStateIcons(false, false);
+    }
+
+    private void UpdatePiranhaReturn()
+    {
+        currentState = MonsterState.Search;
+        SetStateIcons(false, false);
+
+        movement.ReturnPiranhaToStart();
+        visual.SetState(MonsterVisualState.VerticalMove);
+        visual.SetVerticalDirection(movement.VerticalDirection);
+
+        if (!movement.IsNearPiranhaStartPosition())
+            return;
+
+        movement.ResetPiranhaCycle();
+        isPiranhaReturning = false;
+        currentState = MonsterState.Patrol;
     }
 
     private void UpdatePlayerState() {
@@ -604,38 +688,6 @@ public class MonsterAI : MonoBehaviour, IDamageable {
 
     #region Combat And Element
 
-    /// <summary>
-    /// 피라냐 전용 접촉 공격입니다.
-    /// 추적이나 돌진 없이 Trigger에 닿은 플레이어에게만 주기적으로 피해를 줍니다.
-    /// </summary>
-    private bool TryPiranhaContactDamage() {
-        if (movement.Type != MonsterType.Piranha ||
-            attackTrigger == null ||
-            Time.time - lastAttackTime < attackCooldown ||
-            !attackTrigger.TryGetTarget(out PlayerHealth target)) {
-            return false;
-        }
-
-        lastAttackTime = Time.time;
-
-        SpawnAttackHitEffect(target);
-
-        target.TakeDamage(
-            attackDamage,
-            Color.white,
-            gameObject,
-            true);
-
-        Debug.Log(
-            $"{name}: 피라냐 접촉 공격, 데미지 {attackDamage}");
-
-        return true;
-    }
-
-    /// <summary>
-    /// 공격 범위 안의 플레이어를 향해 몬스터별 공격 모션을 시작합니다.
-    /// 데미지는 플레이어와 완전히 겹친 순간 적용됩니다.
-    /// </summary>
     private bool TryStartAttack() {
         if (!movement.CanAttackPlayer ||
             attackTrigger == null ||
@@ -701,9 +753,13 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         if (isDead)
             return;
 
-        currentState = movement.UsesPlayerTracking
-            ? MonsterState.Chase
-            : MonsterState.Patrol;
+        if (movement.IsPiranha)
+        {
+            BeginPiranhaReturn();
+            return;
+        }
+
+        currentState = MonsterState.Chase;
     }
 
     /// <summary>공격 시작 직전에 회전 지연 없이 대상을 바라봅니다.</summary>
