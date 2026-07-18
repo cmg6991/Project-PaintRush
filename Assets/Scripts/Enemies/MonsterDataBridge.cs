@@ -48,9 +48,9 @@ public class MonsterDataBridge : MonoBehaviour
             {
                 if (savedStat.currentHp <= 0)
                 {
-                    // 이미 사망한 몬스터는 즉시 파괴
+                    // 이미 사망한 몬스터 처리
                     Debug.Log($"[MonsterDataBridge] 몬스터 '{uniqueId}'는 이미 사망한 상태이므로 즉석 소각합니다.");
-                    Destroy(gameObject);
+                    
                     return;
                 }
                 else

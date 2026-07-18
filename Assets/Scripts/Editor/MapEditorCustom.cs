@@ -242,10 +242,10 @@ public class MapEditorCustom : Editor
 
                 // ID 자동 매핑
                 int matchedId = 0;
-                string cleanInput = cleanName.ToLower().Replace("_0", "").Replace(" ", "").Replace("_", "").Replace("1", "");
+                string cleanInput = CleanTileName(cleanName);
                 foreach (var kp in prefabIdMap)
                 {
-                    string cleanTileName = kp.Key.Replace("_0", "").Replace(" ", "").Replace("_", "").Replace("1", "");
+                    string cleanTileName = CleanTileName(kp.Key);
                     if (cleanTileName == cleanInput)
                     {
                         matchedId = kp.Value;
@@ -300,7 +300,7 @@ public class MapEditorCustom : Editor
                     data.type = "Block";
                 }
 
-                // 🎯 [신규 추가] ColorMinus 컴포넌트 데이터 연동 수집
+                // ColorMinus 컴포넌트 데이터 연동 수집
                 ColorMinus colorMinus = child.GetComponent<ColorMinus>();
                 if (colorMinus != null)
                 {
@@ -375,7 +375,7 @@ public class MapEditorCustom : Editor
                             sr.color = customColor;
                         }
 
-                        // 🎯 [신규 추가] ColorMinus 컴포넌트 복원 처리 (리플렉션)
+                        // ColorMinus 컴포넌트 복원 처리 (리플렉션)
                         ColorMinus colorMinus = newTile.GetComponent<ColorMinus>();
                         if (colorMinus != null)
                         {
@@ -412,6 +412,34 @@ public class MapEditorCustom : Editor
 
         Debug.Log($"<color=green>[MapEditor]</color> '{mapEditor.mapName}.json' 파일로부터 씬에 낱개 오브젝트 복원 배치 완료!");
         EditorUtility.DisplayDialog("성공", $"'{mapEditor.mapName}.json' 불러오기 완료!", "확인");
+    }
+
+    // 복사본 숫자, 공백, 언더바, _0 접미사 등을 도려내는 Fuzzy Match 이름 정제 함수 (TileManager와 동일하게 유지)
+    private string CleanTileName(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return "";
+
+        // 괄호 복사본 접미사 정리: "tile_brick_0 (1)" -> "tile_brick_0"
+        int index = name.IndexOf(" (");
+        if (index > 0)
+        {
+            name = name.Substring(0, index);
+        }
+
+        // 소문자 변환 후 불필요한 노이즈 도려냄
+        return name.ToLower()
+                   .Replace("_0", "")
+                   .Replace(" ", "")
+                   .Replace("_", "")
+                   .Replace("1", "")
+                   .Replace("2", "")
+                   .Replace("3", "")
+                   .Replace("4", "")
+                   .Replace("5", "")
+                   .Replace("6", "")
+                   .Replace("7", "")
+                   .Replace("8", "")
+                   .Replace("9", "");
     }
 }
 #endif

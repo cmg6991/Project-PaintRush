@@ -8,16 +8,16 @@ public class PlayerMagnet : MonoBehaviour
 
     private void Awake()
     {
-        // 1. 자식 센서 오브젝트에 Rigidbody2D가 있는지 검사합니다.
+        // 자식 센서 오브젝트에 Rigidbody2D가 있는지 검사
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
 
-        // 2. 만약 없다면 동적으로 추가하여 물리 이벤트를 격리합니다.
+        // 만약 없다면 동적으로 추가하여 물리 이벤트를 격리
         if (rb == null)
         {
             rb = gameObject.AddComponent<Rigidbody2D>();
         }
 
-        // 3. 중력의 영향을 받지 않고 충돌 이벤트만 격리하기 위해 Kinematic으로 강제 설정합니다.
+        // 중력의 영향을 받지 않고 충돌 이벤트만 격리하기 위해 Kinematic으로 강제 설정
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.simulated = true;
     }
