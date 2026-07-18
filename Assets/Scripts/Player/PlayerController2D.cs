@@ -28,17 +28,26 @@ namespace Project.Player
         [SerializeField] private float invincibleDuration = 1.5f;             // 맞는 순간 무적되는 시간
         [SerializeField] private float blinkInterval = 0.1f;                  // 깜빡이는 간격
 
+        [Header("--- Knockback & Juice Settings (넉백 및 비주얼) ---")]
+        [SerializeField] private float knockbackForceX = 7f;                  // 피격 시 밀려나는 X축 속도
+        [SerializeField] private float knockbackForceY = 5f;                  // 피격 시 튕겨 올라가는 Y축 속도
+        [SerializeField] private float knockbackDuration = 0.2f;              // 넉백으로 인한 조작 잠금 시간 (초)
+        [SerializeField] private float hitScaleMultiplier = 1.3f;             // 피격 시 팽창하는 크기 배율 (1.3배)
+        [SerializeField] private float hitScaleDuration = 0.15f;              // 팽창했다가 복구되는 시간 (초)
+
 
         private Rigidbody2D rb;
         private PlayerInputHandler inputHandler;
         private SpriteRenderer spriteRenderer;                                // 스프라이트를 투명하게 만들기 위함
         private CapsuleCollider2D playerCollider;                             // 본체 캡슐 콜라이더 캐싱용 변수
+        private PlayerHealth playerHealth;                                    // 본체 체력 캐싱용 변수
         private bool isGrounded;                                              // 땅에 붙어있나
         private float originalGravityScale;                                   // 사다리에서 혹은 행거에서 떨어질때 중력 조절           
 
         // Character Look
         public bool IsFacingRight { get; private set; } = true;               // 플레이어 시선 방향
         public bool IsGroundedToAnim => isGrounded;                           // 애니메이션에게 땅 착지 여부 전달
+        public bool IsFallingFromLadder => isFallingFromLadder;               // 사다리 낙하 여부 노출
 
         // Ladder State
         public bool isInsideLadder = false;                                   // 사다리 충돌범위안 판별
@@ -50,6 +59,8 @@ namespace Project.Player
 
         private bool isFallingFromLadder = false;
 
+        private bool isKnockbacked = false;                                   // 넉백 중인지 상태 변수
+
         private Collider2D currentLadderCollider;                             // 충돌한 사다리와 행거의 중심점 좌표등을 빼옴
         private Collider2D currentHangerCollider;
 
@@ -57,6 +68,7 @@ namespace Project.Player
 
         [HideInInspector] public bool isHurtTriggered = false;                // 피격당한 첫 프레임
         private bool isInvincible = false;                                    // 무적 발동 여부
+        private Coroutine blinkRoutine;                                       // 깜빡임 코루틴 캐싱 변수
 
         private void Awake()
         {
@@ -64,8 +76,19 @@ namespace Project.Player
             inputHandler = GetComponent<PlayerInputHandler>();
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             playerCollider = GetComponent<CapsuleCollider2D>();           // 캡슐 콜라이더 초기화
+            playerHealth = GetComponent<PlayerHealth>();                  // 체력 캐싱
 
             originalGravityScale = rb.gravityScale;
+        }
+
+        private void Start()
+        {
+            // DataManager로부터 플레이어 총의 물감 충전 게이지 복원
+            if (DataManager.Instance != null)
+            {
+                PlayerStat stat = DataManager.Instance.CurrentPlayerStat;
+                
+            }
         }
 
         void Update()
@@ -195,7 +218,7 @@ namespace Project.Player
                 rb.gravityScale = originalGravityScale;
 
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce * 0.7f);
-                if(wasClimbing)
+                if (wasClimbing)
                 {
                     isFallingFromLadder = true;
                 }
@@ -211,6 +234,19 @@ namespace Project.Player
 
         private void FixedUpdate()
         {
+            // 사망했을 때는 사용자의 입력을 완전히 잠그고 물리 멈춤
+            if (playerHealth != null && playerHealth.IsDead)
+            {
+                rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+                return;
+            }
+
+            // 넉백 중일 때는 입력을 완전 무시하고 물리에 제어권을 위임
+            if (isKnockbacked)
+            {
+                return;
+            }
+
             // 사다리 타는 중일 때 물리 연산
             if (isClimbing)
             {
@@ -270,7 +306,7 @@ namespace Project.Player
         {
             if (collision.GetComponent<ColorDropItem>() != null) return;
 
-            //if (collision.CompareTag("Enemy") && collision.isTrigger) return;
+            if (collision.CompareTag("Monster") && collision.isTrigger) return;
 
             if (collision.CompareTag("Ladder"))
             {
@@ -301,8 +337,11 @@ namespace Project.Player
                         Debug.LogWarning("[PlayerController2D] 플레이어 본체에서 PlayerHealth 컴포넌트를 찾을 수 없습니다.");
                     }
 
+                    // 데미지를 입고 플레이어가 이미 죽었다면 깜빡이를 켜지 않고 탈출
+                    if (health != null && health.IsDead) return;
+
                     isHurtTriggered = true;
-                    StartCoroutine(InvincibleBlinkRoutine());
+                    blinkRoutine = StartCoroutine(InvincibleBlinkRoutine());
                 }
             }
         }
@@ -326,6 +365,12 @@ namespace Project.Player
 
         private IEnumerator InvincibleBlinkRoutine()
         {
+            // 플레이어가 이미 사망했다면 깜빡이지 않고 즉시 취소
+            if (playerHealth != null && playerHealth.IsDead)
+            {
+                yield break;
+            }
+
             isInvincible = true;
             float timer = 0f;
 
@@ -351,6 +396,24 @@ namespace Project.Player
             }
 
             isInvincible = false;
+            blinkRoutine = null;
+        }
+
+        // 피격시 깜빡거리는 함수
+        public void StopInvincibleBlink()
+        {
+            if (blinkRoutine != null)
+            {
+                StopCoroutine(blinkRoutine);
+                blinkRoutine = null;
+            }
+            isInvincible = false;
+            if (spriteRenderer != null)
+            {
+                Color normalColor = spriteRenderer.color;
+                normalColor.a = 1f;
+                spriteRenderer.color = normalColor;
+            }
         }
 
         private void OnDrawGizmosSelected()
@@ -360,6 +423,56 @@ namespace Project.Player
                 Gizmos.color = Color.red;
                 Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
             }
+        }
+
+        // --- 피격 넉백 및 스케일 바운스 외부 트리거 함수 ---
+        public void ApplyKnockback(Vector2 attackerPosition)
+        {
+            // 이미 무적 상태일 때는 넉백 중복 적용 방지
+            if (isInvincible) return;
+
+            // 사다리나 행거를 타고 있다면 강제로 이탈 처리
+            if (isClimbing || isHanging)
+            {
+                isClimbing = false;
+                isHanging = false;
+                rb.gravityScale = originalGravityScale;
+                transform.rotation = Quaternion.Euler(0f, IsFacingRight ? 0f : 180f, 0f);
+            }
+
+            // 넉백과 피벽받으면 커졌다 작아지는 코루틴 실행
+            StartCoroutine(KnockbackRoutine(attackerPosition, knockbackForceX, knockbackForceY, knockbackDuration));
+            StartCoroutine(HurtScaleBounceRoutine(hitScaleMultiplier, hitScaleDuration));
+        }
+
+        private IEnumerator KnockbackRoutine(Vector2 attackerPosition, float forceX, float forceY, float duration)
+        {
+            isKnockbacked = true;
+
+            // 공격자의 중심과 플레이어 중심의 위치 차이로 방향 판정
+            float dirSign = transform.position.x >= attackerPosition.x ? 1f : -1f;
+            rb.linearVelocity = new Vector2(dirSign * forceX, forceY);
+
+            // 인스펙터에 설정된 시간만큼 대기
+            yield return new WaitForSeconds(duration);
+
+            isKnockbacked = false;
+        }
+
+        // 데미지를 받으면 발동하는 코루틴
+        private IEnumerator HurtScaleBounceRoutine(float scaleMultiplier, float duration)
+        {
+            Vector3 originalScale = transform.localScale;
+            Vector3 targetScale = originalScale * scaleMultiplier;
+
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                transform.localScale = Vector3.Lerp(targetScale, originalScale, elapsed / duration);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+            transform.localScale = originalScale;
         }
     }
 }
