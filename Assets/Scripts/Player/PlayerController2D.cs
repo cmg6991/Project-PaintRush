@@ -69,6 +69,7 @@ namespace Project.Player
         [HideInInspector] public bool isHurtTriggered = false;                // 피격당한 첫 프레임
         private bool isInvincible = false;                                    // 무적 발동 여부
         private Coroutine blinkRoutine;                                       // 깜빡임 코루틴 캐싱 변수
+        private Coroutine scaleBounceRoutine;
 
         private void Awake()
         {
@@ -442,7 +443,11 @@ namespace Project.Player
 
             // 넉백과 피벽받으면 커졌다 작아지는 코루틴 실행
             StartCoroutine(KnockbackRoutine(attackerPosition, knockbackForceX, knockbackForceY, knockbackDuration));
-            StartCoroutine(HurtScaleBounceRoutine(hitScaleMultiplier, hitScaleDuration));
+           
+            if (scaleBounceRoutine == null)
+            {
+                scaleBounceRoutine = StartCoroutine(HurtScaleBounceRoutine(hitScaleMultiplier, hitScaleDuration));
+            }
         }
 
         private IEnumerator KnockbackRoutine(Vector2 attackerPosition, float forceX, float forceY, float duration)
@@ -462,17 +467,31 @@ namespace Project.Player
         // 데미지를 받으면 발동하는 코루틴
         private IEnumerator HurtScaleBounceRoutine(float scaleMultiplier, float duration)
         {
-            Vector3 originalScale = transform.localScale;
+            Transform visualTarget = spriteRenderer != null ? spriteRenderer.transform : transform;
+
+            Vector3 originalScale = visualTarget.localScale;
             Vector3 targetScale = originalScale * scaleMultiplier;
 
             float elapsed = 0f;
+
+            // 사인 곡선(Mathf.Sin)을 이용해 0 -> 1 -> 0으로 부드럽게 커졌다 작아지게 만듭니다.
             while (elapsed < duration)
             {
-                transform.localScale = Vector3.Lerp(targetScale, originalScale, elapsed / duration);
                 elapsed += Time.deltaTime;
+                float progress = elapsed / duration;
+
+                // Sin(0) = 0, Sin(π/2) = 1, Sin(π) = 0
+                float sinWave = Mathf.Sin(progress * Mathf.PI);
+
+                // 원래 크기에서 sinWave 비율만큼 커졌다가 다시 제자리로 돌아옴
+                visualTarget.localScale = Vector3.Lerp(originalScale, targetScale, sinWave);
+
                 yield return null;
             }
-            transform.localScale = originalScale;
+
+            visualTarget.localScale = originalScale;
+
+            scaleBounceRoutine = null;
         }
     }
 }
