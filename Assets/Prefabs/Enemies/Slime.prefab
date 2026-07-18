@@ -35,7 +35,7 @@ Transform:
   m_GameObject: {fileID: 643513439215655364}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.42, y: 0.82, z: 0}
+  m_LocalPosition: {x: -33.66, y: -13.6, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -180,25 +180,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 088ed4742fac531468eb03f08799a23a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAI
-  hitSpriteTime: 0.15
-  deadSpriteTime: 0.3
-  stopWhileHit: 0
   currentState: 0
-  currentElement: 0
-  redElementColor: {r: 1, g: 0, b: 0, a: 1}
-  blueElementColor: {r: 0, g: 0, b: 1, a: 1}
-  yellowElementColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  colorTolerance: 0.08
-  groundCheck: {fileID: 0}
-  wallCheck: {fileID: 0}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  groundCheckDistance: 0.8
-  wallCheckDistance: 0.8
-  patrolRange: 5
-  patrolTurnCooldown: 0.2
-  randomStartDirection: 1
+  maxHp: 50
   patrolSpeed: 1.2
   chaseSpeed: 1.8
   detectRange: 3.5
@@ -206,6 +189,16 @@ MonoBehaviour:
   noticeTime: 0.5
   turnDelay: 0.4
   searchTime: 1.2
+  patrolRange: 5
+  patrolTurnCooldown: 0.2
+  randomStartDirection: 1
+  groundCheck: {fileID: 0}
+  wallCheck: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  groundCheckDistance: 0.8
+  wallCheckDistance: 0.8
   attackDamage: 1
   attackCooldown: 1.5
   attackTrigger: {fileID: 0}
@@ -214,7 +207,23 @@ MonoBehaviour:
   runAwaySpeed: 2.2
   runAwayDistance: 6
   runAwayDuration: 2.5
-  maxHp: 50
+  hitSpriteTime: 0.15
+  deadSpriteTime: 0.3
+  deadFadeDuration: 0.9
+  stopWhileHit: 0
+  attackHitEffectPrefab: {fileID: 8680598818964007281, guid: dcd90c4976197424b9958a7c54b6bb8c, type: 3}
+  attackHitEffectScale: 1
+  attackHitEffectLifetime: 1
+  attackHitEffectOffset: {x: 0, y: 0, z: 0}
+  monsterHitEffectPrefab: {fileID: 5700784828077083704, guid: ed962e35f7fa6f34f8d27aa6d19ea293, type: 3}
+  monsterHitEffectOffset: {x: 0, y: 0, z: 0}
+  monsterHitEffectLifetime: 1
+  sparkleEffectPrefab: {fileID: 6532625474870085665, guid: 07a977963523b3b4dbcaa27119f6b469, type: 3}
+  currentElement: 0
+  redElementColor: {r: 1, g: 0, b: 0, a: 1}
+  blueElementColor: {r: 0, g: 0, b: 1, a: 1}
+  yellowElementColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorTolerance: 0.08
   noticeIcon: {fileID: 8285580679797563343}
   runAwayIcon: {fileID: 6131039638982804653}
   paletteIcon: {fileID: 0}
@@ -260,6 +269,41 @@ MonoBehaviour:
   frogGroundCheckRadius: 0.15
   frogJumpPower: 6
   frogJumpInterval: 1.2
+  slimeAttack:
+    windupTime: 0.12
+    windupDistance: 0.18
+    lungeTime: 0.18
+    arcHeight: 0.65
+    recoilTime: 0.16
+    recoilDistance: 0.55
+  ghostAttack:
+    windupTime: 0.08
+    windupDistance: 0.12
+    lungeTime: 0.2
+    arcHeight: 0.18
+    recoilTime: 0.22
+    recoilDistance: 0.7
+  piranhaAttack:
+    windupTime: 0.06
+    windupDistance: 0.1
+    lungeTime: 0.14
+    arcHeight: 0.35
+    recoilTime: 0.18
+    recoilDistance: 0.6
+  spiderAttack:
+    windupTime: 0.05
+    windupDistance: 0.15
+    lungeTime: 0.09
+    arcHeight: 0.05
+    recoilTime: 0.14
+    recoilDistance: 0.5
+  frogAttack:
+    windupTime: 0.15
+    windupDistance: 0.2
+    lungeTime: 0.22
+    arcHeight: 1
+    recoilTime: 0.2
+    recoilDistance: 0.65
 --- !u!114 &6087103137340279254
 MonoBehaviour:
   m_ObjectHideFlags: 0
