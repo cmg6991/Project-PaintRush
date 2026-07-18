@@ -4,5 +4,6 @@
     Ghost,
     Piranha,
     Spider,
-    Frog
+    Frog,
+    Snail
 }

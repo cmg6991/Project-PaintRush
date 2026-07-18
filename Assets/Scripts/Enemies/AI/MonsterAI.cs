@@ -117,6 +117,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     private bool isDead;
     private bool deathReported;
     private bool registeredToManager;
+    private bool isPiranhaReturning;
     private Coroutine hitRoutine;
 
     #endregion
@@ -213,7 +214,6 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             paletteItemPrefab = overridePaletteItemPrefab;
         ResolvePaletteIcon();
         SetActive(paletteIcon, hasPaletteItem);
-        UpdateSparkleEffect();
         if (!hasPaletteItem)
             return;
         if (paletteIcon == null) {
@@ -222,25 +222,6 @@ public class MonsterAI : MonoBehaviour, IDamageable {
                 "프리팹 자식에 만들거나 Inspector에서 연결하세요.");
         }
         Debug.Log($"{name}: 팔레트 보유 몬스터로 지정됨");
-    }
-
-    private void UpdateSparkleEffect()
-    {
-        if (sparkleEffectPrefab == null)
-            return;
-
-        // 처음 한 번만 생성
-        if (sparkleInstance == null)
-        {
-            sparkleInstance = Instantiate(
-                sparkleEffectPrefab,
-                transform);
-
-            sparkleInstance.transform.localPosition = Vector3.up * 0.6f;
-        }
-
-        // 팔레트 보유 여부에 따라 활성/비활성
-        sparkleInstance.SetActive(hasPaletteItem);
     }
 
     #endregion
@@ -268,6 +249,11 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         monsterManager ??= MonsterManager.Instance;
         monsterManager ??= FindFirstObjectByType<MonsterManager>();
         RegisterToManager();
+
+        movement.InitializePlatformConstraint(
+            groundLayer,
+            groundCheckDistance);
+
         startX = transform.position.x;
         if (randomStartDirection)
             moveDirection = Random.value < 0.5f ? -1 : 1;
@@ -286,8 +272,12 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         SyncElementFromFillColor();
 
         // 공격 모션 중에는 거리 판정으로 상태가 바뀌지 않도록 잠급니다.
-        if (!movement.IsAttacking && movement.UsesPlayerTracking)
+        if (!movement.IsAttacking &&
+            movement.UsesPlayerTracking &&
+            !movement.IsPiranha)
+        {
             UpdatePlayerState();
+        }
 
         UpdateFacing();
     }
@@ -301,9 +291,11 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             return;
         }
 
-        // 피라냐처럼 추적 FSM을 사용하지 않는 몬스터도 공격 모션은 실행합니다.
-        if (!movement.UsesPlayerTracking && TryStartAttack())
+        if (movement.IsPiranha)
+        {
+            UpdatePiranhaBehavior();
             return;
+        }
 
         UpdateCurrentState();
     }
@@ -337,6 +329,104 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             case MonsterState.Attack: UpdateAttack(); break;
             case MonsterState.RunAway: UpdateRunAway(); break;
         }
+    }
+
+    /// <summary>
+    /// 평상시에는 위아래로 이동하고,
+    /// 상승 중 플레이어가 가까우면 한 번 공격한 뒤 원위치로 복귀합니다.
+    /// </summary>
+    private void UpdatePiranhaBehavior()
+    {
+        if (isPiranhaReturning)
+        {
+            UpdatePiranhaReturn();
+            return;
+        }
+
+        if (movement.IsAttacking)
+            return;
+
+        currentState = MonsterState.Patrol;
+        SetStateIcons(false, false);
+
+        movement.Move(0, 0f);
+        visual.SetState(MonsterVisualState.VerticalMove);
+        visual.SetVerticalDirection(movement.VerticalDirection);
+
+        if (player == null)
+        {
+            FindPlayer();
+            return;
+        }
+
+        if (movement.CanPiranhaEngage(player))
+            TryStartPiranhaAttack();
+    }
+
+    private bool TryStartPiranhaAttack()
+    {
+        if (!movement.IsPiranha ||
+            player == null ||
+            movement.IsAttacking ||
+            Time.time - lastAttackTime < attackCooldown)
+        {
+            return false;
+        }
+
+        PlayerHealth target =
+            player.GetComponent<PlayerHealth>();
+
+        if (target == null)
+            target =
+                player.GetComponentInChildren<PlayerHealth>();
+
+        if (target == null)
+        {
+            Debug.LogWarning(
+                $"{name}: 피라냐가 PlayerHealth를 찾지 못했습니다.");
+            return false;
+        }
+
+        FaceTargetImmediately(target.transform);
+
+        bool started = movement.TryStartAttackMotion(
+            target.transform,
+            () => ApplyAttackDamage(target),
+            OnAttackMotionComplete);
+
+        if (!started)
+            return false;
+
+        movement.ConsumePiranhaAttack();
+        lastAttackTime = Time.time;
+        currentState = MonsterState.Attack;
+        visual.SetState(MonsterVisualState.Attack);
+
+        return true;
+    }
+
+    private void BeginPiranhaReturn()
+    {
+        isPiranhaReturning = true;
+        currentState = MonsterState.Search;
+        SetStateIcons(false, false);
+    }
+
+    private void UpdatePiranhaReturn()
+    {
+        currentState = MonsterState.Search;
+        SetStateIcons(false, false);
+
+        movement.ReturnPiranhaToStart();
+        visual.SetState(MonsterVisualState.VerticalMove);
+        visual.SetVerticalDirection(movement.VerticalDirection);
+
+        if (!movement.IsNearPiranhaStartPosition())
+            return;
+
+        movement.ResetPiranhaCycle();
+        isPiranhaReturning = false;
+        currentState = MonsterState.Patrol;
     }
 
     private void UpdatePlayerState() {
@@ -392,7 +482,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     private void UpdatePatrol() {
         SetStateIcons(false, false);
         CheckPatrolDirection();
-        movement.Move(moveDirection, patrolSpeed);
+        TryMoveSafely(patrolSpeed, true);
         if (movement.Type == MonsterType.Piranha) {
             visual.SetState(MonsterVisualState.VerticalMove);
             visual.SetVerticalDirection(movement.VerticalDirection);
@@ -418,13 +508,13 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         if (player == null)
             return;
         FacePlayer();
-        movement.Move(moveDirection, chaseSpeed);
+        TryMoveSafely(chaseSpeed, false);
     }
 
     private void UpdateSearch() {
         SetStateIcons(false, false);
         visual.SetState(MonsterVisualState.Move);
-        movement.Move(moveDirection, patrolSpeed);
+        TryMoveSafely(patrolSpeed, true);
         searchTimer -= Time.fixedDeltaTime;
         if (searchTimer <= 0f)
             EnterPatrol();
@@ -458,7 +548,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             return;
         }
         moveDirection = transform.position.x >= player.position.x ? 1 : -1;
-        movement.Move(moveDirection, runAwaySpeed);
+        TryMoveSafely(runAwaySpeed, false);
     }
     private bool CanRunAway =>
         canRunAway && movement.UsesPlayerTracking;
@@ -478,10 +568,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             SetPatrolDirection(-1);
             return;
         }
-        if (!movement.UsesGroundObstacleCheck || !ShouldTurnAround())
-            return;
-        TurnAround();
-        lastPatrolTurnTime = Time.time;
+        // 플랫폼 끝과 벽 판정은 TryMoveSafely에서 공통 처리합니다.
     }
 
     private bool ShouldTurnAround() {
@@ -498,6 +585,54 @@ public class MonsterAI : MonoBehaviour, IDamageable {
                 wallCheckDistance,
                 groundLayer);
         return cliff || wall;
+    }
+
+    /// <summary>
+    /// 플랫폼 끝이나 벽을 확인한 뒤 안전하게 이동합니다.
+    /// 순찰 상태에서는 방향을 바꾸고, 추적/도망 상태에서는 끝에서 멈춥니다.
+    /// </summary>
+    private bool TryMoveSafely(float speed, bool turnAtEdge) {
+        if (!movement.UsesGroundObstacleCheck) {
+            movement.Move(moveDirection, speed);
+            return true;
+        }
+
+        // 개구리는 착지/점프 가능 여부를 MonsterMovement에서 직접 판단합니다.
+        if (movement.Type == MonsterType.Frog) {
+            movement.Move(moveDirection, speed);
+            return true;
+        }
+
+        float lookAhead =
+            Mathf.Max(0.05f, speed * Time.fixedDeltaTime);
+
+        bool hasGroundAhead =
+            movement.HasGroundAhead(
+                moveDirection,
+                lookAhead);
+
+        bool blockedByWall =
+            wallCheck != null &&
+            Physics2D.Raycast(
+                wallCheck.position,
+                Vector2.right * moveDirection,
+                wallCheckDistance,
+                groundLayer);
+
+        if (hasGroundAhead && !blockedByWall) {
+            movement.Move(moveDirection, speed);
+            return true;
+        }
+
+        movement.Stop();
+
+        if (turnAtEdge &&
+            Time.time - lastPatrolTurnTime >= patrolTurnCooldown) {
+            TurnAround();
+            lastPatrolTurnTime = Time.time;
+        }
+
+        return false;
     }
 
     private void FacePlayer() {
@@ -553,14 +688,12 @@ public class MonsterAI : MonoBehaviour, IDamageable {
 
     #region Combat And Element
 
-    /// <summary>
-    /// 공격 범위 안의 플레이어를 향해 몬스터별 공격 모션을 시작합니다.
-    /// 데미지는 플레이어와 완전히 겹친 순간 적용됩니다.
-    /// </summary>
     private bool TryStartAttack() {
-        if (attackTrigger == null ||
+        if (!movement.CanAttackPlayer ||
+            attackTrigger == null ||
             movement.IsAttacking ||
-            Time.time - lastAttackTime < attackCooldown ||
+            Time.time - lastAttackTime <
+                attackCooldown * movement.AttackCooldownMultiplier ||
             !attackTrigger.TryGetTarget(out PlayerHealth target)) {
             return false;
         }
@@ -620,9 +753,13 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         if (isDead)
             return;
 
-        currentState = movement.UsesPlayerTracking
-            ? MonsterState.Chase
-            : MonsterState.Patrol;
+        if (movement.IsPiranha)
+        {
+            BeginPiranhaReturn();
+            return;
+        }
+
+        currentState = MonsterState.Chase;
     }
 
     /// <summary>공격 시작 직전에 회전 지연 없이 대상을 바라봅니다.</summary>
@@ -780,8 +917,6 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
         rb.simulated = false;
-        if (sparkleInstance != null)
-            Destroy(sparkleInstance);
     }
 
     private IEnumerator FadeOutSprites() {
