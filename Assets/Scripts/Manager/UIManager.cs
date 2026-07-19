@@ -68,7 +68,6 @@ public class UIManager : Singleton<UIManager>
 
     public void ShowFeverUI()
     {
-        Debug.Log("show");
         feverUI?.FeverOn();
     }
 
