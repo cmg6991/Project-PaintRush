@@ -231,6 +231,7 @@ public class PalettePickup : MonoBehaviour
             return;
         }
 
+        SoundManager.Instance.PlaySFX(SFXType.Item);
         isCollected = true;
 
         paletteManager.EquipPaletteItem(equipAmount);

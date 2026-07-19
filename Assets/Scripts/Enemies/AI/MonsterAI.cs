@@ -727,6 +727,8 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             gameObject,
             true);
 
+        SoundManager.Instance.PlaySFX(SFXType.Hit);
+
         Debug.Log(
             $"{name}: 플레이어와 겹쳐 공격, 데미지 {attackDamage}");
     }
@@ -891,6 +893,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     private IEnumerator DieRoutine() {
         PrepareDeath();
         ReportDeath();
+        SoundManager.Instance.PlaySFX(SFXType.MonsterDead);
         Debug.Log($"{name}: 몬스터 사망");
         if (deadSpriteTime > 0f)
             yield return new WaitForSeconds(deadSpriteTime);

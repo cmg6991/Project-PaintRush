@@ -30,6 +30,7 @@ public class UIManager : Singleton<UIManager>
         isOpen = !isOpen;
         settingPanel.SetActive(isOpen);
         UpdateToggleImage(settingButton, isOpen, settingOn, settingOff);
+        SoundManager.Instance.PlaySFX(SFXType.Click);
     }
     public void CloseSetting()
     {
