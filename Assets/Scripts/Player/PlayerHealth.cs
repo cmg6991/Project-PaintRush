@@ -148,6 +148,8 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     {
         yield return new WaitForSeconds(1.5f);
         gameObject.SetActive(false);
+        UIManager.Instance.ShowRestartUI();
+
     }
 
     private void OnEnable()
