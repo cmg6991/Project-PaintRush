@@ -1,217 +1,216 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 public class TileManager : MonoBehaviour
 {
-    [Header("--- 다중 타일맵 바인딩 ---")]
-    public Tilemap solidTilemap;   // 단단한 지형 (Is Trigger: OFF, Layer: Ground)
-    public Tilemap ladderTilemap;  // 사다리 지형 (Is Trigger: ON, Tag: Ladder)
-    public Tilemap grabTilemap;    // 행거 지형 (Is Trigger: ON, Tag: Grab/Hanger)
+    [Header("--- 맵 생성 설정 ---")]
+    public string targetMapName = "Stage1";
+    public float gridUnitSize = 1.28f;
+    public Transform mapParent;
 
-    // 하위 호환성 및 기존 단일 참조 보존용 프로퍼티
-    public Tilemap tilemap => solidTilemap;
+    [Header("--- 에셋 및 카탈로그 ---")]
+    public List<GameObject> blockPrefabs = new List<GameObject>(); // 에디터와 공유할 프리팹 리스트
+    public PaintColorCatalog paintColorCatalog;
 
-    public List<TileBase> tilePresets; // 사용할 타일 에셋들을 인스펙터에서 등록
+    [Header("--- 동적 블록 랜덤 밸런스 설정 (%) ---")]
+    [Range(0f, 100f)] public float redPercent = 33f;
+    [Range(0f, 100f)] public float bluePercent = 33f;
+    [Range(0f, 100f)] public float yellowPercent = 34f;
 
-    [Header("--- 그리드 스냅 설정 ---")]
-    [SerializeField] private float gridUnitSize = 1.28f; // 기준 타일 크기 (스케일 보정용)
+    // 색상 흡수 기믹이 적용될 블록들을 모아둘 리스트
+    private List<ColorMinus> interactiveBlockList = new List<ColorMinus>();
 
-    // ID로 타일 에셋을 찾기 위한 딕셔너리
-    private Dictionary<int, TileBase> tileIdDictionary;
-    // 타일 에셋으로 ID를 찾기 위한 역방향 딕셔너리 (저장용)
-    private Dictionary<TileBase, int> tileAssetDictionary;
-
-    void Awake()
+    void Start()
     {
-        InitTileDictionaries();
+        LoadMap(targetMapName);
     }
 
-    // 인스펙터 등록 순서(Index)를 기반으로 ID 딕셔너리 세팅
-    void InitTileDictionaries()
-    {
-        tileIdDictionary = new Dictionary<int, TileBase>();
-        tileAssetDictionary = new Dictionary<TileBase, int>();
-
-        for (int i = 0; i < tilePresets.Count; i++)
-        {
-            if (tilePresets[i] != null)
-            {
-                tileIdDictionary[i] = tilePresets[i];
-                tileAssetDictionary[tilePresets[i]] = i;
-            }
-        }
-    }
-
-    // 다중 타일맵들에서 채워진 타일들을 병합 수집하여 JSON 파일로 저장
-    public void SaveMap(string fileName)
-    {
-        MapData mapData = new MapData { tiles = new List<TileData>() };
-
-        // 3개 타일맵 각각에 대해 데이터 수집 (지정된 type 기입)
-        CollectTilesFromMap(solidTilemap, "Block", mapData);
-        CollectTilesFromMap(ladderTilemap, "Ladder", mapData);
-        CollectTilesFromMap(grabTilemap, "Grab", mapData);
-
-        SaveMapData(fileName, mapData);
-    }
-
-    // 타일맵별 타일 수집 헬퍼 함수
-    private void CollectTilesFromMap(Tilemap targetMap, string defaultType, MapData mapData)
-    {
-        if (targetMap == null) return;
-        BoundsInt bounds = targetMap.cellBounds;
-
-        foreach (var pos in bounds.allPositionsWithin)
-        {
-            TileBase tile = targetMap.GetTile(pos);
-            if (tile != null)
-            {
-                if (tileAssetDictionary.TryGetValue(tile, out int id))
-                {
-                    Color tileColor = targetMap.GetColor(pos);
-                    string colorHex = "#" + ColorUtility.ToHtmlStringRGBA(tileColor);
-
-                    TileData data = new TileData
-                    {
-                        id = id,
-                        name = tile.name,
-                        x = pos.x,
-                        y = pos.y,
-                        color = colorHex,
-                        type = defaultType
-                    };
-                    mapData.tiles.Add(data);
-                }
-            }
-        }
-    }
-
-    // JSON을 읽어오고 각 물리 타일맵에 분기 배치 및 Grid Cell Size 복원
+    // JSON을 읽어와서 스프라이트 오브젝트들을 낱개로 싹 세팅하는 핵심 함수
     public void LoadMap(string fileName)
     {
-        // 3개 타일맵 각각에 대해 Grid Cell Size 자동 복원
-        SyncGridCellSize(solidTilemap);
-        SyncGridCellSize(ladderTilemap);
-        SyncGridCellSize(grabTilemap);
+        // 1. 기존에 생성된 맵 부모가 있다면 청소
+        Transform parent = GetOrCreateParent();
+        foreach (Transform child in parent)
+        {
+            Destroy(child.gameObject);
+        }
 
-        // 파일 로드 수행
+        interactiveBlockList.Clear();
+
+        // 2. JSON 데이터 로드
         MapData mapData = LoadMapData("Maps/" + fileName);
-        if (mapData == null || mapData.tiles == null) return;
+        if (mapData == null || mapData.tiles == null)
+        {
+            Debug.LogError($"[TileManager] 맵 데이터를 찾을 수 없습니다: {fileName}");
+            return;
+        }
 
-        // 기존 타일맵 청소
-        if (solidTilemap != null) solidTilemap.ClearAllTiles();
-        if (ladderTilemap != null) ladderTilemap.ClearAllTiles();
-        if (grabTilemap != null) grabTilemap.ClearAllTiles();
-
-        // 로드된 데이터를 기반으로 물리적 분기 배치 및 색상 적용
+        // 3. 데이터 기반 오브젝트 개별 생성
         foreach (var data in mapData.tiles)
         {
-            if (tileIdDictionary.TryGetValue(data.id, out TileBase tile))
+            GameObject prefab = GetPrefabByName(data.name);
+            if (prefab == null) continue;
+
+            Vector3 spawnPos = new Vector3(data.x, data.y, 0f);
+            GameObject instance = Instantiate(prefab, spawnPos, Quaternion.Euler(0, 0, data.rotation), parent);
+            instance.transform.localScale = new Vector3(data.scaleX != 0 ? data.scaleX : 1f, data.scaleY != 0 ? data.scaleY : 1f, 1f);
+            instance.name = data.name;
+
+            string nameLower = data.name.ToLower();
+
+            // 사다리(Ladder), 행거(Grab/Hanger), 함정(Spike/Trap)은 색상 흡수 기믹 예외 처리
+            bool isExcluded = nameLower.Contains("ladder") ||
+                              nameLower.Contains("grab") ||
+                              nameLower.Contains("hanger") ||
+                              nameLower.Contains("spike");
+
+            if (!isExcluded)
             {
-                Vector3Int position = new Vector3Int(Mathf.RoundToInt(data.x), Mathf.RoundToInt(data.y), 0);
-
-                // 지형 타입(type)에 맞춰 타일맵 분기 선택
-                Tilemap targetMap = solidTilemap;
-                if (data.type == "Ladder")
+                // 제외되지 않은 일반 블록 및 상자들에만 색상 흡수 기믹 자동 부여
+                ColorMinus cMinus = instance.GetComponent<ColorMinus>();
+                if (cMinus == null)
                 {
-                    targetMap = ladderTilemap != null ? ladderTilemap : solidTilemap;
-                }
-                else if (data.type == "Grab")
-                {
-                    targetMap = grabTilemap != null ? grabTilemap : solidTilemap;
+                    cMinus = instance.AddComponent<ColorMinus>();
                 }
 
-                if (targetMap != null)
+                if (cMinus != null)
                 {
-                    targetMap.SetTile(position, tile);
-
-                    // 색상 동기화
-                    if (ColorUtility.TryParseHtmlString(data.color, out Color customColor))
-                    {
-                        targetMap.SetTileFlags(position, TileFlags.None);
-                        targetMap.SetColor(position, customColor);
-                    }
+                    interactiveBlockList.Add(cMinus);
                 }
             }
-            else
+        }
+
+        Debug.Log($"[TileManager] 스프라이트 맵 '{fileName}' 로드 완료! (색상 기믹 대상 블록: {interactiveBlockList.Count}개)");
+
+        // 5. 렌더링 안정화 대기 후 무작위 색상 배분 셔플 실행
+        StartCoroutine(ColorShuffleRoutine());
+    }
+
+    // 프리팹 리스트에서 이름으로 원본 찾기 (정제 포함)
+    private GameObject GetPrefabByName(string name)
+    {
+        string cleanInput = CleanName(name);
+        foreach (var prefab in blockPrefabs)
+        {
+            if (prefab != null && CleanName(prefab.name) == cleanInput)
             {
-                Debug.LogWarning($"[TileManager] 프리셋 ID {data.id}에 해당하는 타일 에셋이 없습니다.");
+                return prefab;
             }
         }
-        Debug.Log("[TileManager] 다중 물리 타일맵 배치 및 컬러 동기화 완료!");
+        return null;
     }
 
-    // 그리드 크기 자동 동기화 헬퍼
-    private void SyncGridCellSize(Tilemap targetMap)
+    private string CleanName(string name)
     {
-        if (targetMap == null) return;
-        Grid grid = targetMap.GetComponentInParent<Grid>();
-        if (grid != null)
+        if (string.IsNullOrEmpty(name)) return "";
+        int index = name.IndexOf(" (");
+        if (index > 0) name = name.Substring(0, index);
+        return name.ToLower().Replace("_0", "").Replace(" ", "").Replace("_", "").Replace("1", "").Replace("2", "");
+    }
+
+    private Transform GetOrCreateParent()
+    {
+        if (mapParent != null) return mapParent;
+        string parentName = "MapRoot_" + targetMapName;
+        GameObject parentObj = GameObject.Find(parentName);
+        if (parentObj == null) parentObj = new GameObject(parentName);
+        mapParent = parentObj.transform;
+        return mapParent;
+    }
+
+    // 사다리/행거 제외 모든 블록에 설정된 비율에 맞춰 노랑, 빨강, 파랑 무작위 주입
+    private IEnumerator ColorShuffleRoutine()
+    {
+        yield return new WaitForSeconds(0.2f);
+
+        if (interactiveBlockList.Count == 0 || paintColorCatalog == null) yield break;
+
+        // Fisher-Yates 셔플 알고리즘으로 리스트 무작위 섞기
+        for (int i = 0; i < interactiveBlockList.Count; i++)
         {
-            grid.cellSize = new Vector3(gridUnitSize, gridUnitSize, 1f);
+            ColorMinus temp = interactiveBlockList[i];
+            int randomIndex = Random.Range(i, interactiveBlockList.Count);
+            interactiveBlockList[i] = interactiveBlockList[randomIndex];
+            interactiveBlockList[randomIndex] = temp;
+        }
+
+        int total = interactiveBlockList.Count;
+        int redCount = Mathf.RoundToInt(total * (redPercent / 100f));
+        int blueCount = Mathf.RoundToInt(total * (bluePercent / 100f));
+        int yellowCount = Mathf.RoundToInt(total * (yellowPercent / 100f));
+
+        paintColorCatalog.TryGetColor(ElementType.Red, out Color redColor);
+        paintColorCatalog.TryGetColor(ElementType.Blue, out Color blueColor);
+        paintColorCatalog.TryGetColor(ElementType.Yellow, out Color yellowColor);
+
+        for (int i = 0; i < total; i++)
+        {
+            Color targetColor = Color.white;
+            if (i < redCount) targetColor = redColor;
+            else if (i < redCount + blueCount) targetColor = blueColor;
+            else if (i < redCount + blueCount + yellowCount) targetColor = yellowColor;
+
+            ForceSetBlockColor(interactiveBlockList[i], targetColor);
+        }
+
+        Debug.Log($"[TileManager] 블록 색상 무작위 밸런스 배치 완료 (Red:{redCount}, Blue:{blueCount}, Yellow:{yellowCount})");
+    }
+
+    // 아트 팀의 ColorMinus 컴포넌트를 건드리지 않고 색상을 강제 주입하는 헬퍼
+    private void ForceSetBlockColor(ColorMinus colorMinus, Color newColor)
+    {
+        var sr = colorMinus.GetComponent<SpriteRenderer>();
+        var field = typeof(ColorMinus).GetField("<OriginalColor>k__BackingField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        if (field != null) field.SetValue(colorMinus, newColor);
+
+        if (sr != null)
+        {
+            sr.color = newColor;
+            if (sr.material != null)
+            {
+                sr.material.SetColor("_OriginalColor", newColor);
+            }
         }
     }
 
-    // JSON 파일 로컬 저장 헬퍼
-    private void SaveMapData(string mapName, MapData mapData)
-    {
-        string folderPath = Path.Combine(Application.dataPath, "Resources/Maps");
-        if (!Directory.Exists(folderPath))
-        {
-            Directory.CreateDirectory(folderPath);
-        }
-
-        string filePath = Path.Combine(folderPath, mapName + ".json");
-        string jsonString = JsonUtility.ToJson(mapData, true);
-        File.WriteAllText(filePath, jsonString);
-        Debug.Log($"[TileManager] 맵 데이터 파일 다이렉트 세이브 완료: {filePath}");
-    }
-
-    // JSON 파일 로딩 및 복원 헬퍼
     private MapData LoadMapData(string resourcePath)
     {
-        // Resources.Load 시도
         TextAsset mapTextAsset = Resources.Load<TextAsset>(resourcePath);
+        if (mapTextAsset != null) return JsonUtility.FromJson<MapData>(mapTextAsset.text);
 
-        if (mapTextAsset != null)
-        {
-            string jsonString = mapTextAsset.text;
-            return JsonUtility.FromJson<MapData>(jsonString);
-        }
-        else
-        {
-            // 백업: 에디터 임포트 지연 예외 방어
-            string filePath = Path.Combine(Application.dataPath, "Resources", resourcePath + ".json");
-            if (File.Exists(filePath))
-            {
-                string jsonString = File.ReadAllText(filePath);
-                return JsonUtility.FromJson<MapData>(jsonString);
-            }
-            else
-            {
-                Debug.LogWarning($"[TileManager] Resources 및 로컬 디스크에서 '{resourcePath}' 파일을 찾을 수 없어 빈 맵 데이터를 반환합니다.");
-                return new MapData { tiles = new List<TileData>() };
-            }
-        }
+        string filePath = Path.Combine(Application.dataPath, "Resources", resourcePath + ".json");
+        if (File.Exists(filePath)) return JsonUtility.FromJson<MapData>(File.ReadAllText(filePath));
+
+        return new MapData { tiles = new List<TileData>() };
     }
 }
 
-// CSPROJ 갱신 누락 방지용 글로벌 데이터 구조 정의
 [System.Serializable]
 public class TileData
 {
     public int id;
-    public string name;  // 타일 프리팹/스프라이트 에셋 이름
-    public string type;  // 타일 타입
-    public int x;        // 타일의 정밀 정규화 격자 x 좌표
-    public int y;        // 타일의 정밀 정규화 격자 y 좌표
-    public string color; // 타일 색상
+    public string name;
+    public string type;
+    public float x;
+    public float y;
+    public string color;
+
+    // 스프라이트 프리팹 개별 조절을 위해 추가된 변수들
+    public float scaleX;
+    public float scaleY;
+    public float rotation;
+
+    public bool isColorAbsorbed;
+    public string originalColorHex;
+    public string colorId;
+    public bool isRandom;
 }
 
 [System.Serializable]
 public class MapData
 {
-    public List<TileData> tiles;
+    public System.Collections.Generic.List<TileData> tiles;
 }
