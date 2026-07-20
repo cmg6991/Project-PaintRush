@@ -8,7 +8,7 @@ public class DeadZone : MonoBehaviour
         if (!other.CompareTag("Player"))
             return;
 
-        //UIManager.Instance.ShowRestartUI();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        UIManager.Instance.ShowRestartUI();
+        //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

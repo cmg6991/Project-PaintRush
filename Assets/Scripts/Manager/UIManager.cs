@@ -14,6 +14,7 @@ public class UIManager : Singleton<UIManager>
     bool isOpen = false;
 
     private FeverUI feverUI;
+    private RestartUI restartUI;
 
     public override void Awake()
     {
@@ -30,6 +31,7 @@ public class UIManager : Singleton<UIManager>
         isOpen = !isOpen;
         settingPanel.SetActive(isOpen);
         UpdateToggleImage(settingButton, isOpen, settingOn, settingOff);
+        SoundManager.Instance.PlaySFX(SFXType.Click);
     }
     public void CloseSetting()
     {
@@ -67,12 +69,21 @@ public class UIManager : Singleton<UIManager>
 
     public void ShowFeverUI()
     {
-        Debug.Log("show");
         feverUI?.FeverOn();
     }
 
     public void HideFeverUI()
     {
         feverUI?.FeverOff();
+    }
+    public void RegisterRestartUI(RestartUI ui)
+    {
+        restartUI = ui;
+        Debug.Log("나오니 등록했니");
+    }
+
+    public void ShowRestartUI()
+    {
+        restartUI?.RestartOn();
     }
 }

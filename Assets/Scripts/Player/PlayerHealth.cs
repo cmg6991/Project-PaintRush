@@ -106,6 +106,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     {
         isDead = true;
         Debug.Log("플레이어 사망");
+        SoundManager.Instance.PlaySFX(SFXType.PlayerDead);
 
         // 피격 깜빡이 코루틴 정지 및 색상 원복
         Project.Player.PlayerController2D controller = GetComponent<Project.Player.PlayerController2D>();
@@ -147,6 +148,8 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     {
         yield return new WaitForSeconds(1.5f);
         gameObject.SetActive(false);
+        UIManager.Instance.ShowRestartUI();
+
     }
 
     private void OnEnable()
