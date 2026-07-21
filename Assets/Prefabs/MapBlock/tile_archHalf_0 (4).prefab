@@ -63,7 +63,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 02bc1af524ddc144481cea13a922c819, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4577214f45bb7e4eb359c26b0aa75c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileColorRefill
-  refillDelay: 5
+  refillDelay: 15
 --- !u!114 &-4835284149005373743
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -44,22 +44,30 @@ public class TileColorRefill : MonoBehaviour
         // ColorMinus가 Awake()에서 생성해둔 복사 매태리얼을 가져옴
         mat = GetComponent<SpriteRenderer>().material;
 
-        // 현재 ColorMinus에 의해 _Progress가 하얀색인 상태
-        float currentProgress = 1f;
-
-        // 1에서 0으로 깎아내림, 원래 색상이 차오르게 역재생
-        while(currentProgress > 0f)
+        if (mat != null)
         {
-            // ColorMinus의 원래 속도로
-            currentProgress -= Time.deltaTime * colorMinus.fillSpeed;
+            // 완전히 하얀 상태에서 원래 색이 차오르는 상태로 부드럽게 보간
+            float duration = 1f / Mathf.Max(colorMinus.fillSpeed, 0.001f);
+            float elapsed = 0f;
 
-            // 셰이더 값 갱신
-            mat.SetFloat("_Progress", currentProgress);
-            yield return null;
+            // 현재 셰이더의 _Progress 값(보통 완전히 빠져있다면 1 근처)에서 시작
+            float startProgress = mat.GetFloat("_Progress");
+
+            while(elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+
+                // startProgress에서 완충까지 부드럽게 보간
+                float currentProgress = Mathf.Lerp(startProgress, 0f, t);
+                mat.SetFloat("_Progress", currentProgress);
+
+                yield return null;
+            }
+
+            // 확실하게 완충 상태로 고정
+            mat.SetFloat("_Progress", 0f);
         }
-
-        // 오차 방지를 위해 0으로 세팅
-        mat.SetFloat("_Progress", 0f);
 
         // 리플랙션으로 ColorMinus의 isAbsorbed를 false 변경
         if(absorbedField != null)

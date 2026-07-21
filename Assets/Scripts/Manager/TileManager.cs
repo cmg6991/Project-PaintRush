@@ -99,6 +99,8 @@ public class TileManager : MonoBehaviour
                 return prefab;
             }
         }
+
+        Debug.LogWarning($"[TileManager] 일치하는 프리팹을 찾지 못했습니다: {name} (정제된 키: {cleanInput})");
         return null;
     }
 
@@ -107,7 +109,9 @@ public class TileManager : MonoBehaviour
         if (string.IsNullOrEmpty(name)) return "";
         int index = name.IndexOf(" (");
         if (index > 0) name = name.Substring(0, index);
-        return name.ToLower().Replace("_0", "").Replace(" ", "").Replace("_", "").Replace("1", "").Replace("2", "");
+
+        // 대소문자만 통일하고 원본 이름의 구조(_0, 언더바 등)는 유지
+        return name.Trim().ToLower();
     }
 
     private Transform GetOrCreateParent()
@@ -178,12 +182,30 @@ public class TileManager : MonoBehaviour
 
     private MapData LoadMapData(string resourcePath)
     {
+        // 1. 에디터 저장 경로 및 영구 저장 경로(PersistentDataPath) 먼저 탐색
+        string persistentPath = Path.Combine(Application.persistentDataPath, resourcePath + ".json");
+        if (File.Exists(persistentPath))
+        {
+            string jsonText = File.ReadAllText(persistentPath);
+            return JsonUtility.FromJson<MapData>(jsonText);
+        }
+
+        // 2. DataPath의 Resources 폴더 탐색 (에디터 저장 위치 대응)
+        string dataPathFile = Path.Combine(Application.dataPath, "Resources", resourcePath + ".json");
+        if (File.Exists(dataPathFile))
+        {
+            string jsonText = File.ReadAllText(dataPathFile);
+            return JsonUtility.FromJson<MapData>(jsonText);
+        }
+
+        // 3. 마지막으로 유니티 기본 Resources.Load 시도
         TextAsset mapTextAsset = Resources.Load<TextAsset>(resourcePath);
-        if (mapTextAsset != null) return JsonUtility.FromJson<MapData>(mapTextAsset.text);
+        if (mapTextAsset != null)
+        {
+            return JsonUtility.FromJson<MapData>(mapTextAsset.text);
+        }
 
-        string filePath = Path.Combine(Application.dataPath, "Resources", resourcePath + ".json");
-        if (File.Exists(filePath)) return JsonUtility.FromJson<MapData>(File.ReadAllText(filePath));
-
+        Debug.LogError($"[TileManager] 맵 파일을 어떤 경로에서도 찾을 수 없습니다: {resourcePath}");
         return new MapData { tiles = new List<TileData>() };
     }
 }

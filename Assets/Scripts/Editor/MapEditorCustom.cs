@@ -75,7 +75,7 @@ public class MapEditorCustom : Editor
         }
         if (GUILayout.Button("JSON 맵 불러오기 (씬 복원)", GUILayout.Height(40)))
         {
-            LoadJsonToScene();
+            LoadJsonToEditorScene();
         }
         GUILayout.EndHorizontal();
 
@@ -260,11 +260,93 @@ public class MapEditorCustom : Editor
         Debug.Log($"[MapEditor] 스프라이트 블록 {scannedTiles.Count}개 JSON 저장 완료: {filePath}");
     }
 
-    private void LoadJsonToScene()
+    public void LoadJsonToEditorScene()
     {
-        // 런타임 로더(TileManager)가 이 역할을 대신하므로 에디터에서는 클리어 용도로 주로 사용
-        ClearAllBlocks();
-        Debug.Log("[MapEditor] 씬 클리어 완료. 플레이 모드에서 TileManager가 자동으로 생성합니다.");
+        MapEditor editor = (MapEditor)target;
+        if (editor == null) return;
+
+        // 1. 기존에 배치된 맵 부모 오브젝트가 있다면 먼저 청소
+        Transform parent = editor.spawnParent;
+        if (parent == null)
+        {
+            GameObject parentObj = GameObject.Find("MapRoot_" + editor.mapName);
+            if (parentObj != null) parent = parentObj.transform;
+        }
+
+        if (parent != null)
+        {
+            // 에디터 환경에서는 DestroyImmediate를 써야 씬에서 즉시 삭제됩니다.
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                DestroyImmediate(parent.GetChild(i).gameObject);
+            }
+        }
+        else
+        {
+            GameObject newParent = new GameObject("MapRoot_" + editor.mapName);
+            parent = newParent.transform;
+            editor.spawnParent = parent;
+        }
+
+        // 2. JSON 파일 경로 탐색 및 로드
+        string filePath = Path.Combine(Application.dataPath, "Resources/Maps", editor.mapName + ".json");
+        if (!File.Exists(filePath))
+        {
+            // PersistentDataPath도 확인
+            filePath = Path.Combine(Application.persistentDataPath, "Maps/" + editor.mapName + ".json");
+        }
+
+        if (!File.Exists(filePath))
+        {
+            Debug.LogError($"[MapEditor] 불러올 JSON 파일을 찾을 수 없습니다: {editor.mapName}");
+            return;
+        }
+
+        string jsonText = File.ReadAllText(filePath);
+        MapData mapData = JsonUtility.FromJson<MapData>(jsonText);
+
+        if (mapData == null || mapData.tiles == null)
+        {
+            Debug.LogError("[MapEditor] 맵 데이터가 비어있거나 형식이 잘못되었습니다.");
+            return;
+        }
+
+        // 3. 에디터 상에 타일 오브젝트들을 낱개로 생성 (에디터 전용이므로 Instantiate 대신 UnityEditor.PrefabUtility 등을 쓰거나 기본 Instantiate 활용 가능)
+        foreach (var data in mapData.tiles)
+        {
+            GameObject prefab = GetEditorPrefabByName(editor, data.name);
+            if (prefab == null) continue;
+
+            Vector3 spawnPos = new Vector3(data.x, data.y, 0f);
+
+            // 에디터에서 즉시 생성되도록 Instantiate 사용
+            GameObject instance = Instantiate(prefab, spawnPos, Quaternion.Euler(0, 0, data.rotation), parent);
+            instance.transform.localScale = new Vector3(data.scaleX != 0 ? data.scaleX : 1f, data.scaleY != 0 ? data.scaleY : 1f, 1f);
+            instance.name = data.name;
+        }
+
+        Debug.Log($"[MapEditor] 에디터 화면에 '{editor.mapName}' 불러오기 완료! (총 {mapData.tiles.Count}개 타일)");
+    }
+
+    // 에디터용 프리팹 검색 헬퍼
+    private GameObject GetEditorPrefabByName(MapEditor editor, string name)
+    {
+        string cleanInput = name.ToLower().Trim();
+        int index = cleanInput.IndexOf(" (");
+        if (index > 0) cleanInput = cleanInput.Substring(0, index);
+
+        foreach (var prefab in editor.blockPrefabs)
+        {
+            if (prefab != null)
+            {
+                string prefabClean = prefab.name.ToLower().Trim();
+                int pIndex = prefabClean.IndexOf(" (");
+                if (pIndex > 0) prefabClean = prefabClean.Substring(0, pIndex);
+
+                if (prefabClean == cleanInput) return prefab;
+            }
+        }
+        return null;
     }
 }
 #endif

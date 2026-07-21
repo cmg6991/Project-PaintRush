@@ -63,7 +63,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 02bc1af524ddc144481cea13a922c819, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35ac626fcaf87f14dbfa3742fad968c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorMinus
-  fillSpeed: 0.5
+  fillSpeed: 15
 --- !u!61 &-3508680245368737839
 BoxCollider2D:
   m_ObjectHideFlags: 0
