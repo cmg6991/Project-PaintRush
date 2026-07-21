@@ -287,11 +287,14 @@ public class ColorDropItem : MonoBehaviour
         bool filledGun = false;
         bool registeredPalette = false;
 
+        Debug.Log($"먹은 색 = {paintColor}");
+
         // 총이 비어 있으면 기존 기능대로 총을 충전합니다.
         if (gunFillColor != null &&
             !gunFillColor.HasColor)
         {
             gunFillColor.GunSetColor(paintColor);
+            Debug.Log($"현재 총 색 = {gunFillColor.CurrentColor}");
             filledGun = true;
         }
 
