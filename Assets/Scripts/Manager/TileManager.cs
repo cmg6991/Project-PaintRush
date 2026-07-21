@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TileManager : MonoBehaviour
 {
@@ -21,6 +22,15 @@ public class TileManager : MonoBehaviour
 
     // 색상 흡수 기믹이 적용될 블록들을 모아둘 리스트
     private List<ColorMinus> interactiveBlockList = new List<ColorMinus>();
+
+    void Awake()
+    {
+        string currentSceneName = SceneManager.GetActiveScene().name;
+
+        targetMapName = currentSceneName;
+
+        Debug.Log($"[TileManager] 현재 씬 감지됨: {currentSceneName} -> 맵 이름 '{targetMapName}'으로 설정합니다.");
+    }
 
     void Start()
     {
