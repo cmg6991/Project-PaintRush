@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 팔레트 보유 몬스터가 드롭하는 특수 팔레트 아이템입니다.
@@ -346,30 +346,38 @@ public class PalettePickup : MonoBehaviour
     private void ResolvePaletteManager()
     {
         if (paletteManager != null)
-        {
             return;
-        }
 
         paletteManager =
-            StagePaletteManager.Instance != null
-                ? StagePaletteManager.Instance
-                : FindAnyObjectByType<StagePaletteManager>();
+            StagePaletteManager.FindForScene(this);
     }
 
     private void ResolvePlayerReferences()
     {
-        GameObject playerObject =
-            GameObject.FindGameObjectWithTag("Player");
+        playerTransform = null;
+        playerBodyCollider = null;
 
-        if (playerObject == null)
-        {
-            playerTransform = null;
-            playerBodyCollider = null;
+        UnityEngine.SceneManagement.Scene scene =
+            gameObject.scene;
+
+        if (!scene.IsValid() || !scene.isLoaded)
             return;
-        }
 
-        playerTransform = playerObject.transform;
-        ResolvePlayerBodyCollider();
+        foreach (GameObject root in scene.GetRootGameObjects())
+        {
+            Transform[] transforms =
+                root.GetComponentsInChildren<Transform>(true);
+
+            foreach (Transform candidate in transforms)
+            {
+                if (candidate.CompareTag("Player"))
+                {
+                    playerTransform = candidate;
+                    ResolvePlayerBodyCollider();
+                    return;
+                }
+            }
+        }
     }
 
     private void ResolvePlayerBodyCollider()

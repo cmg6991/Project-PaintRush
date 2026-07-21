@@ -1,13 +1,11 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 /// <summary>
-/// 팔레트 피버의 입력, 지속시간, 데미지 강화, 연출을 담당한다.
-///
-/// 일반 사격 코드는 수정하지 않는다.
-/// MonsterAI.TakeDamage가 이 컴포넌트의 피버 상태를 확인해
-/// 데미지를 강화하고 속성 검사를 무시한다.
+/// Q키 입력, 피버 지속시간, 데미지 강화와 연출을 담당합니다.
+/// 같은 씬의 StagePaletteManager만 사용합니다.
 /// </summary>
 public class PaletteSpecialAttack : MonoBehaviour
 {
@@ -21,23 +19,25 @@ public class PaletteSpecialAttack : MonoBehaviour
     [SerializeField, Min(0.1f)]
     private float feverDuration = 5f;
 
-    [Tooltip("피버 중 일반 사격 한 발이 주는 최소 데미지")]
     [SerializeField, Min(1)]
     private int feverDamage = 100;
 
-    [Header("직접 입력")]
-    [Tooltip("PlayerInput 없이 이 컴포넌트가 직접 키 입력을 확인")]
+    [Header("입력")]
     [SerializeField]
     private bool enableDirectInput = true;
+
+    [Tooltip("켜면 Q키만 사용합니다.")]
+    [SerializeField]
+    private bool qKeyOnly = true;
 
     [SerializeField]
     private bool useQKey = true;
 
     [SerializeField]
-    private bool useEKey = true;
+    private bool useEKey = false;
 
     [SerializeField]
-    private bool useRightMouseButton = true;
+    private bool useRightMouseButton = false;
 
     [Header("연출")]
     [SerializeField]
@@ -55,7 +55,6 @@ public class PaletteSpecialAttack : MonoBehaviour
 
     private Coroutine feverCoroutine;
     private GameObject spawnedEffect;
-
     private FillColor fillColor;
 
     public bool IsFeverActive => isFeverActive;
@@ -64,35 +63,53 @@ public class PaletteSpecialAttack : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        PaletteSpecialAttack duplicate =
+            FindOtherInScene(gameObject.scene);
+
+        if (duplicate != null)
         {
-            Destroy(gameObject);
+            Debug.LogError(
+                $"[{nameof(PaletteSpecialAttack)}] 같은 씬에 컴포넌트가 둘 이상 있습니다. " +
+                $"{gameObject.name}을 비활성화합니다.");
+
+            enabled = false;
             return;
         }
 
-        Instance = this;
+        if (Instance == null ||
+            Instance.gameObject.scene == gameObject.scene)
+        {
+            Instance = this;
+        }
+
         ResolvePaletteManager();
-        fillColor = GetComponentInChildren<FillColor>();
+        fillColor =
+            GetComponentInChildren<FillColor>();
     }
 
     private void Update()
     {
         if (!enableDirectInput)
-        {
             return;
-        }
 
         bool requested = false;
+
         if (Keyboard.current != null)
         {
             requested =
-                (useQKey &&
-                 Keyboard.current.qKey.wasPressedThisFrame) ||
-                (useEKey &&
-                 Keyboard.current.eKey.wasPressedThisFrame);
+                useQKey &&
+                Keyboard.current.qKey.wasPressedThisFrame;
+
+            if (!qKeyOnly)
+            {
+                requested |=
+                    useEKey &&
+                    Keyboard.current.eKey.wasPressedThisFrame;
+            }
         }
 
-        if (!requested &&
+        if (!qKeyOnly &&
+            !requested &&
             useRightMouseButton &&
             Mouse.current != null)
         {
@@ -101,9 +118,30 @@ public class PaletteSpecialAttack : MonoBehaviour
         }
 
         if (requested)
-        {
             TryActivate();
+    }
+
+    public static PaletteSpecialAttack FindForScene(
+        GameObject context)
+    {
+        if (context == null)
+            return Instance;
+
+        Scene scene = context.scene;
+
+        if (!scene.IsValid() || !scene.isLoaded)
+            return Instance;
+
+        foreach (GameObject root in scene.GetRootGameObjects())
+        {
+            PaletteSpecialAttack attack =
+                root.GetComponentInChildren<PaletteSpecialAttack>(true);
+
+            if (attack != null && attack.enabled)
+                return attack;
         }
+
+        return null;
     }
 
     public bool TryActivate()
@@ -112,27 +150,24 @@ public class PaletteSpecialAttack : MonoBehaviour
         ResolvePaletteManager();
 
         if (isFeverActive)
-        {
             return false;
-        }
 
         if (paletteManager == null)
         {
             Debug.LogWarning(
-                "[피버] StagePaletteManager가 없습니다."
-            );
+                "[피버] 현재 씬에 StagePaletteManager가 없습니다.");
+
             return false;
         }
 
         if (!paletteManager.TryStartSpecialAttack())
-        {
             return false;
-        }
 
         isFeverActive = true;
         remainingTime = feverDuration;
-        fillColor?.FeverOn();
+        paletteManager.SetSpecialAttackGaugeRemaining(1f);
 
+        fillColor?.FeverOn();
         SpawnEffect();
 
         feverCoroutine =
@@ -140,38 +175,27 @@ public class PaletteSpecialAttack : MonoBehaviour
 
         Debug.Log(
             $"[피버] 시작! {feverDuration:F1}초 동안 " +
-            $"일반 사격이 속성을 무시하고 최소 {feverDamage} 데미지"
-        );
+            $"속성을 무시하고 최소 {feverDamage} 데미지");
 
         return true;
     }
 
-    /// <summary>
-    /// PlayerInput의 PaletteAttack 액션과 연결할 수 있다.
-    /// 직접 입력을 사용할 경우에는 연결하지 않아도 된다.
-    /// </summary>
     public void OnPaletteAttack(InputValue value)
     {
         if (value.isPressed)
-        {
             TryActivate();
-        }
     }
 
-    /// <summary>
-    /// MonsterAI가 일반 피격값을 피버 공격값으로 변환할 때 사용한다.
-    /// 피버가 아니면 아무 값도 변경하지 않는다.
-    /// </summary>
     public bool ApplyMonsterDamageModifiers(
         ref int damage,
         ref bool ignoreElement)
     {
         if (!isFeverActive)
-        {
             return false;
-        }
 
-        damage = Mathf.Max(damage, feverDamage);
+        damage =
+            Mathf.Max(damage, feverDamage);
+
         ignoreElement = true;
         return true;
     }
@@ -181,27 +205,35 @@ public class PaletteSpecialAttack : MonoBehaviour
         while (remainingTime > 0f)
         {
             remainingTime =
-                Mathf.Max(0f, remainingTime - Time.deltaTime);
+                Mathf.Max(
+                    0f,
+                    remainingTime - Time.deltaTime);
+
+            float remaining01 =
+                feverDuration <= 0f
+                    ? 0f
+                    : remainingTime / feverDuration;
+
+            paletteManager?.SetSpecialAttackGaugeRemaining(
+                remaining01);
 
             yield return null;
         }
 
+        paletteManager?.SetSpecialAttackGaugeRemaining(0f);
         EndFever();
     }
 
     private void EndFever()
     {
         if (!isFeverActive)
-        {
             return;
-        }
 
         isFeverActive = false;
-
-        fillColor?.FeverOff();
-
         remainingTime = 0f;
         feverCoroutine = null;
+
+        fillColor?.FeverOff();
 
         if (spawnedEffect != null)
         {
@@ -209,12 +241,10 @@ public class PaletteSpecialAttack : MonoBehaviour
             spawnedEffect = null;
         }
 
-        if (paletteManager != null)
-        {
-            paletteManager.CompleteSpecialAttack();
-        }
+        paletteManager?.CompleteSpecialAttack();
 
         Debug.Log(
+            "[피버] 종료. 설정에 따라 팔레트와 물감 진행도를 초기화합니다.");
             "[피버] 종료. 팔레트 아이템과 수집 색 초기화"
         );
         SoundManager.Instance.PlayBGM(BGMType.Normal);
@@ -223,9 +253,7 @@ public class PaletteSpecialAttack : MonoBehaviour
     private void SpawnEffect()
     {
         if (feverEffectPrefab == null)
-        {
             return;
-        }
 
         Transform parent =
             effectSpawnPoint != null
@@ -236,37 +264,44 @@ public class PaletteSpecialAttack : MonoBehaviour
             feverEffectPrefab,
             parent.position,
             Quaternion.identity,
-            parent
-        );
+            parent);
     }
 
     private void ResolvePaletteManager()
     {
         if (paletteManager != null)
-        {
             return;
-        }
 
-        paletteManager = StagePaletteManager.Instance;
+        paletteManager =
+            StagePaletteManager.FindForScene(this);
+    }
 
-        if (paletteManager == null)
+    private PaletteSpecialAttack FindOtherInScene(
+        Scene scene)
+    {
+        if (!scene.IsValid() || !scene.isLoaded)
+            return null;
+
+        foreach (GameObject root in scene.GetRootGameObjects())
         {
-            paletteManager =
-                FindAnyObjectByType<StagePaletteManager>();
+            foreach (PaletteSpecialAttack attack in
+                     root.GetComponentsInChildren<PaletteSpecialAttack>(true))
+            {
+                if (attack != this && attack.enabled)
+                    return attack;
+            }
         }
+
+        return null;
     }
 
     private void OnDisable()
     {
         if (!isFeverActive)
-        {
             return;
-        }
 
         if (feverCoroutine != null)
-        {
             StopCoroutine(feverCoroutine);
-        }
 
         EndFever();
     }
@@ -274,8 +309,6 @@ public class PaletteSpecialAttack : MonoBehaviour
     private void OnDestroy()
     {
         if (Instance == this)
-        {
             Instance = null;
-        }
     }
 }

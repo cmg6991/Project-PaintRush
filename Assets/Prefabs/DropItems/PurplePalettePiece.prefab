@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1719896524428501687
+--- !u!1 &6863371975533239461
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,41 +8,41 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2256432241619348843}
-  - component: {fileID: 5235553861403891463}
-  - component: {fileID: -2399086455971759495}
-  - component: {fileID: -7973388397296671163}
-  - component: {fileID: -5677612283647799275}
+  - component: {fileID: 2326905387897553148}
+  - component: {fileID: 886207971915278060}
+  - component: {fileID: 8484201960169937552}
+  - component: {fileID: 2968440493025677674}
+  - component: {fileID: 4146783417479239351}
   m_Layer: 9
-  m_Name: YellowPalettePiece
-  m_TagString: Untagged
+  m_Name: PurplePalettePiece
+  m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2256432241619348843
+--- !u!4 &2326905387897553148
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1719896524428501687}
+  m_GameObject: {fileID: 6863371975533239461}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -34.37, y: -8.44, z: 0}
+  m_LocalPosition: {x: 687.4647, y: 462.33096, z: 0}
   m_LocalScale: {x: 0.7, y: 0.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &5235553861403891463
+--- !u!212 &886207971915278060
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1719896524428501687}
+  m_GameObject: {fileID: 6863371975533239461}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_SortingOrder: 2
   m_MaskInteraction: 0
   m_Sprite: {fileID: 5007347937705249242, guid: 87d99363e61b36b4293e3dbf1667c528, type: 3}
-  m_Color: {r: 0.9427508, g: 1, b: 0, a: 1}
+  m_Color: {r: 0.6666667, g: 0, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -94,13 +94,13 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!58 &-2399086455971759495
+--- !u!58 &8484201960169937552
 CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1719896524428501687}
+  m_GameObject: {fileID: 6863371975533239461}
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
@@ -130,20 +130,22 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.32
---- !u!114 &-7973388397296671163
+--- !u!114 &2968440493025677674
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1719896524428501687}
+  m_GameObject: {fileID: 6863371975533239461}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 93b43a93933559643adc67b6faa95a48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorDropItem
-  colorId: Yellow
-  paintColor: {r: 1, g: 1, b: 0, a: 1}
+  colorId: Purple
+  paintColor: {r: 0.6666667, g: 0, b: 1, a: 1}
+  registerPaletteProgress: 1
+  paletteProgressAmount: 1
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -159,14 +161,14 @@ MonoBehaviour:
   pullWobbleAmount: 0.08
   pullWobbleSpeed: 18
   paletteManager: {fileID: 0}
---- !u!50 &-5677612283647799275
+--- !u!50 &4146783417479239351
 Rigidbody2D:
   serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1719896524428501687}
+  m_GameObject: {fileID: 6863371975533239461}
   m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
