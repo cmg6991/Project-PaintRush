@@ -304,7 +304,8 @@ public sealed class PaletteUI : MonoBehaviour
             return;
         }
 
-        SetHudVisible(paletteManager.HasPaletteItem);
+        SetHudVisible(
+            paletteManager.ShouldShowPaletteHud);
         RefreshCounterVisibility();
         RefreshCounters();
         RefreshGaugeImmediate();

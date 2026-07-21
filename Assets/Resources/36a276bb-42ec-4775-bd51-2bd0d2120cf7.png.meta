@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1a91857ecd90099419c5089b046d9fc6
+guid: abc385e2164d82a40915a9ef3577db59
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 243938573087296794
-    second: character_handPurple_0
+      213: -6904037398450956439
+    second: 36a276bb-42ec-4775-bd51-2bd0d2120cf7_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: character_handPurple_0
+      name: 36a276bb-42ec-4775-bd51-2bd0d2120cf7_0
       rect:
         serializedVersion: 2
-        x: 48
-        y: 48
-        width: 33
-        height: 32
+        x: 233
+        y: 223
+        width: 2040
+        height: 184
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a1d42ebf6d4a26300800000000000000
-      internalID: 243938573087296794
+      spriteID: 9679155b09eef20a0800000000000000
+      internalID: -6904037398450956439
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      character_handPurple_0: 243938573087296794
+      36a276bb-42ec-4775-bd51-2bd0d2120cf7_0: -6904037398450956439
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

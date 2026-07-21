@@ -112,11 +112,21 @@ public class StagePaletteManager : MonoBehaviour
     private bool capCollectedPaintToRequirement;
 
     [Header("피버 종료 규칙")]
+    [Tooltip("팔레트 HUD를 스테이지 끝까지 유지하려면 끄세요.")]
     [SerializeField]
-    private bool resetPaletteItemOnFeverEnd = true;
+    private bool resetPaletteItemOnFeverEnd = false;
 
+    [Tooltip("켜면 피버 종료 시 모든 물감 수량을 0으로 초기화합니다.")]
     [SerializeField]
-    private bool resetCollectedPaintOnFeverEnd = true;
+    private bool resetCollectedPaintOnFeverEnd = false;
+
+    [Tooltip("피버 종료 시 보유 중인 각 물감 색상의 수량을 1개씩 감소시킵니다.")]
+    [SerializeField]
+    private bool decreaseEachPaintCountOnFeverEnd = true;
+
+    [Tooltip("팔레트를 한 번이라도 획득했다면 현재 스테이지가 끝날 때까지 HUD를 계속 표시합니다.")]
+    [SerializeField]
+    private bool keepHudVisibleAfterPalettePickup = true;
 
     [Header("씬 범위")]
     [Tooltip("다른 씬에 영향을 주지 않으려면 끄세요.")]
@@ -141,6 +151,9 @@ public class StagePaletteManager : MonoBehaviour
 
     [SerializeField, Min(0)]
     private int paletteItemCount;
+
+    [SerializeField]
+    private bool hasEverAcquiredPalette;
 
     [SerializeField]
     private bool hasAllRequiredColors;
@@ -171,6 +184,12 @@ public class StagePaletteManager : MonoBehaviour
 
     public int PaletteItemCount => paletteItemCount;
     public bool HasPaletteItem => paletteItemCount > 0;
+
+    public bool ShouldShowPaletteHud =>
+        HasPaletteItem ||
+        (keepHudVisibleAfterPalettePickup &&
+         hasEverAcquiredPalette);
+
     public bool HasAllRequiredColors => hasAllRequiredColors;
     public bool CanUseSpecialAttack => canUseSpecialAttack;
     public bool IsSpecialAttackActive => isSpecialAttackActive;
@@ -223,6 +242,9 @@ public class StagePaletteManager : MonoBehaviour
         NormalizeCollectedCounts();
         RebuildSequenceFromCountsIfNeeded();
         SyncLegacyLists();
+        if (paletteItemCount > 0)
+            hasEverAcquiredPalette = true;
+
         feverGaugeRemaining01 = 1f;
         RefreshState(false);
     }
@@ -458,6 +480,7 @@ public class StagePaletteManager : MonoBehaviour
             return paletteItemCount;
 
         paletteItemCount += amount;
+        hasEverAcquiredPalette = true;
 
         Debug.Log(
             $"[팔레트] 팔레트 아이템 장착. 현재 보유: {paletteItemCount}");
@@ -531,22 +554,33 @@ public class StagePaletteManager : MonoBehaviour
         if (resetPaletteItemOnFeverEnd)
         {
             paletteItemCount = 0;
+
             InvokeSafely(
                 OnPaletteItemCountChanged,
                 paletteItemCount,
                 nameof(OnPaletteItemCountChanged));
         }
 
-        // 피버 게이지는 항상 소비합니다.
+        // 피버 게이지는 매번 전부 소비합니다.
         collectedPaintSequence.Clear();
 
         if (resetCollectedPaintOnFeverEnd)
-            ClearPaintCounts(false, false);
+        {
+            ClearPaintCounts(true, false);
+        }
+        else if (decreaseEachPaintCountOnFeverEnd)
+        {
+            DecreaseEachPaintCountByOne();
+        }
         else
+        {
             SyncLegacyLists();
+        }
 
         RefreshState(true);
-        InvokeSafely(OnSpecialAttackEnded, nameof(OnSpecialAttackEnded));
+        InvokeSafely(
+            OnSpecialAttackEnded,
+            nameof(OnSpecialAttackEnded));
     }
 
     public void SetSpecialAttackGaugeRemaining(float remaining01)
@@ -741,6 +775,31 @@ public class StagePaletteManager : MonoBehaviour
         collectedPaintCounts.Add(state);
 
         return state;
+    }
+
+    private void DecreaseEachPaintCountByOne()
+    {
+        foreach (PaintCountState state in collectedPaintCounts)
+        {
+            if (state.Count <= 0)
+                continue;
+
+            int newCount =
+                Mathf.Max(0, state.Count - 1);
+
+            state.SetCount(newCount);
+
+            InvokeSafely(
+                OnPaintCountChanged,
+                state.Element,
+                newCount,
+                nameof(OnPaintCountChanged));
+        }
+
+        SyncLegacyLists();
+
+        Debug.Log(
+            "[팔레트] 피버 종료: 보유 중인 각 물감 수량이 1개씩 감소했습니다.");
     }
 
     private void ClearPaintCounts(
