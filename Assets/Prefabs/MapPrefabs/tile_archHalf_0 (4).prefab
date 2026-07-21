@@ -11,10 +11,7 @@ GameObject:
   - component: {fileID: 2647368798739868648}
   - component: {fileID: 6368273067007369191}
   - component: {fileID: 7594518713038461095}
-  - component: {fileID: 8016341514232064069}
-  - component: {fileID: -4835284149005373743}
   - component: {fileID: -7697723518491269086}
-  - component: {fileID: 7171021113048573476}
   m_Layer: 3
   m_Name: tile_archHalf_0 (4)
   m_TagString: Ground
@@ -63,7 +60,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 02bc1af524ddc144481cea13a922c819, type: 2}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -142,32 +139,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.28, y: 1.27}
   m_EdgeRadius: 0
---- !u!114 &8016341514232064069
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9153619257040553122}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4577214f45bb7e4eb359c26b0aa75c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TileColorRefill
-  refillDelay: 15
---- !u!114 &-4835284149005373743
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9153619257040553122}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35ac626fcaf87f14dbfa3742fad968c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ColorMinus
-  fillSpeed: 0.5
 --- !u!61 &-7697723518491269086
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -214,15 +185,3 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.28, y: 1.27}
   m_EdgeRadius: 0
---- !u!114 &7171021113048573476
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9153619257040553122}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45214e52b8388004580693eea3112aa2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MonsterTileCol
