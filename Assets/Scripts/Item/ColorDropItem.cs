@@ -343,6 +343,7 @@ public class ColorDropItem : MonoBehaviour
 
     private void CompleteCollection()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Item);
         isCollected = true;
 
         rb.linearVelocity = Vector2.zero;

@@ -454,6 +454,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af9f6c31fe8079049bc894a7880b3ab3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gradation
+  rainbowSpeed: 0.5
+  glowSpeed: 5
+  glowPower: 1.5
 --- !u!114 &2900608756335561063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -466,6 +469,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00b52dc1544996b4f82898db72c4d51a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FillColor
+  feverLight: {fileID: 0}
+  minIntensity: 0.5
+  maxIntensity: 2
+  flashSpeed: 5
+  feverSparkle: {fileID: 0}
 --- !u!114 &6294916748562560170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1031,6 +1039,11 @@ MonoBehaviour:
   hangerXOffset: -0.4
   invincibleDuration: 1.5
   blinkInterval: 0.1
+  knockbackForceX: 3
+  knockbackForceY: 1
+  knockbackDuration: 0.2
+  hitScaleMultiplier: 1.3
+  hitScaleDuration: 0.15
   isInsideLadder: 0
   isClimbing: 0
   isInsideHanger: 0
@@ -1049,7 +1062,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   maxHp: 5
-  heartUI: {fileID: 0}
+  heartUiTransform: {fileID: 0}
+  maskTransform: {fileID: 0}
+  minYOffset: -0.5
+  maxYOffset: 0
 --- !u!1 &7550368728581958492
 GameObject:
   m_ObjectHideFlags: 0

@@ -18,7 +18,7 @@ public class Shoot : MonoBehaviour
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
                 return;
             ShootPaint();
-            SoundManager.Instance.PlaySFX(SFXType.Shoot);
+
         }
     }
 
@@ -27,6 +27,7 @@ public class Shoot : MonoBehaviour
         if (!fillColor.HasColor)
             return;
 
+        SoundManager.Instance.PlaySFX(SFXType.Shoot);
         // 마우스 월드 좌표 변환
         Vector3 mouseScreenPos = Input.mousePosition;
         mouseScreenPos.z = Mathf.Abs(Camera.main.transform.position.z);
@@ -87,8 +88,7 @@ public class Shoot : MonoBehaviour
 
         foreach (var hit in hits)
         {
-            IPaintable paintable = hit.collider.GetComponent<IPaintable>();
-
+            IPaintable paintable = hit.collider.GetComponentInParent<IPaintable>();
             if (paintable == null)
                 continue;
 

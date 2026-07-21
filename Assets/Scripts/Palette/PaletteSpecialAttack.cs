@@ -146,6 +146,7 @@ public class PaletteSpecialAttack : MonoBehaviour
 
     public bool TryActivate()
     {
+        SoundManager.Instance.PlayBGM(BGMType.Fever);
         ResolvePaletteManager();
 
         if (isFeverActive)
@@ -244,6 +245,9 @@ public class PaletteSpecialAttack : MonoBehaviour
 
         Debug.Log(
             "[피버] 종료. 설정에 따라 팔레트와 물감 진행도를 초기화합니다.");
+            "[피버] 종료. 팔레트 아이템과 수집 색 초기화"
+        );
+        SoundManager.Instance.PlayBGM(BGMType.Normal);
     }
 
     private void SpawnEffect()
