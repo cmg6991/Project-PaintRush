@@ -242,6 +242,11 @@ public class PaletteSpecialAttack : MonoBehaviour
         }
 
         paletteManager?.CompleteSpecialAttack();
+
+        Debug.Log(
+            "[피버] 종료. 설정에 따라 팔레트와 물감 진행도를 초기화합니다."
+            
+        );
         SoundManager.Instance.PlayBGM(BGMType.Normal);
     }
 
