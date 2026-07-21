@@ -48,9 +48,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SoundManager
   bgmSource: {fileID: 3990691209397471419}
   sfxSource: {fileID: 6704247551337927338}
-  bgmClip: {fileID: 8300000, guid: 0d59b3e6993324744ba4551f8bab8fec, type: 3}
+  bgmClip:
+  - {fileID: 8300000, guid: 0d59b3e6993324744ba4551f8bab8fec, type: 3}
+  - {fileID: 8300000, guid: 9174a44004eb17e41a8909a77f72c79b, type: 3}
+  fadeTime: 0.1
   sfxClips:
   - {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
+  - {fileID: 8300000, guid: b398fc24d414f01499e1047b5f04231e, type: 3}
+  - {fileID: 8300000, guid: 94333a2fbf8214249a885c49db894414, type: 3}
+  - {fileID: 8300000, guid: fdbafcb9e9fb1364a8de2d6578b6498d, type: 3}
+  - {fileID: 8300000, guid: 9cdfdfad860f90749a44e592961b7492, type: 3}
+  - {fileID: 8300000, guid: be448ffc7eb41c540b060cc3dfb6730c, type: 3}
+  - {fileID: 8300000, guid: 2468226c2bd4b4045a089f994205c62e, type: 3}
+  - {fileID: 8300000, guid: 77750a3a97fe59d47bd334a489c9593e, type: 3}
 --- !u!82 &3990691209397471419
 AudioSource:
   m_ObjectHideFlags: 0

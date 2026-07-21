@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class UIManager : Singleton<UIManager>
 {
+    protected override bool IsDontDestroy => false;
+
     [Header("Setting")]
     [SerializeField] private Button settingButton;
     [SerializeField] private GameObject settingPanel;
@@ -50,6 +52,7 @@ public class UIManager : Singleton<UIManager>
     {
         Debug.Log("게임 시작");
         SoundManager.Instance.PlaySFX(SFXType.Click);
+        SceneManager.LoadScene("ProtoScene");
     }
 
     public void Setting()
@@ -79,7 +82,6 @@ public class UIManager : Singleton<UIManager>
     public void RegisterRestartUI(RestartUI ui)
     {
         restartUI = ui;
-        Debug.Log("나오니 등록했니");
     }
 
     public void ShowRestartUI()

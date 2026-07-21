@@ -8,11 +8,13 @@ public class ShootParticle : MonoBehaviour
     {
         if (smokeParticle == null)
             return;
+        smokeParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
         var mainModule = smokeParticle.main;
 
         Color pastelColor = Color.Lerp(bulletColor, Color.white, 0.01f);
-        pastelColor.a = 0.5f;
+        pastelColor.a = 1f;
+
         mainModule.startColor = pastelColor;
         smokeParticle.Play();
     }

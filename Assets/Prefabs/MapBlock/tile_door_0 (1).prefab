@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 1783194380329241398}
   - component: {fileID: 8679412889640525494}
   - component: {fileID: 4667997282816252703}
+  - component: {fileID: 2199281182667615326}
+  - component: {fileID: 66743921686292184}
   m_Layer: 0
   m_Name: tile_door_0 (1)
   m_TagString: Untagged
@@ -138,3 +140,29 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.28, y: 1.27}
   m_EdgeRadius: 0
+--- !u!114 &2199281182667615326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4804726970376534874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c19492a09669ef488558da3454d88a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DoorOpen
+  requiredColors:
+  - {r: 1, g: 0, b: 0, a: 0}
+--- !u!114 &66743921686292184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4804726970376534874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1fad973b51c7ce43bd2f742dd7c28d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PaintableWall

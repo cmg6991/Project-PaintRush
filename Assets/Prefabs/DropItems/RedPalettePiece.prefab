@@ -85,7 +85,7 @@ SpriteRenderer:
   m_SortingOrder: 2
   m_MaskInteraction: 0
   m_Sprite: {fileID: 5007347937705249242, guid: 87d99363e61b36b4293e3dbf1667c528, type: 3}
-  m_Color: {r: 1, g: 0.11576611, b: 0, a: 1}
+  m_Color: {r: 0.98039216, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -143,7 +143,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorDropItem
   colorId: Red
-  paintColor: {r: 1, g: 0, b: 0, a: 1}
+  paintColor: {r: 0.98039216, g: 0, b: 0, a: 1}
+  registerPaletteProgress: 1
+  paletteProgressAmount: 1
   groundLayer:
     serializedVersion: 2
     m_Bits: 8

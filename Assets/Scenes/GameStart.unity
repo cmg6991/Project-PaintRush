@@ -495,7 +495,7 @@ MonoBehaviour:
   m_text: "\uC885\uB8CC"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
-  m_sharedMaterial: {fileID: -3206227594981778829, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+  m_sharedMaterial: {fileID: -7124435851149881051, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -950,7 +950,7 @@ MonoBehaviour:
   m_text: "\uAC8C\uC784 \uC2DC\uC791"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
-  m_sharedMaterial: {fileID: -3206227594981778829, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+  m_sharedMaterial: {fileID: -7124435851149881051, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1364,7 +1364,7 @@ MonoBehaviour:
   m_text: "\uC635\uC158"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
-  m_sharedMaterial: {fileID: -3206227594981778829, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+  m_sharedMaterial: {fileID: -7124435851149881051, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1501,7 +1501,7 @@ MonoBehaviour:
   m_text: PAINT RUSH
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
-  m_sharedMaterial: {fileID: -3206227594981778829, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+  m_sharedMaterial: {fileID: -7124435851149881051, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2133,6 +2133,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 434842908517235981, guid: 75000708bae3af24086c3c9d944f2213, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+    - target: {fileID: 434842908517235981, guid: 75000708bae3af24086c3c9d944f2213, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 962261118105094194, guid: 75000708bae3af24086c3c9d944f2213, type: 3}
       propertyPath: m_Value
       value: 1
@@ -2237,6 +2245,14 @@ PrefabInstance:
       propertyPath: settingButton
       value: 
       objectReference: {fileID: 1010825919}
+    - target: {fileID: 8933212967720733816, guid: 75000708bae3af24086c3c9d944f2213, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+    - target: {fileID: 8933212967720733816, guid: 75000708bae3af24086c3c9d944f2213, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2254,6 +2270,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: SoundManager
       objectReference: {fileID: 0}
+    - target: {fileID: 2729751540370529136, guid: da19621735e0c954fb67b02cae1fd0ea, type: 3}
+      propertyPath: fadeTime
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2729751540370529136, guid: da19621735e0c954fb67b02cae1fd0ea, type: 3}
+      propertyPath: bgmClip.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2729751540370529136, guid: da19621735e0c954fb67b02cae1fd0ea, type: 3}
+      propertyPath: 'bgmClip.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 0d59b3e6993324744ba4551f8bab8fec, type: 3}
+    - target: {fileID: 2729751540370529136, guid: da19621735e0c954fb67b02cae1fd0ea, type: 3}
+      propertyPath: 'bgmClip.Array.data[1]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 9174a44004eb17e41a8909a77f72c79b, type: 3}
     - target: {fileID: 4126666000699044292, guid: da19621735e0c954fb67b02cae1fd0ea, type: 3}
       propertyPath: m_LocalPosition.x
       value: 935.98615

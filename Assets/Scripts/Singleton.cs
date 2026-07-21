@@ -4,6 +4,8 @@ public class Singleton<T> : MonoBehaviour where T : Component
 {
     private static T _instance;
 
+    protected virtual bool IsDontDestroy => true;
+
     public static T Instance
     {
         get
@@ -26,9 +28,11 @@ public class Singleton<T> : MonoBehaviour where T : Component
         if (_instance == null)
         {
             _instance = this as T;
-            DontDestroyOnLoad(gameObject);
+
+            if (IsDontDestroy)
+                DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (_instance != this)
         {
             Destroy(gameObject);
         }
