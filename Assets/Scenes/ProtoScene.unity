@@ -19155,6 +19155,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1989683943351753408, guid: c94a1c76320a9d947ab19b1661206f8b, type: 3}
+      propertyPath: feverDuration
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 2301320701921967691, guid: c94a1c76320a9d947ab19b1661206f8b, type: 3}
       propertyPath: m_SortingOrder
       value: 1
