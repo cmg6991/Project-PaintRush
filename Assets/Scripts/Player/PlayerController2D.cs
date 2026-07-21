@@ -366,38 +366,37 @@ namespace Project.Player
 
         private IEnumerator InvincibleBlinkRoutine()
         {
-            // 플레이어가 이미 사망했다면 깜빡이지 않고 즉시 취소
-            if (playerHealth != null && playerHealth.IsDead)
-            {
-                yield break;
-            }
-
             isInvincible = true;
             float timer = 0f;
 
-            // 피격시 무적시간
+            Debug.Log("<color=yellow>[무적 깜빡이 시작]</color>");
+
             while (timer < invincibleDuration)
             {
                 if (spriteRenderer != null)
                 {
-                    float currentAlpha = spriteRenderer.color.a == 1f ? 0.2f : 1f;
-                    spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, currentAlpha);
+                    Color col = spriteRenderer.color;
+                    // 알파값이 0.5보다 크면 투명하게(0.2), 아니면 불투명하게(1.0) 토글
+                    col.a = col.a > 0.5f ? 0.2f : 1f;
+                    spriteRenderer.color = col;
                 }
 
-                // 0.1초 대기후 다음 루프 실행
                 yield return new WaitForSeconds(blinkInterval);
                 timer += blinkInterval;
             }
 
+            // 끝나면 원래 색상(불투명)으로 복구
             if (spriteRenderer != null)
             {
                 Color normalColor = spriteRenderer.color;
-                normalColor.a = 1f;                         // 알파값 보통 색깔 지정
+                normalColor.a = 1f;
                 spriteRenderer.color = normalColor;
             }
 
             isInvincible = false;
             blinkRoutine = null;
+
+            Debug.Log("<color=yellow>[무적 깜빡이 종료]</color>");
         }
 
         // 피격시 깜빡거리는 함수
@@ -441,13 +440,17 @@ namespace Project.Player
                 transform.rotation = Quaternion.Euler(0f, IsFacingRight ? 0f : 180f, 0f);
             }
 
-            // 넉백과 피벽받으면 커졌다 작아지는 코루틴 실행
+            // 넉백, 스케일 바운스, 그리고 무적 깜빡이 코루틴을 동시에 실행!
             StartCoroutine(KnockbackRoutine(attackerPosition, knockbackForceX, knockbackForceY, knockbackDuration));
-           
+
             if (scaleBounceRoutine == null)
             {
                 scaleBounceRoutine = StartCoroutine(HurtScaleBounceRoutine(hitScaleMultiplier, hitScaleDuration));
             }
+
+            // 넉백될 때 무적 깜빡이도 함께 발동하도록 연결
+            if (blinkRoutine != null) StopCoroutine(blinkRoutine);
+            blinkRoutine = StartCoroutine(InvincibleBlinkRoutine());
         }
 
         private IEnumerator KnockbackRoutine(Vector2 attackerPosition, float forceX, float forceY, float duration)

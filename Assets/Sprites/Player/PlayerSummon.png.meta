@@ -1,0 +1,448 @@
+fileFormatVersion: 2
+guid: 0a66c789fa8c5504c9bec017e6296d7b
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4204145632306394331
+    second: PlayerSummon_0
+  - first:
+      213: -5095070002566918389
+    second: PlayerSummon_1
+  - first:
+      213: 4270150413799970108
+    second: PlayerSummon_2
+  - first:
+      213: 4719926027880491719
+    second: PlayerSummon_3
+  - first:
+      213: -3613729728964798633
+    second: PlayerSummon_4
+  - first:
+      213: 1486931129763773127
+    second: PlayerSummon_5
+  - first:
+      213: 7719585918841141543
+    second: PlayerSummon_6
+  - first:
+      213: -3320726439313965565
+    second: PlayerSummon_7
+  - first:
+      213: 4531087422599275267
+    second: PlayerSummon_8
+  - first:
+      213: -394675237472842222
+    second: PlayerSummon_9
+  - first:
+      213: -1468427220918212915
+    second: PlayerSummon_10
+  - first:
+      213: 2335030983338583091
+    second: PlayerSummon_11
+  - first:
+      213: -3284839952029875971
+    second: PlayerSummon_12
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 150
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PlayerSummon_1
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 376
+        width: 138
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52b0e5a62dfd7a5c0800000000000000
+      internalID: -4204145632306394331
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerSummon_2
+      rect:
+        serializedVersion: 2
+        x: 235
+        y: 284
+        width: 122
+        height: 175
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0f0047d3dcaa49b0800000000000000
+      internalID: -5095070002566918389
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerSummon_4
+      rect:
+        serializedVersion: 2
+        x: 421
+        y: 388
+        width: 89
+        height: 134
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c35d8085d2f924b30800000000000000
+      internalID: 4270150413799970108
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerSummon_5
+      rect:
+        serializedVersion: 2
+        x: 545
+        y: 282
+        width: 161
+        height: 316
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7caefe117bb808140800000000000000
+      internalID: 4719926027880491719
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerSummon_6
+      rect:
+        serializedVersion: 2
+        x: 752
+        y: 285
+        width: 145
+        height: 375
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 757d8c635f379ddc0800000000000000
+      internalID: -3613729728964798633
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerSummon_7
+      rect:
+        serializedVersion: 2
+        x: 914
+        y: 282
+        width: 157
+        height: 380
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ca3a030cf3a2a410800000000000000
+      internalID: 1486931129763773127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerSummon_8
+      rect:
+        serializedVersion: 2
+        x: 1088
+        y: 286
+        width: 185
+        height: 380
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72932a93e7a712b60800000000000000
+      internalID: 7719585918841141543
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerSummon_11
+      rect:
+        serializedVersion: 2
+        x: 1486
+        y: 285
+        width: 133
+        height: 296
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 303254e0108a1ee30800000000000000
+      internalID: 4531087422599275267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerSummon_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 256
+        width: 186
+        height: 66
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 21ec9cc66f4d58af0800000000000000
+      internalID: -394675237472842222
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerSummon_3
+      rect:
+        serializedVersion: 2
+        x: 390
+        y: 285
+        width: 92
+        height: 109
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc6e7aef8391f9be0800000000000000
+      internalID: -1468427220918212915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerSummon_9
+      rect:
+        serializedVersion: 2
+        x: 1296
+        y: 284
+        width: 130
+        height: 294
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2502809ecb1e86b4c86db14278bae491
+      internalID: -26806163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerSummon_10
+      rect:
+        serializedVersion: 2
+        x: 1374
+        y: 583
+        width: 135
+        height: 140
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 98cd504c969fd984488a5a361340202c
+      internalID: 1638726649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 51e372ef3e4a71d44b74163bcc42421c
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      2: -5095070002566918389
+      PlayerSummon_: -3320726439313965565
+      PlayerSummon_0: -394675237472842222
+      PlayerSummon_1: -4204145632306394331
+      PlayerSummon_10: 1638726649
+      PlayerSummon_11: 4531087422599275267
+      PlayerSummon_12: -3284839952029875971
+      PlayerSummon_2: -5095070002566918389
+      PlayerSummon_3: -1468427220918212915
+      PlayerSummon_4: 4270150413799970108
+      PlayerSummon_5: 4719926027880491719
+      PlayerSummon_6: -3613729728964798633
+      PlayerSummon_7: 1486931129763773127
+      PlayerSummon_8: 7719585918841141543
+      PlayerSummon_9: -26806163
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

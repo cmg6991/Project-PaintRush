@@ -11,13 +11,24 @@ namespace Project.Player
 
         public void OnMove(InputValue value)
         {
-            //SoundManager.Instance.PlaySFX(SFXType.PlayerWalk);
+            if (TutorialManager.Instance != null && !TutorialManager.Instance.canMove)
+            {
+                MoveInput = Vector2.zero;
+                return;
+            }
+
+            SoundManager.Instance.PlaySFX(SFXType.PlayerWalk);
             MoveInput = value.Get<Vector2>();
         }
 
         public void OnJump(InputValue value)
         {
-            //SoundManager.Instance.PlaySFX(SFXType.PlayerJump);
+            if (TutorialManager.Instance != null && !TutorialManager.Instance.canJump)
+            {
+                return;
+            }
+
+            SoundManager.Instance.PlaySFX(SFXType.PlayerJump);
             if (value.isPressed) JumpTriggered = true;
         }
 

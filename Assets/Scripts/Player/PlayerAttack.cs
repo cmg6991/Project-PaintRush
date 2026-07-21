@@ -1,5 +1,6 @@
 using Project.Player;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -50,13 +51,45 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        // 게임 시작 시 처음에는 총을 숨김
+        HideWeapon();
+    }
+
     void Update()
     {
         HandleAiming();
         HandleGunSway();
 
+        bool canAttack = true;
+        if (TutorialManager.Instance != null)
+        {
+            // 총을 보여줄 조건이 되었거나 사격이 해금되었다면 무기 활성화
+            if(TutorialManager.Instance.canShowGun || TutorialManager.Instance.canShoot)
+            {
+                ShowWeapon();
+            }
+            else
+            {
+                HideWeapon();   // 튜토리얼 진행중 숨김
+            }
+
+            if (!TutorialManager.Instance.canShoot)
+            {
+                canAttack = false;
+            }
+        }
+
+        // 일반씬일 경우
+        else
+        {
+            ShowWeapon();
+            canAttack = true;
+        }
+
         // 여기서는 오직 마우스 클릭 시 "총이 뒤로 밀리는 반동 연출" 수행
-        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+        if (canAttack && Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
             if (playerController != null && playerController.IsClimbingOrHanging) return;
 
