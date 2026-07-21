@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using TMPro;
 
 public class FeverUI : MonoBehaviour
 {
@@ -15,6 +16,9 @@ public class FeverUI : MonoBehaviour
 
     [SerializeField] private float shakeAmount = 8f;
     [SerializeField] private float shakeSpeed = 15f;
+
+    [SerializeField] private TextMeshProUGUI feverTitleText;   // FEVER TIME ÀÌ¹ÌÁö
+    [SerializeField] private float rainbowSpeed = 2f;
 
     private Vector2 originPos;
     private bool isShake;
@@ -45,6 +49,17 @@ public class FeverUI : MonoBehaviour
         float y = Mathf.Cos(Time.time * shakeSpeed * 0.8f) * shakeAmount;
 
         panel.anchoredPosition = originPos + new Vector2(x, y);
+
+        if (BG.activeSelf)
+        {
+            float hue = Mathf.Repeat(Time.time * 0.7f, 1f);
+
+            countImage.color = Color.HSVToRGB(
+                hue,
+                0.8f,
+                1f
+            );
+        }
     }
     public void FeverOn()
     {
@@ -52,6 +67,7 @@ public class FeverUI : MonoBehaviour
         //StopAllCoroutines();
         //StartCoroutine(Fade(1));
         isShake = true;
+        countImage.color = Color.white;
         StopAllCoroutines();
 
         StartCoroutine(FeverRoutine());
@@ -64,6 +80,7 @@ public class FeverUI : MonoBehaviour
         panel.anchoredPosition = originPos;
         //StopAllCoroutines();
         //StartCoroutine(Fade(0));
+        countImage.color = Color.white;
         StopAllCoroutines();
 
         StartCoroutine(FadeOut());
@@ -73,6 +90,9 @@ public class FeverUI : MonoBehaviour
     {
         StartCoroutine(Fade(1));
 
+        feverTitleText.gameObject.SetActive(true);
+
+        StartCoroutine(HideTitle());
         for (int i = 5; i >= 1; i--)
         {
             countImage.sprite = countSprites[5 - i];
@@ -85,6 +105,11 @@ public class FeverUI : MonoBehaviour
                 yield return new WaitForSeconds(1f);
 
         }
+    }
+    IEnumerator HideTitle()
+    {
+        yield return new WaitForSeconds(1f);
+        feverTitleText.gameObject.SetActive(false);
     }
 
     IEnumerator Fade(float target)
