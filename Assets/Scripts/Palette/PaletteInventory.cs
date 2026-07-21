@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 /// <summary>
-/// 이전 PaletteInventory 참조를 유지하기 위한 호환 컴포넌트입니다.
-/// 신규 코드는 StagePaletteManager를 직접 사용하는 것을 권장합니다.
-/// 별도의 카운트를 저장하지 않으므로 데이터가 이중으로 관리되지 않습니다.
+/// 기존 PaletteInventory 참조를 유지하는 호환 컴포넌트입니다.
+/// 실제 데이터는 같은 씬의 StagePaletteManager 한 곳에서 관리합니다.
 /// </summary>
 public class PaletteInventory : MonoBehaviour
 {
@@ -30,7 +29,8 @@ public class PaletteInventory : MonoBehaviour
 
         if (paletteManager != null)
         {
-            paletteManager.OnPaletteItemCountChanged += HandleCountChanged;
+            paletteManager.OnPaletteItemCountChanged +=
+                HandleCountChanged;
         }
     }
 
@@ -38,7 +38,8 @@ public class PaletteInventory : MonoBehaviour
     {
         if (paletteManager != null)
         {
-            paletteManager.OnPaletteItemCountChanged -= HandleCountChanged;
+            paletteManager.OnPaletteItemCountChanged -=
+                HandleCountChanged;
         }
     }
 
@@ -48,6 +49,27 @@ public class PaletteInventory : MonoBehaviour
 
         return paletteManager != null
             ? paletteManager.EquipPaletteItem(amount)
+            : 0;
+    }
+
+    public bool AddPaint(
+        ElementType element,
+        int amount = 1)
+    {
+        ResolvePaletteManager();
+
+        return paletteManager != null &&
+               paletteManager.RegisterPaint(
+                   element,
+                   amount);
+    }
+
+    public int GetPaintCount(ElementType element)
+    {
+        ResolvePaletteManager();
+
+        return paletteManager != null
+            ? paletteManager.GetCollectedPaintCount(element)
             : 0;
     }
 
@@ -73,13 +95,9 @@ public class PaletteInventory : MonoBehaviour
     private void ResolvePaletteManager()
     {
         if (paletteManager != null)
-        {
             return;
-        }
 
         paletteManager =
-            StagePaletteManager.Instance != null
-                ? StagePaletteManager.Instance
-                : FindAnyObjectByType<StagePaletteManager>();
+            StagePaletteManager.FindForScene(this);
     }
 }

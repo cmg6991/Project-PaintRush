@@ -50,6 +50,10 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     [SerializeField, Min(1)] private int attackDamage = 1;
     [SerializeField, Min(0f)] private float attackCooldown = 1.5f;
     [SerializeField] private MonsterAttackTrigger attackTrigger;
+    [Header("피라냐 공격 제한")]
+    [Tooltip("플레이어가 행거에 매달린 동안 피라냐가 공격을 시작하거나 피해를 주지 않습니다.")]
+    [SerializeField] private bool blockPiranhaAttackWhilePlayerHanging = true;
+    [SerializeField] private bool logBlockedPiranhaAttack;
     [Header("도망")]
     [SerializeField] private bool canRunAway = true;
     [SerializeField, Min(0)] private int runAwayHp = 10;
@@ -70,6 +74,13 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     [SerializeField] private GameObject monsterHitEffectPrefab;
     [SerializeField] private Vector3 monsterHitEffectOffset = Vector3.zero;
     [SerializeField, Min(0.1f)] private float monsterHitEffectLifetime = 1f;
+    [Header("피격 사운드")]
+    [Tooltip("몬스터별 피격음을 여러 개 넣으면 무작위로 재생합니다.")]
+    [SerializeField] private AudioClip[] monsterHitSounds;
+    [SerializeField] private AudioSource monsterHitAudioSource;
+    [SerializeField, Range(0f, 1f)] private float monsterHitSoundVolume = 1f;
+    [SerializeField] private Vector2 monsterHitPitchRange = new(0.95f, 1.05f);
+    [SerializeField, Range(0f, 1f)] private float monsterHitSpatialBlend = 0f;
     [Header("팔레트 이펙트")]
     [SerializeField] private GameObject sparkleEffectPrefab;
     private GameObject sparkleInstance;
@@ -78,6 +89,8 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     [SerializeField] private Color redElementColor = Color.red;
     [SerializeField] private Color blueElementColor = Color.blue;
     [SerializeField] private Color yellowElementColor = Color.yellow;
+    [SerializeField] private Color greenElementColor = new Color(0f, 1f, 0f, 1f);
+    [SerializeField] private Color purpleElementColor = new Color(170f / 255f, 0f, 1f, 1f);
     [SerializeField, Min(0.001f)] private float colorTolerance = 0.08f;
     [Header("상태 아이콘")]
     [SerializeField] private GameObject noticeIcon;
@@ -88,6 +101,8 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     [SerializeField] private GameObject redDropPrefab;
     [SerializeField] private GameObject blueDropPrefab;
     [SerializeField] private GameObject yellowDropPrefab;
+    [SerializeField] private GameObject greenDropPrefab;
+    [SerializeField] private GameObject purpleDropPrefab;
     [SerializeField, Range(0f, 1f)] private float paintDropChance = 0.7f;
     [Header("팔레트 아이템")]
     [SerializeField] private bool hasPaletteItem;
@@ -118,6 +133,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     private bool deathReported;
     private bool registeredToManager;
     private bool isPiranhaReturning;
+    private Project.Player.PlayerController2D playerController;
     private Coroutine hitRoutine;
 
     #endregion
@@ -153,7 +169,8 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             Debug.LogWarning($"{name}: 0 이하의 데미지가 전달되었습니다. ({damage})");
             return;
         }
-        PaletteSpecialAttack fever = PaletteSpecialAttack.Instance;
+        PaletteSpecialAttack fever =
+            PaletteSpecialAttack.FindForScene(gameObject);
         bool feverApplied = fever != null &&
             fever.ApplyMonsterDamageModifiers(ref damage, ref ignoreElement);
         SyncElementFromFillColor();
@@ -161,7 +178,8 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             return;
         currentHp = Mathf.Max(0, currentHp - damage);
 
-        // 실제 데미지가 적용됐을 때 몬스터 피격 이펙트 생성
+        // 색상 판정을 통과해 실제 체력이 감소했을 때만 재생합니다.
+        PlayMonsterHitSound();
         SpawnMonsterHitEffect();
 
         Debug.Log(
@@ -177,6 +195,102 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         RestartHitRoutine();
         if (currentHp <= runAwayHp)
             EnterRunAway();
+    }
+
+    private void ConfigureMonsterHitAudio()
+    {
+        if (monsterHitAudioSource == null &&
+            HasMonsterHitSound())
+        {
+            monsterHitAudioSource =
+                gameObject.AddComponent<AudioSource>();
+        }
+
+        if (monsterHitAudioSource == null)
+            return;
+
+        monsterHitAudioSource.playOnAwake = false;
+        monsterHitAudioSource.loop = false;
+        monsterHitAudioSource.spatialBlend =
+            monsterHitSpatialBlend;
+    }
+
+    private bool HasMonsterHitSound()
+    {
+        if (monsterHitSounds == null)
+            return false;
+
+        foreach (AudioClip clip in monsterHitSounds)
+        {
+            if (clip != null)
+                return true;
+        }
+
+        return false;
+    }
+
+    private void PlayMonsterHitSound()
+    {
+        if (!HasMonsterHitSound())
+            return;
+
+        if (monsterHitAudioSource == null)
+            ConfigureMonsterHitAudio();
+
+        if (monsterHitAudioSource == null)
+            return;
+
+        AudioClip clip = GetRandomMonsterHitSound();
+
+        if (clip == null)
+            return;
+
+        float minPitch =
+            Mathf.Min(
+                monsterHitPitchRange.x,
+                monsterHitPitchRange.y);
+
+        float maxPitch =
+            Mathf.Max(
+                monsterHitPitchRange.x,
+                monsterHitPitchRange.y);
+
+        monsterHitAudioSource.pitch =
+            Random.Range(minPitch, maxPitch);
+
+        monsterHitAudioSource.PlayOneShot(
+            clip,
+            monsterHitSoundVolume);
+    }
+
+    private AudioClip GetRandomMonsterHitSound()
+    {
+        int validCount = 0;
+
+        foreach (AudioClip clip in monsterHitSounds)
+        {
+            if (clip != null)
+                validCount++;
+        }
+
+        if (validCount == 0)
+            return null;
+
+        int selectedIndex =
+            Random.Range(0, validCount);
+
+        foreach (AudioClip clip in monsterHitSounds)
+        {
+            if (clip == null)
+                continue;
+
+            if (selectedIndex == 0)
+                return clip;
+
+            selectedIndex--;
+        }
+
+        return null;
     }
 
     private void SpawnMonsterHitEffect()
@@ -234,6 +348,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         visual = GetComponent<MonsterVisual>();
         fillColor ??= GetComponent<FillColor>();
         attackTrigger ??= GetComponentInChildren<MonsterAttackTrigger>(true);
+        ConfigureMonsterHitAudio();
         currentHp = maxHp;
         basePatrolSpeed = patrolSpeed;
         baseChaseSpeed = chaseSpeed;
@@ -244,8 +359,11 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     }
 
     private void Start() {
-        if (movement.UsesPlayerTracking && player == null)
+        if (player == null)
             FindPlayer();
+        else
+            CachePlayerController();
+
         monsterManager ??= MonsterManager.Instance;
         monsterManager ??= FindFirstObjectByType<MonsterManager>();
         RegisterToManager();
@@ -270,6 +388,14 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             return;
 
         SyncElementFromFillColor();
+
+        // 피라냐가 돌진 중이어도 플레이어가 행거를 잡는 즉시 공격을 취소합니다.
+        if (movement.IsPiranha &&
+            movement.IsAttacking &&
+            IsPlayerHanging())
+        {
+            CancelPiranhaAttackForHangingPlayer();
+        }
 
         // 공격 모션 중에는 거리 판정으로 상태가 바뀌지 않도록 잠급니다.
         if (!movement.IsAttacking &&
@@ -359,6 +485,10 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             return;
         }
 
+        // 행거에 매달린 플레이어는 피라냐의 공격 대상에서 제외합니다.
+        if (IsPlayerHanging())
+            return;
+
         if (movement.CanPiranhaEngage(player))
             TryStartPiranhaAttack();
     }
@@ -368,17 +498,13 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         if (!movement.IsPiranha ||
             player == null ||
             movement.IsAttacking ||
+            IsPlayerHanging() ||
             Time.time - lastAttackTime < attackCooldown)
         {
             return false;
         }
 
-        PlayerHealth target =
-            player.GetComponent<PlayerHealth>();
-
-        if (target == null)
-            target =
-                player.GetComponentInChildren<PlayerHealth>();
+        PlayerHealth target = FindPlayerHealth(player);
 
         if (target == null)
         {
@@ -681,7 +807,52 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             Debug.LogWarning($"{name}: Player 태그 오브젝트를 찾지 못했습니다.");
             return;
         }
+
         player = target.transform;
+        CachePlayerController();
+    }
+
+    private void CachePlayerController() {
+        playerController = null;
+
+        if (player == null)
+            return;
+
+        playerController =
+            player.GetComponent<Project.Player.PlayerController2D>() ??
+            player.GetComponentInChildren<Project.Player.PlayerController2D>(true) ??
+            player.GetComponentInParent<Project.Player.PlayerController2D>();
+    }
+
+    private bool IsPlayerHanging() {
+        if (!blockPiranhaAttackWhilePlayerHanging || player == null)
+            return false;
+
+        if (playerController == null)
+            CachePlayerController();
+
+        return playerController != null && playerController.isHanging;
+    }
+
+    private static PlayerHealth FindPlayerHealth(Transform targetRoot) {
+        if (targetRoot == null)
+            return null;
+
+        return targetRoot.GetComponent<PlayerHealth>() ??
+               targetRoot.GetComponentInChildren<PlayerHealth>(true) ??
+               targetRoot.GetComponentInParent<PlayerHealth>();
+    }
+
+    private void CancelPiranhaAttackForHangingPlayer() {
+        if (!movement.IsPiranha || !movement.IsAttacking)
+            return;
+
+        movement.CancelAttackMotion();
+        movement.ConsumePiranhaAttack();
+        BeginPiranhaReturn();
+
+        if (logBlockedPiranhaAttack)
+            Debug.Log($"{name}: 플레이어가 행거에 매달려 피라냐 공격 취소");
     }
 
     #endregion
@@ -718,6 +889,15 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     {
         if (isDead || target == null)
             return;
+
+        // 공격 시작 이후 플레이어가 행거를 잡은 경우에도 피라냐 피해를 막습니다.
+        if (movement.IsPiranha && IsPlayerHanging())
+        {
+            if (logBlockedPiranhaAttack)
+                Debug.Log($"{name}: 행거 상태라 피라냐 피해 무효");
+
+            return;
+        }
 
         SpawnAttackHitEffect(target);
 
@@ -854,20 +1034,65 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     }
 
     private bool TryResolveElement(Color color, out ElementType element) {
-        float red = ColorDistance(color, redElementColor);
-        float blue = ColorDistance(color, blueElementColor);
-        float yellow = ColorDistance(color, yellowElementColor);
-        float nearest = Mathf.Min(red, blue, yellow);
-        if (nearest > colorTolerance) {
-            element = ElementType.None;
-            return false;
-        }
-        element = nearest == red
-            ? ElementType.Red
-            : nearest == blue
-                ? ElementType.Blue
-                : ElementType.Yellow;
-        return true;
+        element = ElementType.None;
+        float nearestDistance = float.MaxValue;
+
+        SelectNearestElement(
+            color,
+            ElementType.Red,
+            redElementColor,
+            ref element,
+            ref nearestDistance);
+
+        SelectNearestElement(
+            color,
+            ElementType.Blue,
+            blueElementColor,
+            ref element,
+            ref nearestDistance);
+
+        SelectNearestElement(
+            color,
+            ElementType.Yellow,
+            yellowElementColor,
+            ref element,
+            ref nearestDistance);
+
+        SelectNearestElement(
+            color,
+            ElementType.Green,
+            greenElementColor,
+            ref element,
+            ref nearestDistance);
+
+        SelectNearestElement(
+            color,
+            ElementType.Purple,
+            purpleElementColor,
+            ref element,
+            ref nearestDistance);
+
+        if (nearestDistance <= colorTolerance)
+            return true;
+
+        element = ElementType.None;
+        return false;
+    }
+
+    private static void SelectNearestElement(
+        Color source,
+        ElementType candidateElement,
+        Color candidateColor,
+        ref ElementType nearestElement,
+        ref float nearestDistance)
+    {
+        float distance = ColorDistance(source, candidateColor);
+
+        if (distance >= nearestDistance)
+            return;
+
+        nearestDistance = distance;
+        nearestElement = candidateElement;
     }
 
     private Color GetElementColor(ElementType element) {
@@ -875,6 +1100,8 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             case ElementType.Red: return redElementColor;
             case ElementType.Blue: return blueElementColor;
             case ElementType.Yellow: return yellowElementColor;
+            case ElementType.Green: return greenElementColor;
+            case ElementType.Purple: return purpleElementColor;
             default: return Color.white;
         }
     }
@@ -979,6 +1206,10 @@ public class MonsterAI : MonoBehaviour, IDamageable {
                 return GetDropOrDefault(blueDropPrefab, "Blue");
             case ElementType.Yellow:
                 return GetDropOrDefault(yellowDropPrefab, "Yellow");
+            case ElementType.Green:
+                return GetDropOrDefault(greenDropPrefab, "Green");
+            case ElementType.Purple:
+                return GetDropOrDefault(purpleDropPrefab, "Purple");
             default:
                 return defaultDropPrefab;
         }
