@@ -5492,7 +5492,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1654456120, guid: 443517dfe0661da408d7bec08772d8fa, type: 3}
+  m_Sprite: {fileID: -6904037398450956439, guid: abc385e2164d82a40915a9ef3577db59, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5800,7 +5800,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 243938573087296794, guid: d0cc386e1c8e976499d7cab1ed54ec7c, type: 3}
+  m_Sprite: {fileID: 1002190822965950124, guid: 812b51f6eb06f5a42afa6ef0ef646e5e, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -7589,8 +7589,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 134.1816, y: -1.9039}
-  m_SizeDelta: {x: 343.9284, y: 24.1358}
+  m_AnchoredPosition: {x: 128.33, y: -1.4548}
+  m_SizeDelta: {x: 396.2236, y: 45.5995}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &926570252
 MonoBehaviour:
@@ -7859,7 +7859,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &987761176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8112,7 +8112,7 @@ RectTransform:
   m_GameObject: {fileID: 1075665328}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.1125, y: 1.0188162, z: 1}
+  m_LocalScale: {x: 1.0075078, y: 1.0188162, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 926570251}
@@ -8121,7 +8121,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 74.2, y: -1.9000015}
+  m_AnchoredPosition: {x: 96.7, y: -2.8}
   m_SizeDelta: {x: 320, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &1078012748
@@ -15392,12 +15392,15 @@ MonoBehaviour:
   capCollectedPaintToRequirement: 1
   resetPaletteItemOnFeverEnd: 1
   resetCollectedPaintOnFeverEnd: 1
+  decreaseEachPaintCountOnFeverEnd: 1
+  keepHudVisibleAfterPalettePickup: 1
   persistAcrossScenes: 0
   requiredColorIds: []
   collectedPaintCounts: []
   collectedColorIds: []
   collectedPaintSequence: 
   paletteItemCount: 0
+  hasEverAcquiredPalette: 0
   hasAllRequiredColors: 0
   canUseSpecialAttack: 0
   isSpecialAttackActive: 0
