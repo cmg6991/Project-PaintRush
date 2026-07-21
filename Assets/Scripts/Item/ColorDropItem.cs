@@ -20,6 +20,14 @@ public class ColorDropItem : MonoBehaviour
     [SerializeField]
     private Color paintColor = Color.red;
 
+    [Header("팔레트 진행도")]
+    [Tooltip("같은 씬의 StagePaletteManager가 있고 팔레트를 보유했다면 게이지 진행도를 올립니다.")]
+    [SerializeField]
+    private bool registerPaletteProgress = true;
+
+    [SerializeField, Min(1)]
+    private int paletteProgressAmount = 1;
+
     [Header("바닥 물리")]
     [SerializeField]
     private LayerMask groundLayer;
@@ -279,43 +287,55 @@ public class ColorDropItem : MonoBehaviour
         bool filledGun = false;
         bool registeredPalette = false;
 
-        // SetColor 대신 GunSetColor를 사용해 빈 총을 확실하게 충전한다.
+        // 총이 비어 있으면 기존 기능대로 총을 충전합니다.
         if (gunFillColor != null &&
             !gunFillColor.HasColor)
         {
             gunFillColor.GunSetColor(paintColor);
             filledGun = true;
         }
-        else
+
+        // 팔레트 진행도는 총 충전 여부와 별개로 처리합니다.
+        // 같은 씬에 StagePaletteManager가 있고 팔레트를 보유했을 때만 증가합니다.
+        if (registerPaletteProgress)
         {
             ResolvePaletteManager();
 
             if (paletteManager != null &&
-                paletteManager.HasPaletteItem)
+                paletteManager.HasPaletteItem &&
+                StagePaletteManager.TryParseElement(
+                    colorId,
+                    out ElementType element))
             {
                 registeredPalette =
-                    paletteManager.RegisterColor(colorId);
+                    paletteManager.RegisterPaint(
+                        element,
+                        paletteProgressAmount);
             }
         }
 
-        if (filledGun)
+        if (filledGun && registeredPalette)
         {
             Debug.Log(
-                $"[물감 드롭] {colorId} 색으로 총을 충전했습니다."
-            );
+                $"[물감 드롭] {colorId} 총 충전 + 팔레트 진행도 " +
+                $"+{paletteProgressAmount}");
+        }
+        else if (filledGun)
+        {
+            Debug.Log(
+                $"[물감 드롭] {colorId} 색으로 총을 충전했습니다.");
         }
         else if (registeredPalette)
         {
             Debug.Log(
-                $"[물감 드롭] {colorId} 색을 팔레트에 등록했습니다."
-            );
+                $"[물감 드롭] {colorId} 팔레트 진행도 " +
+                $"+{paletteProgressAmount}");
         }
         else
         {
             Debug.Log(
                 $"[물감 드롭] {colorId} 아이템을 획득했지만 " +
-                "총 충전 또는 팔레트 등록은 하지 않았습니다."
-            );
+                "총 충전 또는 팔레트 진행도 등록은 하지 않았습니다.");
         }
 
         CompleteCollection();
@@ -493,18 +513,14 @@ public class ColorDropItem : MonoBehaviour
 
     private void ResolvePaletteManager()
     {
-        if (paletteManager != null)
+        if (paletteManager != null &&
+            paletteManager.gameObject.scene == gameObject.scene)
         {
             return;
         }
 
-        paletteManager = StagePaletteManager.Instance;
-
-        if (paletteManager == null)
-        {
-            paletteManager =
-                FindAnyObjectByType<StagePaletteManager>();
-        }
+        paletteManager =
+            StagePaletteManager.FindForScene(this);
     }
 
     private void OnValidate()
@@ -518,6 +534,9 @@ public class ColorDropItem : MonoBehaviour
 
         maximumPullSpeed =
             Mathf.Max(maximumPullSpeed, initialPullSpeed);
+
+        paletteProgressAmount =
+            Mathf.Max(1, paletteProgressAmount);
     }
 
     private void OnDrawGizmosSelected()
