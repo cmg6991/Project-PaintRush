@@ -25,11 +25,6 @@ public class PaintableBrush : MonoBehaviour, IPaintable
 
             GameObject brushObj = PaintManager.instance.SpawnBrushSplash(spawnPos, color);
 
-            Debug.Log(
-                "생성된 브러쉬 : " + brushObj.name +
-                " 위치 : " + brushObj.transform.position
-            );
-
             if (brushObj != null)
             {
                 //brushSpawned = true;
