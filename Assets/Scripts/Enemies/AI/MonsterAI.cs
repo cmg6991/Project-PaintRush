@@ -412,7 +412,14 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         if (isDead || movement.IsAttacking)
             return;
 
-        if (isHit && stopWhileHit) {
+        // [튜토리얼 구속] 튜토리얼 진행 중이면서 canMonsterMove가 해금되지 않았다면 몬스터 정지
+        if (TutorialManager.Instance != null && !TutorialManager.Instance.canMonsterMove) {
+            movement.Stop();
+            return;
+        }
+
+        if (isHit && stopWhileHit)
+        {
             movement.Stop();
             return;
         }

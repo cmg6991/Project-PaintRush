@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class TutorialZone : MonoBehaviour
 {
-    public enum TutorialStep {  Move, Jump, Shoot, Climb, ShowGun}
+    public enum TutorialStep {  Move, Jump, Shoot, Climb, Hang, ShowGun, Item, Monster}
     public TutorialStep targetStep;
 
     [Header("--- 가이드 연출 설정 ---")]
@@ -81,8 +81,17 @@ public class TutorialZone : MonoBehaviour
                 case TutorialStep.Climb:
                     TutorialManager.Instance.canClimb = true;
                     break;
+                case TutorialStep.Hang:
+                    TutorialManager.Instance.canHang = true;
+                    break;
                 case TutorialStep.ShowGun:
                     TutorialManager.Instance.canShowGun = true;
+                    break;
+                case TutorialStep.Item:
+                    TutorialManager.Instance.canShowItem = true;
+                    break;
+                case TutorialStep.Monster:
+                    TutorialManager.Instance.canMonsterMove = true;
                     break;
             }
 
@@ -92,6 +101,14 @@ public class TutorialZone : MonoBehaviour
 
             Debug.Log($"[튜토리얼 해금] {targetStep}:{guideMessage}");
             // TODO : UI 텍스트 창에 guideMessage를 띄우는 함수
+
+            // TutorialManager를 통한 가이드 UI 텍스트 화면 출력
+            if (TutorialManager.Instance != null)
+            {
+                // playerTransform을 세 번째 파라미터로 전달하여 머리 위 상단에 팝업 피팅
+                TutorialManager.Instance.ShowGuideAnimation(targetStep, guideMessage, playerTransform);
+            }
+       
 
             // 구역 통과 완료 후 트리거 비활성화
             gameObject.SetActive(false);

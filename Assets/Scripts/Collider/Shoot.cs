@@ -13,6 +13,12 @@ public class Shoot : MonoBehaviour
 
     void Update()
     {
+        // 튜토리얼 진행 중이면서 컷씬 재생 중이거나 사격이 해금되지 않았다면 사격 차단
+        if(TutorialManager.Instance != null && (TutorialManager.Instance.isCutscenePlaying || !TutorialManager.Instance.canShoot))
+        {
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
