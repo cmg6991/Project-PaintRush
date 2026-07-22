@@ -50,7 +50,7 @@ MonoBehaviour:
   sfxSource: {fileID: 6704247551337927338}
   bgmClip:
   - {fileID: 8300000, guid: 0d59b3e6993324744ba4551f8bab8fec, type: 3}
-  - {fileID: 8300000, guid: 9174a44004eb17e41a8909a77f72c79b, type: 3}
+  - {fileID: 8300000, guid: 5cfe7ddb8e431a9439ae5fdd2fe1662f, type: 3}
   fadeTime: 0.1
   sfxClips:
   - {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
