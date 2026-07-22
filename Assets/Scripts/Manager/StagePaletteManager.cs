@@ -90,7 +90,7 @@ public class StagePaletteManager : MonoBehaviour
     private List<PaintRequirement> paintRequirements = new();
 
     [Header("피버 게이지 규칙")]
-    [Tooltip("색상과 상관없이 이 개수만큼 물감을 모으면 피버를 사용할 수 있습니다.")]
+    [Tooltip("피버에 필요한 서로 다른 색상의 수입니다. 같은 색은 게이지에 한 번만 들어갑니다.")]
     [SerializeField, Min(1)]
     private int feverRequiredPaintCount = 5;
 
@@ -177,8 +177,22 @@ public class StagePaletteManager : MonoBehaviour
     public int RequiredColorCount => paintRequirements.Count;
     public int CollectedRequiredColorCount => CountCollectedRequirementKinds();
 
-    // 색상별 필요량이 아니라, 모든 색을 합친 피버 필요 개수입니다.
-    public int TotalRequiredPaintCount => Mathf.Max(1, feverRequiredPaintCount);
+    // 같은 색은 한 번만 충전되므로, 요구 칸 수도 사용 가능한 고유 색상 수를 넘지 않습니다.
+    public int TotalRequiredPaintCount
+    {
+        get
+        {
+            int maximumUniqueColors = GetMaximumUniqueGaugeColorCount();
+
+            return maximumUniqueColors <= 0
+                ? 0
+                : Mathf.Clamp(
+                    feverRequiredPaintCount,
+                    1,
+                    maximumUniqueColors);
+        }
+    }
+
     public int CollectedRequiredPaintCount =>
         Mathf.Min(collectedPaintSequence.Count, TotalRequiredPaintCount);
 
@@ -365,29 +379,22 @@ public class StagePaletteManager : MonoBehaviour
         state.SetCount(newCount);
 
         bool canChargeGauge =
-            !isSpecialAttackActive ||
-            allowGaugeChargeDuringFever;
+            (!isSpecialAttackActive ||
+             allowGaugeChargeDuringFever) &&
+            collectedPaintSequence.Count < TotalRequiredPaintCount &&
+            !collectedPaintSequence.Contains(element);
 
-        int remainingGaugeSlots =
-            Mathf.Max(
-                0,
-                TotalRequiredPaintCount -
-                collectedPaintSequence.Count);
+        bool addedToGauge = canChargeGauge;
 
-        int acceptedProgressUnits =
-            canChargeGauge
-                ? Mathf.Min(amount, remainingGaugeSlots)
-                : 0;
-
-        // 색상별 할당량은 없습니다. 획득한 순서와 색을 그대로 저장합니다.
-        for (int i = 0; i < acceptedProgressUnits; i++)
+        if (addedToGauge)
             collectedPaintSequence.Add(element);
 
         SyncLegacyLists();
 
         Debug.Log(
             $"[팔레트] {element} 물감 +{amount}, 현재 {newCount}, " +
-            $"게이지 {CollectedRequiredPaintCount}/{TotalRequiredPaintCount}");
+            $"게이지 {CollectedRequiredPaintCount}/{TotalRequiredPaintCount}" +
+            (addedToGauge ? string.Empty : " (게이지 변화 없음)"));
 
         InvokeSafely(
             OnColorCollected,
@@ -402,8 +409,7 @@ public class StagePaletteManager : MonoBehaviour
 
         RefreshState(true);
 
-        // 상태/UI가 먼저 최신 목록을 반영한 뒤 새 칸 애니메이션을 재생합니다.
-        for (int i = 0; i < acceptedProgressUnits; i++)
+        if (addedToGauge)
         {
             InvokeSafely(
                 OnPaintProgressUnitAdded,
@@ -646,6 +652,8 @@ public class StagePaletteManager : MonoBehaviour
 
         if (!preserveCollectedColors)
             ClearPaintCounts(false);
+        else
+            RebuildSequenceFromCountsIfNeeded();
 
         SyncLegacyLists();
         RefreshState(true);
@@ -700,6 +708,7 @@ public class StagePaletteManager : MonoBehaviour
         bool wasAvailable = canUseSpecialAttack;
 
         hasAllRequiredColors =
+            TotalRequiredPaintCount > 0 &&
             CollectedRequiredPaintCount >=
             TotalRequiredPaintCount;
 
@@ -724,13 +733,14 @@ public class StagePaletteManager : MonoBehaviour
 
     private bool AreAllRequirementsSatisfied()
     {
-        return CollectedRequiredPaintCount >=
+        return TotalRequiredPaintCount > 0 &&
+               CollectedRequiredPaintCount >=
                TotalRequiredPaintCount;
     }
 
     private int CalculateTotalRequiredPaintCount()
     {
-        return Mathf.Max(1, feverRequiredPaintCount);
+        return TotalRequiredPaintCount;
     }
 
     private int CalculateCollectedRequiredPaintCount()
@@ -828,25 +838,99 @@ public class StagePaletteManager : MonoBehaviour
 
     private void RebuildSequenceFromCountsIfNeeded()
     {
-        if (collectedPaintSequence.Count > 0)
-            return;
-
         int capacity = TotalRequiredPaintCount;
+        List<ElementType> normalizedSequence = new();
 
-        foreach (PaintRequirement requirement in paintRequirements)
+        foreach (ElementType element in collectedPaintSequence)
         {
-            int count =
-                GetCollectedPaintCount(requirement.Element);
+            if (normalizedSequence.Count >= capacity)
+                break;
 
-            for (int i = 0;
-                 i < count &&
-                 collectedPaintSequence.Count < capacity;
-                 i++)
+            TryAddUniqueGaugeElement(
+                normalizedSequence,
+                element);
+        }
+
+        if (normalizedSequence.Count == 0)
+        {
+            if (onlyConfiguredStageColors)
             {
-                collectedPaintSequence.Add(
-                    requirement.Element);
+                foreach (PaintRequirement requirement in paintRequirements)
+                {
+                    if (normalizedSequence.Count >= capacity)
+                        break;
+
+                    if (GetCollectedPaintCount(requirement.Element) > 0)
+                    {
+                        TryAddUniqueGaugeElement(
+                            normalizedSequence,
+                            requirement.Element);
+                    }
+                }
+            }
+            else
+            {
+                foreach (PaintCountState state in collectedPaintCounts)
+                {
+                    if (normalizedSequence.Count >= capacity)
+                        break;
+
+                    if (state.Count > 0)
+                    {
+                        TryAddUniqueGaugeElement(
+                            normalizedSequence,
+                            state.Element);
+                    }
+                }
             }
         }
+
+        collectedPaintSequence = normalizedSequence;
+    }
+
+    private void TryAddUniqueGaugeElement(
+        List<ElementType> target,
+        ElementType element)
+    {
+        if (element == ElementType.None ||
+            target.Contains(element) ||
+            (onlyConfiguredStageColors &&
+             GetRequirement(element) == null))
+        {
+            return;
+        }
+
+        target.Add(element);
+    }
+
+    private int GetMaximumUniqueGaugeColorCount()
+    {
+        if (onlyConfiguredStageColors)
+        {
+            HashSet<ElementType> uniqueElements = new();
+
+            foreach (PaintRequirement requirement in paintRequirements)
+            {
+                if (requirement != null &&
+                    requirement.Element != ElementType.None)
+                {
+                    uniqueElements.Add(requirement.Element);
+                }
+            }
+
+            return uniqueElements.Count;
+        }
+
+        int count = 0;
+
+        foreach (ElementType element in
+                 Enum.GetValues(typeof(ElementType)))
+        {
+            if (element != ElementType.None)
+                count++;
+        }
+
+        return count;
     }
 
     private void MigrateLegacyData()

@@ -146,6 +146,9 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     public int MaxHp => maxHp;
     public bool IsDead => isDead;
     public bool HasPaletteItem => hasPaletteItem;
+    public bool IsPiranha =>
+        movement != null &&
+        movement.IsPiranha;
     /// <summary>속성이 없는 몬스터에게 최초 속성을 지정합니다.</summary>
 
     public bool ChangeElement(ElementType newElement) {

@@ -1,111 +1,155 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Shoot : MonoBehaviour
+/// <summary>
+/// 현재 총 색으로 클릭 지점의 문 또는 IPaintable 대상을 칠합니다.
+/// </summary>
+[DisallowMultipleComponent]
+public sealed class Shoot : MonoBehaviour
 {
-    private FillColor fillColor;
     [SerializeField] private ShootParticle smoke;
+
+    [Header("물감 소비량")]
+    [SerializeField, Min(0f)] private float doorPaintCost = 0.1f;
+    [SerializeField, Min(0f)] private float normalPaintCost = 0.3f;
+
+    private FillColor fillColor;
 
     private void Awake()
     {
         fillColor = GetComponent<FillColor>();
     }
 
-    void Update()
+    private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-                return;
-            ShootPaint();
+        if (!Input.GetMouseButtonDown(0))
+            return;
 
+        if (EventSystem.current != null &&
+            EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
         }
+
+        ShootPaint();
     }
 
     public void ShootPaint()
     {
-        if (!fillColor.HasColor)
+        if (fillColor == null ||
+            !fillColor.HasColor ||
+            Camera.main == null)
+        {
             return;
+        }
 
-        SoundManager.Instance.PlaySFX(SFXType.Shoot);
-        // 마우스 월드 좌표 변환
-        Vector3 mouseScreenPos = Input.mousePosition;
-        mouseScreenPos.z = Mathf.Abs(Camera.main.transform.position.z);
-        Vector3 mouse = Camera.main.ScreenToWorldPoint(mouseScreenPos);
-        mouse.z = 0;
+        Color shotColor =
+            fillColor.ShootColor;
 
-        RaycastHit2D[] hits = Physics2D.RaycastAll(mouse, Vector2.zero);
+        SoundManager.Instance?.PlaySFX(
+            SFXType.Shoot);
+
+        Vector3 mouseScreenPosition =
+            Input.mousePosition;
+
+        mouseScreenPosition.z =
+            Mathf.Abs(
+                Camera.main.transform.position.z);
+
+        Vector3 mouseWorldPosition =
+            Camera.main.ScreenToWorldPoint(
+                mouseScreenPosition);
+
+        mouseWorldPosition.z = 0f;
+
+        RaycastHit2D[] hits =
+            Physics2D.RaycastAll(
+                mouseWorldPosition,
+                Vector2.zero);
+
+        if (TryPaintDoor(
+                hits,
+                mouseWorldPosition,
+                shotColor))
+        {
+            return;
+        }
+
+        bool didPaint =
+            PaintNormalTargets(
+                hits,
+                mouseWorldPosition,
+                shotColor);
+
+        if (didPaint)
+            fillColor.Consume(normalPaintCost);
+
+        smoke?.PlayParticle(shotColor);
+    }
+
+    private bool TryPaintDoor(
+        RaycastHit2D[] hits,
+        Vector2 hitPoint,
+        Color shotColor)
+    {
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (hit.collider == null)
+                continue;
+
+            DoorOpen door =
+                hit.collider.GetComponentInParent<DoorOpen>();
+
+            if (door == null)
+                continue;
+
+            door.AddPaintColor(shotColor);
+
+            PaintManager.instance?.SpawnDefaultSplash(
+                hitPoint,
+                shotColor,
+                20f,
+                0.5f);
+
+            fillColor.Consume(doorPaintCost);
+            smoke?.PlayParticle(shotColor);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool PaintNormalTargets(
+        RaycastHit2D[] hits,
+        Vector2 hitPoint,
+        Color shotColor)
+    {
+        HashSet<IPaintable> paintedTargets = new();
+        bool didPaint = false;
 
         foreach (RaycastHit2D hit in hits)
         {
-            //DoorOpen door = hit.collider.GetComponent<DoorOpen>();
-
-            //if (door != null)
-            //{
-            //    IPaintable paintable = door.GetComponent<IPaintable>();
-
-            //    if (paintable != null)
-            //    {
-            //        paintable.Paint(fillColor.ShootColor, mouse);
-
-            //        fillColor.Consume(0.1f);
-
-            //        if (smoke != null)
-            //            smoke.PlayParticle(fillColor.ShootColor);
-
-            //        return; // 문만 칠하고 끝
-            //    }
-            //}
-            DoorOpen door = hit.collider.GetComponent<DoorOpen>();
-
-            if (door != null)
-            {
-                // 문 색 저장
-                door.AddPaintColor(fillColor.ShootColor);
-
-
-                // 문 전용 물감 (천천히 유지)
-                PaintManager.instance.SpawnDefaultSplash(
-                    mouse,
-                    fillColor.ShootColor,
-                    20f,
-                    0.5f
-                );
-
-
-                fillColor.Consume(0.1f);
-
-
-                if (smoke != null)
-                    smoke.PlayParticle(fillColor.ShootColor);
-
-
-                return; // 문이면 여기서 종료
-            }
-
-        }
-        bool didPaint = false;
-
-        foreach (var hit in hits)
-        {
-            IPaintable paintable = hit.collider.GetComponentInParent<IPaintable>();
-            if (paintable == null)
+            if (hit.collider == null)
                 continue;
 
-            //// 문이 겹쳐 있으면 일반 벽은 무시
-            //if (hitDoor && hit.collider.GetComponent<DoorOpen>() == null)
-            //    continue;
+            IPaintable paintable =
+                hit.collider
+                    .GetComponentInParent<IPaintable>();
 
-            paintable.Paint(fillColor.ShootColor, mouse);
+            if (paintable == null ||
+                !paintedTargets.Add(paintable))
+            {
+                continue;
+            }
+
+            paintable.Paint(
+                shotColor,
+                hitPoint);
+
             didPaint = true;
         }
 
-        if (didPaint)
-            fillColor.Consume(0.3f);
-
-        if (smoke != null)
-        {
-            smoke.PlayParticle(fillColor.ShootColor);
-        }
+        return didPaint;
     }
 }
