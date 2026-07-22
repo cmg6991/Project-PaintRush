@@ -146,7 +146,6 @@ public class PaletteSpecialAttack : MonoBehaviour
 
     public bool TryActivate()
     {
-        SoundManager.Instance.PlayBGM(BGMType.Fever);
         ResolvePaletteManager();
 
         if (isFeverActive)
@@ -202,6 +201,7 @@ public class PaletteSpecialAttack : MonoBehaviour
 
     private IEnumerator FeverRoutine()
     {
+        SoundManager.Instance.PlayBGM(BGMType.Fever);
         while (remainingTime > 0f)
         {
             remainingTime =
