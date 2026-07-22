@@ -281,7 +281,7 @@ MonoBehaviour:
   noticeTime: 0.5
   turnDelay: 0.4
   searchTime: 1.2
-  patrolRange: 5
+  patrolRange: 10
   patrolTurnCooldown: 0.2
   randomStartDirection: 1
   groundCheck: {fileID: 0}
