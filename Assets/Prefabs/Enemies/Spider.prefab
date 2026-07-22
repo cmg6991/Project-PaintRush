@@ -600,7 +600,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da216f8dc1c96c340bdb5f10634f9be1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterPaint
-  damage: 10
+  damage: 20
 --- !u!1 &5008057091279263211
 GameObject:
   m_ObjectHideFlags: 0
