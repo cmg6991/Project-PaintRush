@@ -783,21 +783,14 @@ public class MonsterMovement : MonoBehaviour
             return;
         }
 
-        // 실제 틈을 뛰어넘지 않도록 점프 경로 아래의 바닥이
-        // 연속되어 있을 때만 점프합니다.
-        if (!HasContinuousGroundPath(direction, speed))
-        {
-            SetHorizontalVelocity(0f);
-            return;
-        }
-
-        rb.linearVelocity =
-            new Vector2(direction * speed, frogJumpPower);
+        rb.linearVelocity = new Vector2(
+            direction * speed,
+            frogJumpPower
+        );
 
         nextFrogJumpTime =
             Time.time + frogJumpInterval;
     }
-
     public bool IsFrogGrounded()
     {
         if (rb == null || bodyCollider == null)

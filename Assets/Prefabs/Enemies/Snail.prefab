@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1055322146022725920
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 224658672256373135}
+  m_Layer: 7
+  m_Name: WallCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &224658672256373135
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1055322146022725920}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.008, y: -0.051, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3785249548741558207}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2322220160402467924
 GameObject:
   m_ObjectHideFlags: 0
@@ -91,6 +122,37 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &3330145716958318140
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7168786863290521348}
+  m_Layer: 7
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7168786863290521348
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3330145716958318140}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.355, y: -0.209, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3785249548741558207}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5990035343644459663
 GameObject:
   m_ObjectHideFlags: 0
@@ -409,7 +471,7 @@ BoxCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: f37252d18cb3e1341a6bc597962f3595, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -444,7 +506,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   m_Size: {x: 0.5672343, y: 0.4025378}
-  m_EdgeRadius: 0
+  m_EdgeRadius: 0.05
 --- !u!114 &2117770695972351354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -551,7 +613,7 @@ Transform:
   m_GameObject: {fileID: 9061653057824467790}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -27.03939, y: -11.4744215, z: 0}
+  m_LocalPosition: {x: -29.16185, y: -13.845476, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -560,6 +622,8 @@ Transform:
   - {fileID: 2259188903982005789}
   - {fileID: 5521755408925770288}
   - {fileID: 7243046065793941343}
+  - {fileID: 7168786863290521348}
+  - {fileID: 224658672256373135}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2661111116325309054
@@ -705,16 +769,17 @@ MonoBehaviour:
   noticeTime: 0.5
   turnDelay: 0.4
   searchTime: 1.2
-  patrolRange: 5
-  patrolTurnCooldown: 0.2
+  patrolRange: 10
+  patrolTurnCooldown: 0.25
   randomStartDirection: 1
-  groundCheck: {fileID: 0}
-  wallCheck: {fileID: 0}
+  groundCheck: {fileID: 7168786863290521348}
+  wallCheck: {fileID: 224658672256373135}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  groundCheckDistance: 0.8
-  wallCheckDistance: 0.8
+  groundCheckDistance: 0.3
+  groundCheckRadius: 0.08
+  wallCheckDistance: 0.15
   attackDamage: 1
   attackCooldown: 1.5
   attackTrigger: {fileID: 0}
