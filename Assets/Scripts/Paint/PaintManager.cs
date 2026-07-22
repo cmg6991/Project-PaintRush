@@ -34,19 +34,34 @@ public class PaintManager : MonoBehaviour
     //        defaultSplashManager.Spawn(position, color,false);
     //    }
     //}
-    public void SpawnDefaultSplash(Vector2 position,Color color, float fadeTime,float targetAlpha)
+    public void SpawnDefaultSplash(Vector2 position,Color color, float fadeTime,float targetAlpha, bool isFever)
     {
-        if (defaultSplashManager != null)
+        //if (defaultSplashManager != null)
+        //{
+        //    GameObject splash = defaultSplashManager.Spawn(position,color,false);
+
+        //    PaintFade fade = splash.GetComponent<PaintFade>();
+
+        //    if (fade != null)
+        //    {
+        //        fade.StartFade( fadeTime,targetAlpha);
+        //    }
+        //}
+        Debug.Log($"[Splash Spawn] isFever 상태: {isFever}"); //
+        RandomSplash manager = isFever ? feverSplashManager : defaultSplashManager;
+
+        if (manager == null)
+            return;
+
+        GameObject splash = manager.Spawn(position, color, false, isFever);
+
+        PaintFade fade = splash.GetComponent<PaintFade>();
+
+        if (fade != null)
         {
-            GameObject splash = defaultSplashManager.Spawn(position,color,false);
-
-            PaintFade fade = splash.GetComponent<PaintFade>();
-
-            if (fade != null)
-            {
-                fade.StartFade( fadeTime,targetAlpha);
-            }
+            fade.StartFade(fadeTime, targetAlpha);
         }
+
     }
 
     // 사다리, 몬스터, 타일이 호출할 함수

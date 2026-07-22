@@ -50,7 +50,7 @@ public class InteractableWater : MonoBehaviour
     }
 
     private List<WaterPoint> _waterPoints = new List<WaterPoint>();
-    private void Start()
+    private void Awake()
     {
         _coll = GetComponent<EdgeCollider2D>();
         GenerateMesh();

@@ -110,7 +110,8 @@ public sealed class Shoot : MonoBehaviour
                 hitPoint,
                 shotColor,
                 20f,
-                0.5f);
+                0.5f,
+                PaletteSpecialAttack.Instance.IsFeverActive);
 
             fillColor.Consume(doorPaintCost);
             smoke?.PlayParticle(shotColor);

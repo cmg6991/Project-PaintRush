@@ -196,6 +196,11 @@ public class MonsterMovement : MonoBehaviour
         spawnTime = Time.time;
         ghostPhase = UnityEngine.Random.Range(0f, Mathf.PI * 2f);
 
+        if (water == null)
+        {
+            water = FindAnyObjectByType<InteractableWater>();
+        }
+
         ConfigureRigidbody();
     }
 

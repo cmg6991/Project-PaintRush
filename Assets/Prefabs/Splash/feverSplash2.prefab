@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7786456305870296549}
   - component: {fileID: 6164938690032744420}
+  - component: {fileID: -8492255648604387181}
   m_Layer: 0
   m_Name: feverSplash2
   m_TagString: Splash
@@ -91,3 +92,15 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &-8492255648604387181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2477463574452566620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adbe7d588fb04774d98d03bd3edfe8ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PaintFade

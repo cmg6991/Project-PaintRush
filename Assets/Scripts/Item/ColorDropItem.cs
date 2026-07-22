@@ -198,13 +198,13 @@ public class ColorDropItem : MonoBehaviour
             GetPlayerTargetPosition()
         );
 
-        Debug.Log(
-            $"[물감 드롭/{colorId}] " +
-            $"거리={distance:F2}, " +
-            $"자석범위={magnetRange:F2}, " +
-            $"총색상={gunHasColor}, " +
-            $"팔레트={hasPalette}"
-        );
+        //Debug.Log(
+        //    $"[물감 드롭/{colorId}] " +
+        //    $"거리={distance:F2}, " +
+        //    $"자석범위={magnetRange:F2}, " +
+        //    $"총색상={gunHasColor}, " +
+        //    $"팔레트={hasPalette}"
+        //);
 
         if (!CanPlayerReceiveItem())
         {

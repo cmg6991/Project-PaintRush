@@ -57,8 +57,10 @@ Material:
     - _ShinePos: 0
     - _ShineStrength: 2
     - _ShineWidth: 0.08
+    - _Speed: 2
     m_Colors:
     - White: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ShineColor: {r: 0.7490197, g: 0.7490197, b: 0.7490197, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
