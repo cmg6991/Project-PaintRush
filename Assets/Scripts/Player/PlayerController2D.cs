@@ -71,6 +71,8 @@ namespace Project.Player
         private Coroutine blinkRoutine;                                       // 깜빡임 코루틴 캐싱 변수
         private Coroutine scaleBounceRoutine;
 
+        private Vector2 platformVelocity;
+
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
@@ -287,7 +289,8 @@ namespace Project.Player
                 {
                     // Velocity Control
                     float moveX = inputHandler.MoveInput.x;
-                    rb.linearVelocity = new Vector2(moveX * moveSpeed, rb.linearVelocity.y);
+                    //rb.linearVelocity = new Vector2(moveX * moveSpeed, rb.linearVelocity.y);
+                    rb.linearVelocity = new Vector2(moveX * moveSpeed + platformVelocity.x,rb.linearVelocity.y);
 
                     // Character Flip
                     if (moveX > 0 && !IsFacingRight) Flip();
@@ -495,6 +498,24 @@ namespace Project.Player
             visualTarget.localScale = originalScale;
 
             scaleBounceRoutine = null;
+        }
+        private void OnCollisionStay2D(Collision2D collision)
+        {
+            MovingTile tile = collision.collider.GetComponent<MovingTile>();
+
+            if (tile != null)
+            {
+                platformVelocity = tile.Velocity;
+            }
+        }
+
+
+        private void OnCollisionExit2D(Collision2D collision)
+        {
+            if (collision.collider.GetComponent<MovingTile>() != null)
+            {
+                platformVelocity = Vector2.zero;
+            }
         }
     }
 }

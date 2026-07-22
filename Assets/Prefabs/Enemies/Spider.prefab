@@ -340,7 +340,7 @@ MonoBehaviour:
   noticeTime: 0.5
   turnDelay: 0.4
   searchTime: 1.2
-  patrolRange: 5
+  patrolRange: 10
   patrolTurnCooldown: 0.2
   randomStartDirection: 1
   groundCheck: {fileID: 0}
@@ -391,8 +391,8 @@ MonoBehaviour:
   redDropPrefab: {fileID: 1719896524428501687, guid: cdaf1545c2a684c46a3500ac3ef23ab5, type: 3}
   blueDropPrefab: {fileID: 1719896524428501687, guid: 493b3b82425a53d41927b7d6abcd5888, type: 3}
   yellowDropPrefab: {fileID: 1719896524428501687, guid: 1e07116d06f58514fb297434e702d62b, type: 3}
-  greenDropPrefab: {fileID: 0}
-  purpleDropPrefab: {fileID: 0}
+  greenDropPrefab: {fileID: 5051658664445571470, guid: bd51eacad49577d4ab77535719967194, type: 3}
+  purpleDropPrefab: {fileID: 6863371975533239461, guid: 0314bdc30ee5dea40934f98540740735, type: 3}
   paintDropChance: 0.5
   hasPaletteItem: 0
   paletteItemPrefab: {fileID: 0}
