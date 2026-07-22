@@ -1,10 +1,11 @@
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
-using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UnityEngine.WSA;
-using System.Collections.Generic;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(EdgeCollider2D))]
 [RequireComponent(typeof(WaterTriggerHandler))]
@@ -41,6 +42,7 @@ public class InteractableWater : MonoBehaviour
     private Vector3[] _vertices;
     private int[] topVerticesindex;
     private EdgeCollider2D _coll;
+    [SerializeField] private GameObject splashParticles;
 
     private class WaterPoint
     {
@@ -58,6 +60,24 @@ public class InteractableWater : MonoBehaviour
     {
         _coll = GetComponent<EdgeCollider2D>();
         _coll.isTrigger = true;
+    }
+
+    public float GetSurfaceY()
+    {
+        return transform.TransformPoint(_vertices[topVerticesindex[0]]).y;
+    }
+
+    public void SpawnSplashParticle(float worldX)
+    {
+        if (splashParticles == null)
+            return;
+
+        Vector3 spawnPos = new Vector3(
+            worldX,
+            GetSurfaceY(),
+            0f);
+
+        Instantiate(splashParticles, spawnPos, Quaternion.identity);
     }
 
     private void FixedUpdate()
@@ -86,23 +106,45 @@ public class InteractableWater : MonoBehaviour
         }
 
         _mesh.vertices = _vertices;
+        _mesh.RecalculateBounds();
+
+        ResetEdgeCollider();
     }
 
-    public void Splash(Collider2D collision, float force)
+    //public void Splash(Collider2D collision, float force)
+    //{
+    //    Debug.Log("Splash »£√‚µ , force = " + force);
+    //    float radius = collision.bounds.extents.x * _playerCollisionRadiusMult;
+    //    Vector2 center = collision.transform.position;
+
+    //    for (int i = 0; i < _waterPoints.Count; i++)
+    //    {
+    //        Vector2 vertexWorldPos = transform.TransformPoint(_vertices[topVerticesindex[i]]);
+
+    //        if (IsPointInsideCircle(vertexWorldPos, center, radius))
+    //        {
+    //            _waterPoints[i].velocity = force;
+    //        }
+    //    }
+    //}
+    public void Splash(float worldX, float force)
     {
-        Debug.Log("Splash »£√‚µ , force = " + force);
-        float radius = collision.bounds.extents.x * _playerCollisionRadiusMult;
-        Vector2 center = collision.transform.position;
+        int closest = 0;
+        float minDistance = float.MaxValue;
 
-        for(int i=0;i<_waterPoints.Count;i++)
+        for (int i = 0; i < _waterPoints.Count; i++)
         {
-            Vector2 vertexWorldPos = transform.TransformPoint(_vertices[topVerticesindex[i]]);
+            float vertexX = transform.TransformPoint(_vertices[topVerticesindex[i]]).x;
+            float distance = Mathf.Abs(worldX - vertexX);
 
-            if (IsPointInsideCircle(vertexWorldPos, center, radius))
+            if (distance < 0.5f) // π›∞Ê 0.5 ¿Ø¥÷
             {
-                _waterPoints[i].velocity = force;
+                float falloff = 1f - (distance / 0.5f);
+                _waterPoints[i].velocity += force * falloff;
             }
         }
+
+        _waterPoints[closest].velocity += force;
     }
     private bool IsPointInsideCircle(Vector2 point, Vector2 center, float radius)
     {
@@ -230,4 +272,5 @@ public class InteractableWaterEditor : Editor
         width = Mathf.Max(0.1f, calculatedWidthMax);
         height = Mathf.Max(0.1f, calculateHeightMax);
     }
+
 }
