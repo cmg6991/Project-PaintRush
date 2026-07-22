@@ -126,7 +126,7 @@ Transform:
   m_GameObject: {fileID: 2198724670472549822}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -44.024822, y: -10.565438, z: 0}
+  m_LocalPosition: {x: -36.343285, y: -13.837398, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -136,6 +136,7 @@ Transform:
   - {fileID: 564165833680426708}
   - {fileID: 6907388330492249761}
   - {fileID: 3272025500941931918}
+  - {fileID: 1572487863892376207}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &3090976928080462148
@@ -282,15 +283,26 @@ MonoBehaviour:
   turnDelay: 0.4
   searchTime: 1.2
   patrolRange: 10
-  patrolTurnCooldown: 0.2
+  patrolTurnCooldown: 0.25
   randomStartDirection: 1
-  groundCheck: {fileID: 0}
-  wallCheck: {fileID: 0}
+  groundCheck: {fileID: 564165833680426708}
+  wallCheck: {fileID: 1572487863892376207}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  groundCheckDistance: 0.8
-  wallCheckDistance: 0.8
+  groundCheckDistance: 0.3
+  groundCheckRadius: 0.08
+  wallCheckDistance: 0.15
+  wallCheckHeightRatio: 0.4
+  wallAvoidanceDuration: 0.6
+  frogWallSeparationDistance: 0.03
+  frogCollisionTurnLockDuration: 0.5
+  frogCollisionPushSpeed: 0.8
+  logFrogCollisionTurn: 1
+  frogForwardCheckDistance: 0.15
+  frogForwardCheckHeightRatio: 0.3
+  frogEdgeLookAhead: 0.2
+  logFrogPredictiveTurn: 0
   attackDamage: 1
   attackCooldown: 1.6
   attackTrigger: {fileID: 0}
@@ -306,7 +318,7 @@ MonoBehaviour:
   deadFadeDuration: 0.9
   stopWhileHit: 0
   attackHitEffectPrefab: {fileID: 8680598818964007281, guid: dcd90c4976197424b9958a7c54b6bb8c, type: 3}
-  attackHitEffectScale: 50
+  attackHitEffectScale: 0.15
   attackHitEffectLifetime: 1
   attackHitEffectOffset: {x: 0, y: 0, z: 0}
   monsterHitEffectPrefab: {fileID: 5700784828077083704, guid: ed962e35f7fa6f34f8d27aa6d19ea293, type: 3}
@@ -379,7 +391,6 @@ MonoBehaviour:
   frogGroundedMaxUpSpeed: 0.05
   frogJumpPower: 5
   frogJumpInterval: 0.8
-  frogLandingPadding: 0.08
   edgeForwardDistance: 0.12
   edgeDownDistance: 0.6
   floatingEdgeDownDistance: 3
@@ -543,6 +554,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterPaint
   damage: 20
+--- !u!1 &3442162290852255206
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1572487863892376207}
+  m_Layer: 7
+  m_Name: WallCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1572487863892376207
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3442162290852255206}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.042, y: -0.024, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8773827803027127903}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3646015415118604240
 GameObject:
   m_ObjectHideFlags: 0
@@ -659,7 +701,7 @@ Transform:
   m_GameObject: {fileID: 5939386651980762135}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.2, z: 0}
+  m_LocalPosition: {x: -0.322, y: -0.225, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -892,7 +934,7 @@ BoxCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: f37252d18cb3e1341a6bc597962f3595, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -927,7 +969,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   m_Size: {x: 0.57056177, y: 0.39750433}
-  m_EdgeRadius: 0
+  m_EdgeRadius: 0.02
 --- !u!114 &7675429227761844232
 MonoBehaviour:
   m_ObjectHideFlags: 0

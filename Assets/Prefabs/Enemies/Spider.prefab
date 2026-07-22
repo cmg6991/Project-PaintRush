@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2578609640077933962
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2217707457155769468}
+  m_Layer: 7
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2217707457155769468
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2578609640077933962}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.454, y: -0.228, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1456941653767202286}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3777700361056497779
 GameObject:
   m_ObjectHideFlags: 0
@@ -44,7 +75,7 @@ BoxCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: f37252d18cb3e1341a6bc597962f3595, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -79,7 +110,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   m_Size: {x: 0.7110843, y: 0.45683753}
-  m_EdgeRadius: 0
+  m_EdgeRadius: 0.05
 --- !u!331 &2617467255170150435
 SpriteMask:
   m_ObjectHideFlags: 0
@@ -186,7 +217,7 @@ Transform:
   m_GameObject: {fileID: 4611108732706083873}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -28.25, y: -10.329778, z: 0}
+  m_LocalPosition: {x: -36.409966, y: -13.062706, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -195,6 +226,8 @@ Transform:
   - {fileID: 5627928387689697150}
   - {fileID: 7244877739171756331}
   - {fileID: 6324345845437255891}
+  - {fileID: 2217707457155769468}
+  - {fileID: 2820099054403810170}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6051022823674236848
@@ -341,15 +374,16 @@ MonoBehaviour:
   turnDelay: 0.4
   searchTime: 1.2
   patrolRange: 10
-  patrolTurnCooldown: 0.2
+  patrolTurnCooldown: 0.25
   randomStartDirection: 1
-  groundCheck: {fileID: 0}
-  wallCheck: {fileID: 0}
+  groundCheck: {fileID: 2217707457155769468}
+  wallCheck: {fileID: 2820099054403810170}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  groundCheckDistance: 0.8
-  wallCheckDistance: 0.8
+  groundCheckDistance: 0.3
+  groundCheckRadius: 0.08
+  wallCheckDistance: 0.15
   attackDamage: 1
   attackCooldown: 1.2
   attackTrigger: {fileID: 0}
@@ -365,7 +399,7 @@ MonoBehaviour:
   deadFadeDuration: 0.9
   stopWhileHit: 0
   attackHitEffectPrefab: {fileID: 8680598818964007281, guid: dcd90c4976197424b9958a7c54b6bb8c, type: 3}
-  attackHitEffectScale: 1
+  attackHitEffectScale: 0.15
   attackHitEffectLifetime: 1
   attackHitEffectOffset: {x: 0, y: 0, z: 0}
   monsterHitEffectPrefab: {fileID: 5700784828077083704, guid: ed962e35f7fa6f34f8d27aa6d19ea293, type: 3}
@@ -438,7 +472,6 @@ MonoBehaviour:
   frogGroundedMaxUpSpeed: 0.05
   frogJumpPower: 6
   frogJumpInterval: 1.2
-  frogLandingPadding: 0.08
   edgeForwardDistance: 0.12
   edgeDownDistance: 0.6
   floatingEdgeDownDistance: 3
@@ -602,6 +635,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterPaint
   damage: 20
+--- !u!1 &4962396407215771201
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2820099054403810170}
+  m_Layer: 7
+  m_Name: WallCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2820099054403810170
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4962396407215771201}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.031, y: 0.015, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1456941653767202286}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5008057091279263211
 GameObject:
   m_ObjectHideFlags: 0

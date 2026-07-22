@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &468016569921323313
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7180187747087584721}
+  m_Layer: 7
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7180187747087584721
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468016569921323313}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.351, y: -0.178, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6303588748897362065}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &643513439215655364
 GameObject:
   m_ObjectHideFlags: 0
@@ -35,7 +66,7 @@ Transform:
   m_GameObject: {fileID: 643513439215655364}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -33.66, y: -13.6, z: 0}
+  m_LocalPosition: {x: -30.435, y: -14.678, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -44,6 +75,8 @@ Transform:
   - {fileID: 5962364859395275282}
   - {fileID: 8476408427737644407}
   - {fileID: 4488153592964680484}
+  - {fileID: 7180187747087584721}
+  - {fileID: 8760578308760429416}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &5042520562053381502
@@ -189,16 +222,17 @@ MonoBehaviour:
   noticeTime: 0.5
   turnDelay: 0.4
   searchTime: 1.2
-  patrolRange: 20
-  patrolTurnCooldown: 0.2
+  patrolRange: 10
+  patrolTurnCooldown: 0.25
   randomStartDirection: 1
-  groundCheck: {fileID: 0}
-  wallCheck: {fileID: 0}
+  groundCheck: {fileID: 7180187747087584721}
+  wallCheck: {fileID: 8760578308760429416}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  groundCheckDistance: 0.8
-  wallCheckDistance: 0.8
+  groundCheckDistance: 0.3
+  groundCheckRadius: 0.08
+  wallCheckDistance: 0.15
   attackDamage: 1
   attackCooldown: 1.5
   attackTrigger: {fileID: 0}
@@ -214,7 +248,7 @@ MonoBehaviour:
   deadFadeDuration: 0.9
   stopWhileHit: 0
   attackHitEffectPrefab: {fileID: 8680598818964007281, guid: dcd90c4976197424b9958a7c54b6bb8c, type: 3}
-  attackHitEffectScale: 1
+  attackHitEffectScale: 0.15
   attackHitEffectLifetime: 1
   attackHitEffectOffset: {x: 0, y: 0, z: 0}
   monsterHitEffectPrefab: {fileID: 5700784828077083704, guid: ed962e35f7fa6f34f8d27aa6d19ea293, type: 3}
@@ -240,8 +274,8 @@ MonoBehaviour:
   redDropPrefab: {fileID: 1719896524428501687, guid: cdaf1545c2a684c46a3500ac3ef23ab5, type: 3}
   blueDropPrefab: {fileID: 1719896524428501687, guid: 493b3b82425a53d41927b7d6abcd5888, type: 3}
   yellowDropPrefab: {fileID: 1719896524428501687, guid: 1e07116d06f58514fb297434e702d62b, type: 3}
-  greenDropPrefab: {fileID: 5051658664445571470, guid: bd51eacad49577d4ab77535719967194, type: 3}
-  purpleDropPrefab: {fileID: 6863371975533239461, guid: 0314bdc30ee5dea40934f98540740735, type: 3}
+  greenDropPrefab: {fileID: 0}
+  purpleDropPrefab: {fileID: 0}
   paintDropChance: 0.5
   hasPaletteItem: 1
   paletteItemPrefab: {fileID: 0}
@@ -287,7 +321,6 @@ MonoBehaviour:
   frogGroundedMaxUpSpeed: 0.05
   frogJumpPower: 6
   frogJumpInterval: 1.2
-  frogLandingPadding: 0.08
   edgeForwardDistance: 0.12
   edgeDownDistance: 0.6
   floatingEdgeDownDistance: 3
@@ -542,6 +575,37 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &5052251517412295623
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8760578308760429416}
+  m_Layer: 7
+  m_Name: WallCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8760578308760429416
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5052251517412295623}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.019, y: -0.036, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6303588748897362065}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6131039638982804653
 GameObject:
   m_ObjectHideFlags: 0
@@ -860,7 +924,7 @@ BoxCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: f37252d18cb3e1341a6bc597962f3595, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -895,7 +959,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   m_Size: {x: 0.48503876, y: 0.3551172}
-  m_EdgeRadius: 0
+  m_EdgeRadius: 0.05
 --- !u!331 &477449290561990909
 SpriteMask:
   m_ObjectHideFlags: 0

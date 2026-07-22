@@ -70,7 +70,6 @@ public class MonsterMovement : MonoBehaviour
     [SerializeField, Min(0f)] private float frogGroundedMaxUpSpeed = 0.05f;
     [SerializeField] private float frogJumpPower = 4f;
     [SerializeField] private float frogJumpInterval = 1.5f;
-    [SerializeField, Min(0.05f)] private float frogLandingPadding = 0.08f;
 
     [Header("플랫폼 이동 제한")]
     [Tooltip("진행 방향 앞쪽을 검사할 거리입니다.")]
@@ -784,21 +783,14 @@ public class MonsterMovement : MonoBehaviour
             return;
         }
 
-        // 실제 틈을 뛰어넘지 않도록 점프 경로 아래의 바닥이
-        // 연속되어 있을 때만 점프합니다.
-        if (!HasContinuousGroundPath(direction, speed))
-        {
-            SetHorizontalVelocity(0f);
-            return;
-        }
-
-        rb.linearVelocity =
-            new Vector2(direction * speed, frogJumpPower);
+        rb.linearVelocity = new Vector2(
+            direction * speed,
+            frogJumpPower
+        );
 
         nextFrogJumpTime =
             Time.time + frogJumpInterval;
     }
-
     public bool IsFrogGrounded()
     {
         if (rb == null || bodyCollider == null)

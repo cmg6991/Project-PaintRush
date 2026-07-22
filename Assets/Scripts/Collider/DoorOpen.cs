@@ -1,87 +1,423 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DoorOpen : MonoBehaviour
+/// <summary>
+/// 문 개방 조건을 관리합니다.
+/// 조건 1: 피라냐를 제외한 몬스터의 지정 비율 이상 처치.
+/// 조건 2: 현재 스테이지에 필요한 모든 색을 문에 한 번씩 칠하기.
+/// </summary>
+[DisallowMultipleComponent]
+public sealed class DoorOpen : MonoBehaviour
 {
-    [SerializeField] private List<Color> requiredColors;
+    [Header("참조")]
+    [SerializeField] private MonsterManager monsterManager;
+    [SerializeField] private StagePaletteManager paletteManager;
 
-    private List<Color> paintedColors = new();
+    [Header("몬스터 조건")]
+    [SerializeField, Range(0f, 1f)]
+    private float requiredKillRatio = 0.7f;
 
-    private bool isOpened;
+    [Header("색상 조건")]
+    [Tooltip("켜면 StagePaletteManager의 Paint Requirements를 문 필수 색으로 사용합니다.")]
+    [SerializeField]
+    private bool useStagePaletteRequirements = true;
+
+    [Tooltip("StagePaletteManager를 사용하지 않을 때 직접 지정할 필수 색입니다.")]
+    [SerializeField]
+    private List<ElementType> requiredElements = new();
+
+    [SerializeField, Min(0.001f)]
+    private float colorTolerance = 0.15f;
+
+    [Header("문 열림 연출")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private string openTrigger = "Open";
+    [SerializeField] private List<Collider2D> collidersToDisable = new();
+
+    [Header("런타임 확인")]
+    [SerializeField] private bool isOpened;
+    [SerializeField] private List<ElementType> paintedElements = new();
+
+    private readonly List<ElementType> resolvedRequiredElements = new();
+    private readonly HashSet<ElementType> paintedElementSet = new();
+
+    private bool monsterSubscribed;
+    private bool paletteSubscribed;
+
+    public bool IsOpened => isOpened;
+    public float RequiredKillRatio => requiredKillRatio;
+    public IReadOnlyList<ElementType> RequiredElements =>
+        resolvedRequiredElements;
+    public IReadOnlyList<ElementType> PaintedElements =>
+        paintedElements;
+
+    public int TotalKillableCount =>
+        monsterManager != null
+            ? monsterManager.TotalKillableCount
+            : 0;
+
+    public int RequiredKillCount =>
+        monsterManager != null
+            ? monsterManager.CalculateRequiredKills(
+                requiredKillRatio)
+            : 0;
+
+    public int KillableKillCount =>
+        monsterManager != null
+            ? monsterManager.KillableKillCount
+            : 0;
+
+    public int CompletedKillCount =>
+        Mathf.Min(
+            KillableKillCount,
+            RequiredKillCount);
+
+    public int RemainingKillCount =>
+        monsterManager != null
+            ? monsterManager.CalculateRemainingRequiredKills(
+                requiredKillRatio)
+            : 0;
+
+    public bool IsKillConditionMet =>
+        monsterManager != null &&
+        monsterManager.IsKillRequirementMet(
+            requiredKillRatio);
+
+    public bool IsColorConditionMet
+    {
+        get
+        {
+            foreach (ElementType element in
+                     resolvedRequiredElements)
+            {
+                if (!paintedElementSet.Contains(element))
+                    return false;
+            }
+
+            return true;
+        }
+    }
+
+    public event Action OnConditionChanged;
+    public event Action OnDoorOpened;
+
+    private void Awake()
+    {
+        RestorePaintedElementSet();
+        ResolveReferences();
+        RebuildRequiredElements();
+    }
 
     private void OnEnable()
     {
-        if (MonsterManager.Instance != null)
-        {
-            MonsterManager.Instance.OnAliveCountChanged += OnAliveCountChanged;
-        }
+        ResolveReferences();
+        Subscribe();
+        RebuildRequiredElements();
+        RefreshAndCheck();
+    }
+
+    private void Start()
+    {
+        // 실행 순서상 Manager가 OnEnable 이후 생성된 경우를 보완합니다.
+        ResolveReferences();
+        Subscribe();
+        RebuildRequiredElements();
+        RefreshAndCheck();
     }
 
     private void OnDisable()
     {
-        if (MonsterManager.Instance != null)
+        Unsubscribe();
+    }
+
+    public bool AddPaintColor(Color color)
+    {
+        return TryResolveElement(
+                   color,
+                   out ElementType element) &&
+               AddPaintElement(element);
+    }
+
+    public bool AddPaintElement(ElementType element)
+    {
+        if (isOpened ||
+            element == ElementType.None ||
+            !resolvedRequiredElements.Contains(element) ||
+            !paintedElementSet.Add(element))
         {
-            MonsterManager.Instance.OnAliveCountChanged -= OnAliveCountChanged;
+            return false;
+        }
+
+        paintedElements.Add(element);
+
+        Debug.Log(
+            $"문 색상 진행도: " +
+            $"{paintedElementSet.Count}/" +
+            $"{resolvedRequiredElements.Count} " +
+            $"({element})");
+
+        RefreshAndCheck();
+        return true;
+    }
+
+    public bool IsElementRequired(ElementType element)
+    {
+        return resolvedRequiredElements.Contains(element);
+    }
+
+    public bool IsElementPainted(ElementType element)
+    {
+        return paintedElementSet.Contains(element);
+    }
+
+    private void ResolveReferences()
+    {
+        monsterManager ??=
+            MonsterManager.Instance;
+
+        monsterManager ??=
+            FindAnyObjectByType<MonsterManager>();
+
+        if (paletteManager == null ||
+            paletteManager.gameObject.scene != gameObject.scene)
+        {
+            paletteManager =
+                StagePaletteManager.FindForScene(this);
         }
     }
 
-    private void OnAliveCountChanged(int aliveCount)
+    private void Subscribe()
     {
-        CheckOpen();
+        if (!monsterSubscribed &&
+            monsterManager != null)
+        {
+            monsterManager.OnMonsterProgressChanged +=
+                HandleMonsterProgressChanged;
+
+            monsterSubscribed = true;
+        }
+
+        if (!paletteSubscribed &&
+            useStagePaletteRequirements &&
+            paletteManager != null)
+        {
+            paletteManager.OnPaletteStateChanged +=
+                HandlePaletteStateChanged;
+
+            paletteSubscribed = true;
+        }
     }
 
-    public void AddPaintColor(Color color)
+    private void Unsubscribe()
     {
-        if (isOpened)
-            return;
-        foreach (Color requiredColor in requiredColors)
+        if (monsterSubscribed &&
+            monsterManager != null)
         {
-            // 총에서 발사한 색이 필요한 색인지 확인
-            if (IsSameColor(color, requiredColor))
+            monsterManager.OnMonsterProgressChanged -=
+                HandleMonsterProgressChanged;
+        }
+
+        if (paletteSubscribed &&
+            paletteManager != null)
+        {
+            paletteManager.OnPaletteStateChanged -=
+                HandlePaletteStateChanged;
+        }
+
+        monsterSubscribed = false;
+        paletteSubscribed = false;
+    }
+
+    private void HandleMonsterProgressChanged()
+    {
+        RefreshAndCheck();
+    }
+
+    private void HandlePaletteStateChanged()
+    {
+        RebuildRequiredElements();
+        RefreshAndCheck();
+    }
+
+    private void RebuildRequiredElements()
+    {
+        resolvedRequiredElements.Clear();
+
+        if (useStagePaletteRequirements &&
+            paletteManager != null)
+        {
+            foreach (StagePaletteManager.PaintRequirement
+                     requirement in paletteManager.Requirements)
             {
-                // 이미 칠한 색이면 중복 추가 X
-                foreach (Color paintedColor in paintedColors)
-                {
-                    if (IsSameColor(color, paintedColor))
-                        return;
-                }
+                AddRequiredElement(
+                    requirement.Element);
+            }
+        }
 
-                paintedColors.Add(color);
+        if (resolvedRequiredElements.Count == 0)
+        {
+            foreach (ElementType element in requiredElements)
+                AddRequiredElement(element);
+        }
 
-                Debug.Log($"색깔 진행도: {paintedColors.Count}/{requiredColors.Count}");
-                CheckOpen();
-                return;
+        paintedElements.RemoveAll(
+            element =>
+                !resolvedRequiredElements.Contains(element));
+
+        RestorePaintedElementSet();
+    }
+
+    private void AddRequiredElement(ElementType element)
+    {
+        if (element != ElementType.None &&
+            !resolvedRequiredElements.Contains(element))
+        {
+            resolvedRequiredElements.Add(element);
+        }
+    }
+
+    private void RestorePaintedElementSet()
+    {
+        paintedElementSet.Clear();
+
+        for (int i = paintedElements.Count - 1;
+             i >= 0;
+             i--)
+        {
+            ElementType element = paintedElements[i];
+
+            if (element == ElementType.None ||
+                !paintedElementSet.Add(element))
+            {
+                paintedElements.RemoveAt(i);
             }
         }
     }
 
-    private bool IsSameColor(Color a, Color b)
+    private bool TryResolveElement(
+        Color color,
+        out ElementType resolved)
     {
-        return Mathf.Abs(a.r - b.r) < 0.1f &&
-           Mathf.Abs(a.g - b.g) < 0.1f &&
-           Mathf.Abs(a.b - b.b) < 0.1f;
+        resolved = ElementType.None;
+
+        float nearestDistance =
+            float.PositiveInfinity;
+
+        foreach (ElementType candidate in
+                 resolvedRequiredElements)
+        {
+            float distance =
+                GetElementColorDistance(
+                    color,
+                    candidate);
+
+            if (distance >= nearestDistance)
+                continue;
+
+            nearestDistance = distance;
+            resolved = candidate;
+        }
+
+        if (resolved != ElementType.None &&
+            nearestDistance <= colorTolerance)
+        {
+            return true;
+        }
+
+        resolved = ElementType.None;
+
+        Debug.Log(
+            $"문 색상 판정 실패. " +
+            $"입력=({color.r:F3}, {color.g:F3}, {color.b:F3}), " +
+            $"tolerance={colorTolerance:F3}");
+
+        return false;
     }
 
-    private void CheckOpen()
+    private float GetElementColorDistance(
+        Color input,
+        ElementType element)
     {
-        bool colorComplete = paintedColors.Count >= requiredColors.Count;
-        bool monsterComplete = MonsterManager.Instance != null &&
-                               MonsterManager.Instance.AliveCount == 1;
+        float canonicalDistance =
+            ColorDistance(
+                input,
+                GetCanonicalElementColor(element));
 
-        if (colorComplete && monsterComplete)
+        if (paletteManager == null)
+            return canonicalDistance;
+
+        float gaugeDistance =
+            ColorDistance(
+                input,
+                paletteManager.GetElementGaugeColor(
+                    element));
+
+        return Mathf.Min(
+            canonicalDistance,
+            gaugeDistance);
+    }
+
+    private static Color GetCanonicalElementColor(
+        ElementType element)
+    {
+        return element switch
         {
-            isOpened = true;
+            ElementType.Red => Color.red,
+            ElementType.Blue => Color.blue,
+            ElementType.Yellow => Color.yellow,
+            ElementType.Green =>
+                new Color(0f, 1f, 0f, 1f),
+            ElementType.Purple =>
+                new Color(170f / 255f, 0f, 1f, 1f),
+            _ => Color.white
+        };
+    }
+
+    private static float ColorDistance(
+        Color first,
+        Color second)
+    {
+        Vector3 difference =
+            new(
+                first.r - second.r,
+                first.g - second.g,
+                first.b - second.b);
+
+        return difference.magnitude;
+    }
+
+    private void RefreshAndCheck()
+    {
+        OnConditionChanged?.Invoke();
+
+        if (!isOpened &&
+            IsKillConditionMet &&
+            IsColorConditionMet)
+        {
             OpenDoor();
         }
     }
 
     private void OpenDoor()
     {
+        isOpened = true;
+
+        if (animator != null &&
+            !string.IsNullOrWhiteSpace(openTrigger))
+        {
+            animator.SetTrigger(openTrigger);
+        }
+
+        foreach (Collider2D target in collidersToDisable)
+        {
+            if (target != null)
+                target.enabled = false;
+        }
+
         Debug.Log("문이 열립니다!");
 
-        // 예시
-        // animator.SetTrigger("Open");
-        // GetComponent<Collider2D>().enabled = false;
-        // Destroy(gameObject);
+        OnConditionChanged?.Invoke();
+        OnDoorOpened?.Invoke();
     }
 }

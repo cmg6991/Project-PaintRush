@@ -1,11 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RandomMonsterSpawner : MonoBehaviour
+/// <summary>
+/// 스테이지 규칙에 따라 스폰 포인트별 몬스터 수를 결정하고,
+/// 가중치 기반으로 몬스터를 생성합니다.
+/// </summary>
+[DisallowMultipleComponent]
+public sealed class RandomMonsterSpawner : MonoBehaviour
 {
     [Serializable]
-    private class SpawnEntry
+    private sealed class SpawnEntry
     {
         [Tooltip("스폰할 몬스터 프리팹")]
         public MonsterAI prefab;
@@ -18,7 +23,64 @@ public class RandomMonsterSpawner : MonoBehaviour
         public bool canBePaletteCarrier = true;
     }
 
+    [Serializable]
+    private sealed class StageSpawnRule
+    {
+        [Min(1)] public int stage = 1;
+        [Min(1)] public int minMonstersPerPoint = 1;
+        [Min(1)] public int maxMonstersPerPoint = 1;
+
+        public int GetRandomCount()
+        {
+            int minimum = Mathf.Max(1, minMonstersPerPoint);
+            int maximum = Mathf.Max(minimum, maxMonstersPerPoint);
+
+            return UnityEngine.Random.Range(
+                minimum,
+                maximum + 1);
+        }
+
+        public void Sanitize()
+        {
+            stage = Mathf.Max(1, stage);
+            minMonstersPerPoint =
+                Mathf.Max(1, minMonstersPerPoint);
+            maxMonstersPerPoint =
+                Mathf.Max(
+                    minMonstersPerPoint,
+                    maxMonstersPerPoint);
+        }
+    }
+
+    [Header("스테이지")]
+    [SerializeField, Min(1)]
+    private int currentStage = 1;
+
+    [SerializeField]
+    private List<StageSpawnRule> stageSpawnRules = new()
+    {
+        new StageSpawnRule
+        {
+            stage = 1,
+            minMonstersPerPoint = 1,
+            maxMonstersPerPoint = 1
+        },
+        new StageSpawnRule
+        {
+            stage = 2,
+            minMonstersPerPoint = 2,
+            maxMonstersPerPoint = 3
+        },
+        new StageSpawnRule
+        {
+            stage = 3,
+            minMonstersPerPoint = 2,
+            maxMonstersPerPoint = 3
+        }
+    };
+
     [Header("스폰 설정")]
+    [Tooltip("이번 스테이지에서 사용할 스폰 포인트 수입니다.")]
     [SerializeField, Min(0)]
     private int spawnCount = 5;
 
@@ -29,6 +91,10 @@ public class RandomMonsterSpawner : MonoBehaviour
     [Tooltip("한 번의 스폰에서 같은 위치를 중복 사용하지 않습니다.")]
     [SerializeField]
     private bool useEachPointOnce = true;
+
+    [Tooltip("한 포인트에서 여러 마리가 생성될 때의 가로 간격입니다.")]
+    [SerializeField, Min(0f)]
+    private float multiSpawnSpacing = 0.65f;
 
     [Header("몬스터 후보")]
     [SerializeField]
@@ -44,17 +110,11 @@ public class RandomMonsterSpawner : MonoBehaviour
     private GameObject paletteItemPrefab;
 
     [Header("스폰 위치")]
-    [Tooltip(
-        "SpawnPoint_01, SpawnPoint_02 등을 " +
-        "자식으로 둔 부모 오브젝트"
-    )]
+    [Tooltip("SpawnPoint_01, SpawnPoint_02 등을 자식으로 둔 부모 오브젝트")]
     [SerializeField]
     private Transform spawnPointRoot;
 
-    [Tooltip(
-        "체크하면 Spawn Point Root의 " +
-        "자식들을 자동으로 사용합니다."
-    )]
+    [Tooltip("체크하면 Spawn Point Root의 자식들을 자동으로 사용합니다.")]
     [SerializeField]
     private bool autoCollectSpawnPoints = true;
 
@@ -63,10 +123,7 @@ public class RandomMonsterSpawner : MonoBehaviour
     private List<Transform> spawnPoints = new();
 
     [Header("생성된 몬스터 정리")]
-    [Tooltip(
-        "생성된 몬스터를 정리할 부모. " +
-        "비워두면 이 오브젝트의 자식으로 생성됩니다."
-    )]
+    [Tooltip("생성된 몬스터의 부모. 비워두면 이 오브젝트의 자식으로 생성됩니다.")]
     [SerializeField]
     private Transform spawnedMonsterParent;
 
@@ -74,36 +131,35 @@ public class RandomMonsterSpawner : MonoBehaviour
     [SerializeField]
     private MonsterManager monsterManager;
 
-    private readonly List<MonsterAI> spawnedMonsters =
-        new List<MonsterAI>();
-
-    private readonly List<MonsterAI> paletteCandidates =
-        new List<MonsterAI>();
+    private readonly List<MonsterAI> spawnedMonsters = new();
+    private readonly List<MonsterAI> paletteCandidates = new();
 
     private bool hasSpawned;
 
     public bool HasSpawned => hasSpawned;
-
-    public IReadOnlyList<MonsterAI> SpawnedMonsters =>
-        spawnedMonsters;
+    public int CurrentStage => currentStage;
+    public IReadOnlyList<MonsterAI> SpawnedMonsters => spawnedMonsters;
 
     private void Awake()
     {
-        if (spawnedMonsterParent == null)
-        {
-            spawnedMonsterParent = transform;
-        }
-
-
+        spawnedMonsterParent ??= transform;
         ResolveMonsterManager();
     }
 
     private void Start()
     {
         if (spawnOnStart)
-        {
             SpawnStageMonsters();
-        }
+    }
+
+    private void OnValidate()
+    {
+        currentStage = Mathf.Max(1, currentStage);
+        spawnCount = Mathf.Max(0, spawnCount);
+        multiSpawnSpacing = Mathf.Max(0f, multiSpawnSpacing);
+
+        foreach (StageSpawnRule rule in stageSpawnRules)
+            rule?.Sanitize();
     }
 
     public void SpawnStageMonsters()
@@ -111,9 +167,7 @@ public class RandomMonsterSpawner : MonoBehaviour
         if (hasSpawned)
         {
             Debug.LogWarning(
-                $"{gameObject.name}: 이미 몬스터를 스폰했습니다."
-            );
-
+                $"{gameObject.name}: 이미 몬스터를 스폰했습니다.");
             return;
         }
 
@@ -121,159 +175,198 @@ public class RandomMonsterSpawner : MonoBehaviour
             GetValidSpawnPoints();
 
         if (!ValidateSettings(validSpawnPoints))
-        {
             return;
-        }
 
         hasSpawned = true;
-
         spawnedMonsters.Clear();
         paletteCandidates.Clear();
 
         if (useEachPointOnce)
-        {
             Shuffle(validSpawnPoints);
-        }
 
-        int actualSpawnCount = spawnCount;
+        int pointCount = ResolveSpawnPointCount(
+            validSpawnPoints.Count);
 
-        if (useEachPointOnce &&
-            actualSpawnCount > validSpawnPoints.Count)
+        StageSpawnRule rule = ResolveStageRule();
+        int totalSpawned = 0;
+
+        for (int pointIndex = 0;
+             pointIndex < pointCount;
+             pointIndex++)
         {
-            actualSpawnCount =
-                validSpawnPoints.Count;
-
-            Debug.LogWarning(
-                $"{gameObject.name}: Spawn Count가 " +
-                "스폰 포인트 수보다 많아 " +
-                $"{actualSpawnCount}마리만 생성합니다."
-            );
-        }
-
-        int spawnedCount = 0;
-
-        for (int i = 0;
-             i < actualSpawnCount;
-             i++)
-        {
-            Transform selectedPoint =
+            Transform point =
                 SelectSpawnPoint(
                     validSpawnPoints,
-                    i
-                );
+                    pointIndex);
 
-            SpawnEntry selectedEntry =
-                SelectRandomEntry();
+            int monstersAtPoint =
+                rule.GetRandomCount();
 
-            if (selectedEntry == null ||
-                selectedEntry.prefab == null)
+            for (int localIndex = 0;
+                 localIndex < monstersAtPoint;
+                 localIndex++)
             {
-                Debug.LogWarning(
-                    $"{gameObject.name}: " +
-                    "선택 가능한 몬스터 프리팹이 없습니다."
-                );
-
-                break;
+                if (TrySpawnMonster(
+                        point,
+                        localIndex,
+                        monstersAtPoint))
+                {
+                    totalSpawned++;
+                }
             }
-
-            MonsterAI spawnedMonster =
-                Instantiate(
-                    selectedEntry.prefab,
-                    selectedPoint.position,
-                    selectedPoint.rotation,
-                    spawnedMonsterParent
-                );
-
-            spawnedMonster
-                .transform
-                .SetPositionAndRotation(
-                    selectedPoint.position,
-                    selectedPoint.rotation
-                );
-
-            // 프리팹 자체에 Has Palette Item이
-            // 켜져 있더라도 우선 일반 몬스터로 초기화
-            spawnedMonster.SetPaletteCarrier(
-                false
-            );
-
-            spawnedMonsters.Add(
-                spawnedMonster
-            );
-
-            if (selectedEntry.canBePaletteCarrier)
-            {
-                paletteCandidates.Add(
-                    spawnedMonster
-                );
-            }
-
-            ResolveMonsterManager();
-
-            if (monsterManager != null)
-            {
-                monsterManager.Register(
-                    spawnedMonster
-                );
-            }
-
-            Debug.Log(
-                $"{spawnedMonster.name} 생성 위치: " +
-                $"{selectedPoint.name} " +
-                $"({selectedPoint.position.x:F2}, " +
-                $"{selectedPoint.position.y:F2})"
-            );
-
-            spawnedCount++;
         }
 
         AssignRandomPaletteCarrier();
 
         Debug.Log(
-            $"{gameObject.name}: " +
-            $"스테이지 시작 몬스터 " +
-            $"{spawnedCount}마리 스폰 완료"
-        );
+            $"{gameObject.name}: 스테이지 {currentStage}, " +
+            $"{pointCount}개 포인트에 총 {totalSpawned}마리 스폰 완료");
+    }
+
+    private bool TrySpawnMonster(
+        Transform spawnPoint,
+        int indexAtPoint,
+        int countAtPoint)
+    {
+        SpawnEntry entry = SelectRandomEntry();
+
+        if (entry?.prefab == null)
+        {
+            Debug.LogWarning(
+                $"{gameObject.name}: 선택 가능한 몬스터 프리팹이 없습니다.");
+            return false;
+        }
+
+        Vector3 spawnPosition =
+            CalculateSpawnPosition(
+                spawnPoint,
+                indexAtPoint,
+                countAtPoint);
+
+        MonsterAI monster =
+            Instantiate(
+                entry.prefab,
+                spawnPosition,
+                spawnPoint.rotation,
+                spawnedMonsterParent);
+
+        monster.SetPaletteCarrier(false);
+
+        spawnedMonsters.Add(monster);
+
+        if (entry.canBePaletteCarrier)
+            paletteCandidates.Add(monster);
+
+        ResolveMonsterManager();
+        monsterManager?.Register(monster);
+
+        Debug.Log(
+            $"{monster.name} 생성 위치: {spawnPoint.name} " +
+            $"({spawnPosition.x:F2}, {spawnPosition.y:F2})");
+
+        return true;
+    }
+
+    private Vector3 CalculateSpawnPosition(
+        Transform point,
+        int index,
+        int count)
+    {
+        if (count <= 1 || multiSpawnSpacing <= 0f)
+            return point.position;
+
+        float centeredIndex =
+            index - (count - 1) * 0.5f;
+
+        return point.position +
+               point.right *
+               (centeredIndex * multiSpawnSpacing);
+    }
+
+    private int ResolveSpawnPointCount(int validPointCount)
+    {
+        if (!useEachPointOnce)
+            return spawnCount;
+
+        int resolved =
+            Mathf.Min(spawnCount, validPointCount);
+
+        if (spawnCount > validPointCount)
+        {
+            Debug.LogWarning(
+                $"{gameObject.name}: Spawn Count가 스폰 포인트 수보다 많아 " +
+                $"{resolved}개 포인트만 사용합니다.");
+        }
+
+        return resolved;
+    }
+
+    private StageSpawnRule ResolveStageRule()
+    {
+        StageSpawnRule exact =
+            stageSpawnRules.Find(
+                rule =>
+                    rule != null &&
+                    rule.stage == currentStage);
+
+        if (exact != null)
+            return exact;
+
+        StageSpawnRule nearestLower = null;
+
+        foreach (StageSpawnRule rule in stageSpawnRules)
+        {
+            if (rule == null ||
+                rule.stage > currentStage)
+            {
+                continue;
+            }
+
+            if (nearestLower == null ||
+                rule.stage > nearestLower.stage)
+            {
+                nearestLower = rule;
+            }
+        }
+
+        return nearestLower ??
+               new StageSpawnRule
+               {
+                   stage = currentStage,
+                   minMonstersPerPoint = 1,
+                   maxMonstersPerPoint = 1
+               };
     }
 
     private void AssignRandomPaletteCarrier()
     {
         if (!assignRandomPaletteCarrier)
-        {
             return;
-        }
 
-        RemoveInvalidPaletteCandidates();
+        paletteCandidates.RemoveAll(
+            monster =>
+                monster == null ||
+                monster.IsDead);
 
         if (paletteCandidates.Count == 0)
         {
             Debug.LogWarning(
-                $"{gameObject.name}: " +
-                "팔레트 보유 몬스터로 지정할 " +
-                "후보가 없습니다."
-            );
-
+                $"{gameObject.name}: 팔레트 보유 몬스터 후보가 없습니다.");
             return;
         }
 
-        int randomIndex =
-            UnityEngine.Random.Range(
-                0,
-                paletteCandidates.Count
-            );
+        MonsterAI selected =
+            paletteCandidates[
+                UnityEngine.Random.Range(
+                    0,
+                    paletteCandidates.Count)];
 
-        MonsterAI selectedMonster =
-            paletteCandidates[randomIndex];
-
-        selectedMonster.SetPaletteCarrier(
+        selected.SetPaletteCarrier(
             true,
-            paletteItemPrefab
-        );
+            paletteItemPrefab);
 
         Debug.Log(
-            $"[랜덤 스폰] {selectedMonster.name}이 " +
-            "팔레트 보유 몬스터로 선택되었습니다."
-        );
+            $"[랜덤 스폰] {selected.name}이 팔레트 보유 몬스터로 선택되었습니다.");
     }
 
     private Transform SelectSpawnPoint(
@@ -281,69 +374,40 @@ public class RandomMonsterSpawner : MonoBehaviour
         int spawnIndex)
     {
         if (useEachPointOnce)
-        {
             return validSpawnPoints[spawnIndex];
-        }
 
-        int randomIndex =
+        return validSpawnPoints[
             UnityEngine.Random.Range(
                 0,
-                validSpawnPoints.Count
-            );
-
-        return validSpawnPoints[randomIndex];
+                validSpawnPoints.Count)];
     }
 
     private SpawnEntry SelectRandomEntry()
     {
-        float totalWeight =
-            GetTotalValidWeight();
+        float totalWeight = GetTotalValidWeight();
 
         if (totalWeight <= 0f)
-        {
             return null;
-        }
 
         float randomValue =
             UnityEngine.Random.Range(
                 0f,
-                totalWeight
-            );
+                totalWeight);
 
-        float accumulatedWeight = 0f;
+        float accumulated = 0f;
 
-        foreach (SpawnEntry entry
-                 in spawnEntries)
+        foreach (SpawnEntry entry in spawnEntries)
         {
             if (!IsValidEntry(entry))
-            {
                 continue;
-            }
 
-            accumulatedWeight +=
-                entry.weight;
+            accumulated += entry.weight;
 
-            if (randomValue <=
-                accumulatedWeight)
-            {
+            if (randomValue <= accumulated)
                 return entry;
-            }
         }
 
-        for (int i = spawnEntries.Count - 1;
-             i >= 0;
-             i--)
-        {
-            SpawnEntry entry =
-                spawnEntries[i];
-
-            if (IsValidEntry(entry))
-            {
-                return entry;
-            }
-        }
-
-        return null;
+        return spawnEntries.FindLast(IsValidEntry);
     }
 
     private bool ValidateSettings(
@@ -352,30 +416,21 @@ public class RandomMonsterSpawner : MonoBehaviour
         if (spawnCount <= 0)
         {
             Debug.LogWarning(
-                $"{gameObject.name}: Spawn Count가 0입니다."
-            );
-
-            return false;
-        }
-
-        if (GetTotalValidWeight() <= 0f)
-        {
-            Debug.LogError(
-                $"{gameObject.name}: " +
-                "유효한 몬스터 프리팹과 " +
-                "가중치가 없습니다."
-            );
-
+                $"{gameObject.name}: Spawn Count가 0입니다.");
             return false;
         }
 
         if (validSpawnPoints.Count == 0)
         {
             Debug.LogError(
-                $"{gameObject.name}: " +
-                "유효한 Spawn Point가 없습니다."
-            );
+                $"{gameObject.name}: 유효한 Spawn Point가 없습니다.");
+            return false;
+        }
 
+        if (GetTotalValidWeight() <= 0f)
+        {
+            Debug.LogError(
+                $"{gameObject.name}: 유효한 몬스터 프리팹과 가중치가 없습니다.");
             return false;
         }
 
@@ -383,10 +438,7 @@ public class RandomMonsterSpawner : MonoBehaviour
             paletteItemPrefab == null)
         {
             Debug.LogWarning(
-                $"{gameObject.name}: " +
-                "Palette Item Prefab이 " +
-                "연결되지 않았습니다."
-            );
+                $"{gameObject.name}: Palette Item Prefab이 연결되지 않았습니다.");
         }
 
         return true;
@@ -394,19 +446,14 @@ public class RandomMonsterSpawner : MonoBehaviour
 
     private List<Transform> GetValidSpawnPoints()
     {
-        List<Transform> result =
-            new List<Transform>();
+        List<Transform> result = new();
 
         if (autoCollectSpawnPoints)
         {
             if (spawnPointRoot == null)
             {
                 Debug.LogError(
-                    $"{gameObject.name}: " +
-                    "Spawn Point Root가 " +
-                    "연결되지 않았습니다."
-                );
-
+                    $"{gameObject.name}: Spawn Point Root가 연결되지 않았습니다.");
                 return result;
             }
 
@@ -418,8 +465,7 @@ public class RandomMonsterSpawner : MonoBehaviour
                     spawnPointRoot.GetChild(i);
 
                 if (child != null &&
-                    child.gameObject
-                        .activeInHierarchy)
+                    child.gameObject.activeInHierarchy)
                 {
                     result.Add(child);
                 }
@@ -428,12 +474,10 @@ public class RandomMonsterSpawner : MonoBehaviour
             return result;
         }
 
-        foreach (Transform point
-                 in spawnPoints)
+        foreach (Transform point in spawnPoints)
         {
             if (point != null &&
-                point.gameObject
-                    .activeInHierarchy)
+                point.gameObject.activeInHierarchy)
             {
                 result.Add(point);
             }
@@ -442,30 +486,17 @@ public class RandomMonsterSpawner : MonoBehaviour
         return result;
     }
 
-    private void RemoveInvalidPaletteCandidates()
-    {
-        paletteCandidates.RemoveAll(
-            monster =>
-                monster == null ||
-                monster.IsDead
-        );
-    }
-
     private float GetTotalValidWeight()
     {
-        float totalWeight = 0f;
+        float total = 0f;
 
-        foreach (SpawnEntry entry
-                 in spawnEntries)
+        foreach (SpawnEntry entry in spawnEntries)
         {
             if (IsValidEntry(entry))
-            {
-                totalWeight +=
-                    entry.weight;
-            }
+                total += entry.weight;
         }
 
-        return totalWeight;
+        return total;
     }
 
     private static bool IsValidEntry(
@@ -478,20 +509,11 @@ public class RandomMonsterSpawner : MonoBehaviour
 
     private void ResolveMonsterManager()
     {
-        if (monsterManager != null)
-        {
-            return;
-        }
-
-        monsterManager =
+        monsterManager ??=
             MonsterManager.Instance;
 
-        if (monsterManager == null)
-        {
-            monsterManager =
-                FindAnyObjectByType
-                <MonsterManager>();
-        }
+        monsterManager ??=
+            FindAnyObjectByType<MonsterManager>();
     }
 
     private static void Shuffle<T>(
@@ -504,46 +526,30 @@ public class RandomMonsterSpawner : MonoBehaviour
             int randomIndex =
                 UnityEngine.Random.Range(
                     0,
-                    i + 1
-                );
+                    i + 1);
 
-            T temporary =
-                list[i];
-
-            list[i] =
-                list[randomIndex];
-
-            list[randomIndex] =
-                temporary;
+            (list[i], list[randomIndex]) =
+                (list[randomIndex], list[i]);
         }
     }
 
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color =
-            Color.magenta;
+        Gizmos.color = Color.magenta;
 
-        List<Transform> points =
-            GetValidSpawnPoints();
-
-        foreach (Transform point
-                 in points)
+        foreach (Transform point in GetValidSpawnPoints())
         {
             if (point == null)
-            {
                 continue;
-            }
 
             Gizmos.DrawWireSphere(
                 point.position,
-                0.3f
-            );
+                0.3f);
 
             Gizmos.DrawLine(
                 point.position,
                 point.position +
-                Vector3.up * 0.75f
-            );
+                Vector3.up * 0.75f);
         }
     }
 }
