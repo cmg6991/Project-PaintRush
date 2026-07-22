@@ -11,9 +11,7 @@ GameObject:
   - component: {fileID: 8176829639228969154}
   - component: {fileID: 3330811350711166144}
   - component: {fileID: 1352283112152183305}
-  - component: {fileID: 148907851848527360}
   - component: {fileID: -7573272178109351976}
-  - component: {fileID: -4116116195508256567}
   m_Layer: 3
   m_Name: tile_arch_0
   m_TagString: Ground
@@ -62,7 +60,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 02bc1af524ddc144481cea13a922c819, type: 2}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -141,19 +139,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.28, y: 1.27}
   m_EdgeRadius: 0
---- !u!114 &148907851848527360
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2200124421993732874}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4577214f45bb7e4eb359c26b0aa75c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TileColorRefill
-  refillDelay: 15
 --- !u!61 &-7573272178109351976
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -200,15 +185,3 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.28, y: 1.27}
   m_EdgeRadius: 0
---- !u!114 &-4116116195508256567
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2200124421993732874}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45214e52b8388004580693eea3112aa2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MonsterTileCol

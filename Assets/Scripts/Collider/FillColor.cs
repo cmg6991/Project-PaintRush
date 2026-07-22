@@ -82,24 +82,42 @@ public class FillColor : MonoBehaviour
 
     public void Consume(float amount)
     {
+        //if (!HasColor) return;
+        //if (IsFever) return;
+
+        //if (ColorAmount < amount - 0.001f)
+        //{
+        //    HasColor = false;
+        //    ClearColor();
+        //    return;
+        //}
+
+        //ColorAmount -= amount;
+        //ColorAmount = Mathf.Clamp01(ColorAmount);
+        //UpdateVisual();
+
+        //if (ColorAmount <= 0f)
+        //{
+        //    HasColor = false;
+        //    ClearColor();
+        //}
+
         if (!HasColor) return;
         if (IsFever) return;
 
-        if (ColorAmount < amount - 0.001f)
-        {
-            HasColor = false;
-            ClearColor();
-            return;
-        }
-
         ColorAmount -= amount;
         ColorAmount = Mathf.Clamp01(ColorAmount);
-        UpdateVisual();
 
-        if (ColorAmount <= 0f)
+        // 남은 양이 의미 없으면 제거
+        if (ColorAmount <= 0.1f)
         {
+            ColorAmount = 0f;
             HasColor = false;
             ClearColor();
+        }
+        else
+        {
+            UpdateVisual();
         }
     }
 
