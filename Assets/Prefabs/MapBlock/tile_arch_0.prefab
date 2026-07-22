@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 3330811350711166144}
   - component: {fileID: 1352283112152183305}
   - component: {fileID: 148907851848527360}
-  - component: {fileID: -3254336117171802640}
   - component: {fileID: -7573272178109351976}
   - component: {fileID: -4116116195508256567}
   m_Layer: 3
@@ -155,19 +154,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileColorRefill
   refillDelay: 15
---- !u!114 &-3254336117171802640
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2200124421993732874}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35ac626fcaf87f14dbfa3742fad968c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ColorMinus
-  fillSpeed: 0.5
 --- !u!61 &-7573272178109351976
 BoxCollider2D:
   m_ObjectHideFlags: 0
