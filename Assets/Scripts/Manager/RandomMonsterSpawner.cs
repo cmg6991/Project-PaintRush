@@ -513,7 +513,7 @@ public sealed class RandomMonsterSpawner : MonoBehaviour
             MonsterManager.Instance;
 
         monsterManager ??=
-            FindFirstObjectByType<MonsterManager>();
+            FindAnyObjectByType<MonsterManager>();
     }
 
     private static void Shuffle<T>(

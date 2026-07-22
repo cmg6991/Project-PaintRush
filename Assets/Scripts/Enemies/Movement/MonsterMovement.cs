@@ -70,7 +70,6 @@ public class MonsterMovement : MonoBehaviour
     [SerializeField, Min(0f)] private float frogGroundedMaxUpSpeed = 0.05f;
     [SerializeField] private float frogJumpPower = 4f;
     [SerializeField] private float frogJumpInterval = 1.5f;
-    [SerializeField, Min(0.05f)] private float frogLandingPadding = 0.08f;
 
     [Header("플랫폼 이동 제한")]
     [Tooltip("진행 방향 앞쪽을 검사할 거리입니다.")]

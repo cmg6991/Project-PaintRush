@@ -70,7 +70,7 @@ public sealed class DoorConditionUI : MonoBehaviour
 
     private void ResolveReferences()
     {
-        door ??= FindFirstObjectByType<DoorOpen>();
+        door ??= FindAnyObjectByType<DoorOpen>();
 
         if (paletteManager == null ||
             paletteManager.gameObject.scene != gameObject.scene)

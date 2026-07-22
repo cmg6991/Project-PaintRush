@@ -52,7 +52,7 @@ public class FeverUI : MonoBehaviour
 
         if (BG.activeSelf)
         {
-            float hue = Mathf.Repeat(Time.time * 0.7f, 1f);
+            float hue = Mathf.Repeat(Time.time * rainbowSpeed, 1f);
 
             countImage.color = Color.HSVToRGB(
                 hue,

@@ -46,9 +46,8 @@ public sealed class MonsterManager : MonoBehaviour
     private void Start()
     {
         MonsterAI[] sceneMonsters =
-            FindObjectsByType<MonsterAI>(
-                FindObjectsInactive.Exclude,
-                FindObjectsSortMode.None);
+        FindObjectsByType<MonsterAI>(
+        FindObjectsInactive.Exclude);
 
         foreach (MonsterAI monster in sceneMonsters)
             Register(monster);

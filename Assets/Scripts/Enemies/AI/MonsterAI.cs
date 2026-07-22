@@ -368,7 +368,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             CachePlayerController();
 
         monsterManager ??= MonsterManager.Instance;
-        monsterManager ??= FindFirstObjectByType<MonsterManager>();
+        monsterManager ??= FindAnyObjectByType<MonsterManager>();
         RegisterToManager();
 
         movement.InitializePlatformConstraint(
@@ -929,6 +929,9 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             attackHitEffectPrefab,
             spawnPosition,
             Quaternion.identity);
+
+        effect.transform.localScale =
+        Vector3.one * attackHitEffectScale;
 
         Destroy(effect, attackHitEffectLifetime);
     }

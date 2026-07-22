@@ -222,7 +222,7 @@ public sealed class PaletteUI : MonoBehaviour
         // 줄바꿈이 남는 경우가 있어 textWrappingMode도 함께 지정합니다.
         countText.richText = true;
         countText.isRightToLeftText = false;
-        countText.enableWordWrapping = false;
+        //countText.enableWordWrapping = false;
         countText.textWrappingMode = TextWrappingModes.NoWrap;
         countText.overflowMode = TextOverflowModes.Overflow;
         countText.raycastTarget = false;

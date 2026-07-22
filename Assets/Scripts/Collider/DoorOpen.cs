@@ -177,7 +177,7 @@ public sealed class DoorOpen : MonoBehaviour
             MonsterManager.Instance;
 
         monsterManager ??=
-            FindFirstObjectByType<MonsterManager>();
+            FindAnyObjectByType<MonsterManager>();
 
         if (paletteManager == null ||
             paletteManager.gameObject.scene != gameObject.scene)

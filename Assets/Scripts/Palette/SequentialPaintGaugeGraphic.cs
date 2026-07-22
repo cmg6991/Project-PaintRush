@@ -386,13 +386,16 @@ public sealed class SequentialPaintGaugeGraphic : MaskableGraphic
             startIndex + 3);
     }
 
-    private void OnValidate()
+    protected override void OnValidate()
     {
+        base.OnValidate();
+
         slotSpacing = Mathf.Max(0f, slotSpacing);
         fillDuration = Mathf.Max(0.05f, fillDuration);
         acquireWaveSpeed = Mathf.Max(0.1f, acquireWaveSpeed);
         drainWaveWidth = Mathf.Max(0f, drainWaveWidth);
         drainWaveSpeed = Mathf.Max(0.1f, drainWaveSpeed);
+
         SetVerticesDirty();
     }
 }
