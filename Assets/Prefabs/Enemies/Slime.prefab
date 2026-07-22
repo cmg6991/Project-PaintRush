@@ -214,7 +214,7 @@ MonoBehaviour:
   deadFadeDuration: 0.9
   stopWhileHit: 0
   attackHitEffectPrefab: {fileID: 8680598818964007281, guid: dcd90c4976197424b9958a7c54b6bb8c, type: 3}
-  attackHitEffectScale: 1
+  attackHitEffectScale: 0.15
   attackHitEffectLifetime: 1
   attackHitEffectOffset: {x: 0, y: 0, z: 0}
   monsterHitEffectPrefab: {fileID: 5700784828077083704, guid: ed962e35f7fa6f34f8d27aa6d19ea293, type: 3}
@@ -287,7 +287,6 @@ MonoBehaviour:
   frogGroundedMaxUpSpeed: 0.05
   frogJumpPower: 6
   frogJumpInterval: 1.2
-  frogLandingPadding: 0.08
   edgeForwardDistance: 0.12
   edgeDownDistance: 0.6
   floatingEdgeDownDistance: 3

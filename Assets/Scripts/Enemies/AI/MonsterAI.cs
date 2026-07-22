@@ -67,7 +67,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     [SerializeField] private bool stopWhileHit;
     [Header("공격 이펙트")]
     [SerializeField] private GameObject attackHitEffectPrefab;
-    [SerializeField, Min(0.1f)] private float attackHitEffectScale = 5f;
+    [SerializeField, Min(0.1f)] private float attackHitEffectScale = 1f;
     [SerializeField, Min(0.1f)] private float attackHitEffectLifetime = 1f;
     [SerializeField] private Vector3 attackHitEffectOffset;
     [Header("피격 이펙트")]
@@ -305,11 +305,15 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             GetMonsterEffectPosition() + monsterHitEffectOffset;
 
         GameObject effect = Instantiate(
-            monsterHitEffectPrefab,
-            spawnPosition,
-            Quaternion.identity);
+        attackHitEffectPrefab,
+        spawnPosition,
+        Quaternion.identity);
 
-        Destroy(effect, monsterHitEffectLifetime);
+        effect.transform.localScale =
+            attackHitEffectPrefab.transform.localScale *
+            attackHitEffectScale;
+
+        Destroy(effect, attackHitEffectLifetime);
     }
 
     private Vector3 GetMonsterEffectPosition()
