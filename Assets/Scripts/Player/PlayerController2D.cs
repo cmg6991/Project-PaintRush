@@ -108,8 +108,11 @@ namespace Project.Player
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             }
 
+            // 튜토리얼 중 등반 해금 여부 검사
+            bool canClimbNow = TutorialManager.Instance == null || TutorialManager.Instance.canClimb;
+
             // 위아래 키입력이 있고 사다리 충돌 범위 안이라면
-            if (isInsideLadder && currentLadderCollider != null && Mathf.Abs(inputHandler.MoveInput.y) > 0.1f)
+            if (canClimbNow && isInsideLadder && currentLadderCollider != null && Mathf.Abs(inputHandler.MoveInput.y) > 0.1f)
             {
 
                 // In Ladder
@@ -143,7 +146,7 @@ namespace Project.Player
             }
 
             // 행거 범위 안이고 윗키를 눌렀을시
-            if (isInsideHanger && currentHangerCollider != null && inputHandler.MoveInput.y > 0.1f)
+            if (canClimbNow && isInsideHanger && currentHangerCollider != null && inputHandler.MoveInput.y > 0.1f)
             {
                 if (!isHanging)
                 {
@@ -235,8 +238,10 @@ namespace Project.Player
 
         private void FixedUpdate()
         {
-            // 사망했을 때는 사용자의 입력을 완전히 잠그고 물리 멈춤
-            if (playerHealth != null && playerHealth.IsDead)
+            // 사망했을 때 또는 튜토리얼 컷씬 진행 중일 때는 사용자의 입력을 완전히 잠그고 물리 멈춤
+            bool isCutscene = TutorialManager.Instance != null && TutorialManager.Instance.isCutscenePlaying;
+
+            if (playerHealth != null && playerHealth.IsDead || isCutscene)
             {
                 rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
                 return;
