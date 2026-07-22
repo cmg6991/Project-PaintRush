@@ -1428,7 +1428,7 @@ PrefabInstance:
     - target: {fileID: -405304255967473111, guid: ae8afc08a42db0244b71f84ee5e11190, type: 3}
       propertyPath: paletteManager
       value: 
-      objectReference: {fileID: 2079517285}
+      objectReference: {fileID: 0}
     - target: {fileID: 374640298714622027, guid: ae8afc08a42db0244b71f84ee5e11190, type: 3}
       propertyPath: m_Name
       value: PaletteItem
@@ -4014,7 +4014,7 @@ PrefabInstance:
     - target: {fileID: 1352776742195914539, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
       propertyPath: paletteManager
       value: 
-      objectReference: {fileID: 2079517285}
+      objectReference: {fileID: 0}
     - target: {fileID: 2430224442952895652, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -4063,6 +4063,30 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2722136143310739512, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+    - target: {fileID: 2722136143310739512, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -7124435851149881051, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+    - target: {fileID: 2722136143310739512, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2827684938873375050, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+    - target: {fileID: 2827684938873375050, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -7124435851149881051, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+    - target: {fileID: 2827684938873375050, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2950959393778279279, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -4087,6 +4111,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3703268662976292218, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+    - target: {fileID: 3703268662976292218, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -7124435851149881051, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+    - target: {fileID: 3703268662976292218, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4208465322772728520, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -4133,6 +4169,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5503415855891106673, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5980336758242074520, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+    - target: {fileID: 5980336758242074520, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -7124435851149881051, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+    - target: {fileID: 5980336758242074520, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6299701932263655691, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
@@ -4361,6 +4409,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8246850570843623248, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8252371767235490010, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+    - target: {fileID: 8252371767235490010, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -7124435851149881051, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+    - target: {fileID: 8252371767235490010, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
+      propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9186109282962528206, guid: ad2b488cf6305c649a26a80c72b3542d, type: 3}
@@ -5293,6 +5353,91 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &444695996
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 444695998}
+  - component: {fileID: 444695997}
+  m_Layer: 0
+  m_Name: StagePaletteManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &444695997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 444695996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1738a0c3db923e340a083f2d62ae2111, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StagePaletteManager
+  paintRequirements:
+  - element: 1
+    requiredCount: 1
+    icon: {fileID: -8848188485363362922, guid: 799cac125d79d534fb07be3076d89fab, type: 3}
+    gaugeColor: {r: 1, g: 0.3537736, b: 0.36669812, a: 1}
+  - element: 3
+    requiredCount: 1
+    icon: {fileID: 2050405390916750004, guid: 43af977780e7d474ca7a5a5553716178, type: 3}
+    gaugeColor: {r: 1, g: 1, b: 0.2971698, a: 1}
+  - element: 2
+    requiredCount: 1
+    icon: {fileID: 243938573087296794, guid: d0cc386e1c8e976499d7cab1ed54ec7c, type: 3}
+    gaugeColor: {r: 0.2500001, g: 0.25, b: 1, a: 1}
+  - element: 4
+    requiredCount: 1
+    icon: {fileID: 6119726517528779825, guid: 07cb231f366b6c14c8422d6dcdb50b77, type: 3}
+    gaugeColor: {r: 0.43867922, g: 1, b: 0.43867925, a: 1}
+  - element: 5
+    requiredCount: 1
+    icon: {fileID: 243938573087296794, guid: d0cc386e1c8e976499d7cab1ed54ec7c, type: 3}
+    gaugeColor: {r: 0.8238959, g: 0.5235849, b: 1, a: 1}
+  feverRequiredPaintCount: 5
+  onlyConfiguredStageColors: 1
+  allowGaugeChargeDuringFever: 0
+  requirePaletteBeforePaintCollection: 1
+  capCollectedPaintToRequirement: 1
+  resetPaletteItemOnFeverEnd: 1
+  resetCollectedPaintOnFeverEnd: 1
+  decreaseEachPaintCountOnFeverEnd: 1
+  keepHudVisibleAfterPalettePickup: 1
+  persistAcrossScenes: 0
+  requiredColorIds: []
+  collectedPaintCounts: []
+  collectedColorIds: []
+  collectedPaintSequence: 
+  paletteItemCount: 0
+  hasEverAcquiredPalette: 0
+  hasAllRequiredColors: 0
+  canUseSpecialAttack: 0
+  isSpecialAttackActive: 0
+  feverGaugeRemaining01: 1
+--- !u!4 &444695998
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 444695996}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -28.53436, y: -11.90491, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &502087343
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5344,7 +5489,7 @@ PrefabInstance:
     - target: {fileID: 3650848142928787533, guid: bd51eacad49577d4ab77535719967194, type: 3}
       propertyPath: paletteManager
       value: 
-      objectReference: {fileID: 2079517285}
+      objectReference: {fileID: 0}
     - target: {fileID: 5051658664445571470, guid: bd51eacad49577d4ab77535719967194, type: 3}
       propertyPath: m_Name
       value: GreenPalettePiece
@@ -14752,7 +14897,7 @@ PrefabInstance:
     - target: {fileID: 2968440493025677674, guid: 0314bdc30ee5dea40934f98540740735, type: 3}
       propertyPath: paletteManager
       value: 
-      objectReference: {fileID: 2079517285}
+      objectReference: {fileID: 0}
     - target: {fileID: 6863371975533239461, guid: 0314bdc30ee5dea40934f98540740735, type: 3}
       propertyPath: m_Name
       value: PurplePalettePiece
@@ -23616,95 +23761,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2079517284
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2079517286}
-  - component: {fileID: 2079517285}
-  m_Layer: 0
-  m_Name: StagePaletteManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2079517285
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2079517284}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1738a0c3db923e340a083f2d62ae2111, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StagePaletteManager
-  paintRequirements:
-  - element: 1
-    requiredCount: 1
-    icon: {fileID: -8848188485363362922, guid: 799cac125d79d534fb07be3076d89fab, type: 3}
-    gaugeColor: {r: 1, g: 0, b: 0, a: 1}
-  - element: 2
-    requiredCount: 1
-    icon: {fileID: 0}
-    gaugeColor: {r: 1, g: 1, b: 1, a: 1}
-  - element: 3
-    requiredCount: 1
-    icon: {fileID: 0}
-    gaugeColor: {r: 1, g: 1, b: 1, a: 1}
-  feverRequiredPaintCount: 3
-  onlyConfiguredStageColors: 1
-  allowGaugeChargeDuringFever: 0
-  requirePaletteBeforePaintCollection: 1
-  capCollectedPaintToRequirement: 0
-  resetPaletteItemOnFeverEnd: 1
-  resetCollectedPaintOnFeverEnd: 0
-  decreaseEachPaintCountOnFeverEnd: 1
-  keepHudVisibleAfterPalettePickup: 1
-  persistAcrossScenes: 0
-  requiredColorIds:
-  - Red
-  - Blue
-  - Yellow
-  collectedPaintCounts:
-  - element: 1
-    count: 1
-  - element: 2
-    count: 1
-  - element: 3
-    count: 1
-  collectedColorIds:
-  - Red
-  - Blue
-  - Yellow
-  collectedPaintSequence: 010000000200000003000000
-  paletteItemCount: 0
-  hasEverAcquiredPalette: 0
-  hasAllRequiredColors: 0
-  canUseSpecialAttack: 0
-  isSpecialAttackActive: 0
-  feverGaugeRemaining01: 1
---- !u!4 &2079517286
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2079517284}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -28.53436, y: -11.90491, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2084710408
 GameObject:
   m_ObjectHideFlags: 0
@@ -24881,7 +24937,7 @@ SceneRoots:
   - {fileID: 827099892}
   - {fileID: 223573634}
   - {fileID: 1125860297}
-  - {fileID: 2079517286}
+  - {fileID: 444695998}
   - {fileID: 65313059}
   - {fileID: 1120915802}
   - {fileID: 1196789290}

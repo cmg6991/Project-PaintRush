@@ -91,7 +91,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     [SerializeField] private Color yellowElementColor = Color.yellow;
     [SerializeField] private Color greenElementColor = new Color(0f, 1f, 0f, 1f);
     [SerializeField] private Color purpleElementColor = new Color(170f / 255f, 0f, 1f, 1f);
-    [SerializeField, Min(0.001f)] private float colorTolerance = 0.08f;
+    [SerializeField, Min(0.001f)] private float colorTolerance = 0.12f;
     [Header("상태 아이콘")]
     [SerializeField] private GameObject noticeIcon;
     [SerializeField] private GameObject runAwayIcon;
@@ -994,10 +994,31 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         isHit = false;
     }
 
-    private void SyncElementFromFillColor() {
-        if (currentElement != ElementType.None || fillColor == null || !fillColor.HasColor) { return; }
-        if (TryResolveElement(fillColor.CurrentColor, out ElementType element))
+    private void SyncElementFromFillColor()
+    {
+        if (currentElement != ElementType.None ||
+            fillColor == null ||
+            !fillColor.HasColor)
+        {
+            return;
+        }
+
+        Color color = fillColor.CurrentColor;
+
+        Debug.Log(
+            $"{name} 흡수 색상: " +
+            $"R={color.r:F3}, G={color.g:F3}, B={color.b:F3}, A={color.a:F3}");
+
+        if (TryResolveElement(color, out ElementType element))
+        {
+            Debug.Log($"{name} 변환 성공: {element}");
             SetElement(element);
+        }
+        else
+        {
+            Debug.LogWarning(
+                $"{name} ElementType 변환 실패 / tolerance={colorTolerance}");
+        }
     }
 
     private void SetElement(ElementType newElement) {

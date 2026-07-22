@@ -202,6 +202,8 @@ MonoBehaviour:
   attackDamage: 1
   attackCooldown: 1.5
   attackTrigger: {fileID: 0}
+  blockPiranhaAttackWhilePlayerHanging: 1
+  logBlockedPiranhaAttack: 0
   canRunAway: 1
   runAwayHp: 10
   runAwaySpeed: 2.2
@@ -218,12 +220,19 @@ MonoBehaviour:
   monsterHitEffectPrefab: {fileID: 5700784828077083704, guid: ed962e35f7fa6f34f8d27aa6d19ea293, type: 3}
   monsterHitEffectOffset: {x: 0, y: 0, z: 0}
   monsterHitEffectLifetime: 1
+  monsterHitSounds: []
+  monsterHitAudioSource: {fileID: 0}
+  monsterHitSoundVolume: 1
+  monsterHitPitchRange: {x: 0.95, y: 1.05}
+  monsterHitSpatialBlend: 0
   sparkleEffectPrefab: {fileID: 6532625474870085665, guid: 07a977963523b3b4dbcaa27119f6b469, type: 3}
   currentElement: 0
   redElementColor: {r: 1, g: 0, b: 0, a: 1}
   blueElementColor: {r: 0, g: 0, b: 1, a: 1}
-  yellowElementColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  colorTolerance: 0.08
+  yellowElementColor: {r: 1, g: 1, b: 0.015686275, a: 1}
+  greenElementColor: {r: 0, g: 1, b: 0, a: 1}
+  purpleElementColor: {r: 0.6666667, g: 0, b: 1, a: 1}
+  colorTolerance: 0.12
   noticeIcon: {fileID: 8285580679797563343}
   runAwayIcon: {fileID: 6131039638982804653}
   paletteIcon: {fileID: 0}
@@ -231,6 +240,8 @@ MonoBehaviour:
   redDropPrefab: {fileID: 1719896524428501687, guid: cdaf1545c2a684c46a3500ac3ef23ab5, type: 3}
   blueDropPrefab: {fileID: 1719896524428501687, guid: 493b3b82425a53d41927b7d6abcd5888, type: 3}
   yellowDropPrefab: {fileID: 1719896524428501687, guid: 1e07116d06f58514fb297434e702d62b, type: 3}
+  greenDropPrefab: {fileID: 0}
+  purpleDropPrefab: {fileID: 0}
   paintDropChance: 0.5
   hasPaletteItem: 1
   paletteItemPrefab: {fileID: 0}
@@ -263,6 +274,10 @@ MonoBehaviour:
   ghostMaxVerticalSpeed: 2
   piranhaJumpHeight: 2.5
   piranhaFrequency: 2.5
+  piranhaEngageHeightRatio: 0.6
+  piranhaEngageDistance: 2.5
+  piranhaReturnSpeed: 3
+  piranhaReturnThreshold: 0.08
   frogGroundCheck: {fileID: 0}
   frogGroundLayer:
     serializedVersion: 2
@@ -273,9 +288,10 @@ MonoBehaviour:
   frogJumpPower: 6
   frogJumpInterval: 1.2
   frogLandingPadding: 0.08
-  platformProbeDistance: 2
-  platformEdgePadding: 0.05
-  warnWhenPlatformMissing: 1
+  edgeForwardDistance: 0.12
+  edgeDownDistance: 0.6
+  floatingEdgeDownDistance: 3
+  frogGroundPathSamples: 6
   slimeAttackCooldownMultiplier: 1
   snailAttackCooldownMultiplier: 1.35
   ghostAttackCooldownMultiplier: 0.9

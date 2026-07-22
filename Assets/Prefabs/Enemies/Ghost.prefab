@@ -229,10 +229,10 @@ MonoBehaviour:
   currentElement: 0
   redElementColor: {r: 1, g: 0, b: 0, a: 1}
   blueElementColor: {r: 0, g: 0, b: 1, a: 1}
-  yellowElementColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  yellowElementColor: {r: 1, g: 1, b: 0.015686275, a: 1}
   greenElementColor: {r: 0, g: 1, b: 0, a: 1}
   purpleElementColor: {r: 0.6666667, g: 0, b: 1, a: 1}
-  colorTolerance: 0.08
+  colorTolerance: 0.12
   noticeIcon: {fileID: 1586952318732145632}
   runAwayIcon: {fileID: 5143647048022552642}
   paletteIcon: {fileID: 0}
