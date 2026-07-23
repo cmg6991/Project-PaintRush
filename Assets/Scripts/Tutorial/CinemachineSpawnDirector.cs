@@ -27,14 +27,16 @@ public class CinemachineSpawnDirector : MonoBehaviour
 
     private IEnumerator CinemachineSpawnRoutine()
     {
+        if(TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.ResetTutorialFlags();
+            TutorialManager.Instance.isCutscenePlaying = true;
+        }
+
         // 초기 상태: 연출 오브젝트와 플레이어 비활성화
         if (drawingObject) drawingObject.SetActive(false);
         if (realPlayer) realPlayer.SetActive(false);
 
-        // ※ 시네머신이 문 앞을 비추게 하려면, 
-        // 연출 동안 시네머신의 Follow를 문 앞(SpawnPoint)에 있는 빈 오브젝트로 지정해두거나
-        // 혹은 SpawnPoint 위치로 카메라를 잠시 고정하는 방식
-        // 여기서는 가장 깔끔하게 연출 동안 Follow를 해제(null)하고 스폰 위치로 포커스를 맞춥니다.
         Transform originalFollow = virtualCamera.Follow;
         virtualCamera.Follow = null;
 
@@ -98,6 +100,13 @@ public class CinemachineSpawnDirector : MonoBehaviour
             yield return null;
         }
         virtualCamera.Lens.OrthographicSize = defaultZoomSize;
+
+        // 연출 종료 후 컷씬 해제 및 최초 이동 해금
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.isCutscenePlaying = false;
+            TutorialManager.Instance.canMove = true;
+        }
 
         Debug.Log("연출 종료, 게임 시작!");
         Destroy(this); // 이 연출 스크립트 삭제

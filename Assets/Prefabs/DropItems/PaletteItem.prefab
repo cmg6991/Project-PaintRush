@@ -172,7 +172,7 @@ MonoBehaviour:
   equipAmount: 1
   groundLayer:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 0
   fallingGravityScale: 1
   landingLift: 0.03
   floatSpeed: 2.5

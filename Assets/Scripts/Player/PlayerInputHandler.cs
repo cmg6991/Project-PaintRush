@@ -11,7 +11,8 @@ namespace Project.Player
 
         public void OnMove(InputValue value)
         {
-            if (TutorialManager.Instance != null && !TutorialManager.Instance.canMove)
+            // 컷씬/카메라 연출 중이거나, 이동이 아직 해금되지 않은 경우 이동 차단
+            if (TutorialManager.Instance != null && (TutorialManager.Instance.isCutscenePlaying || !TutorialManager.Instance.canMove))
             {
                 MoveInput = Vector2.zero;
                 return;
@@ -23,7 +24,8 @@ namespace Project.Player
 
         public void OnJump(InputValue value)
         {
-            if (TutorialManager.Instance != null && !TutorialManager.Instance.canJump)
+            // 컷씬, 카메라 연출 중이거나, 점프가 아직 해금되지 않은 경우 점프 차단
+            if (TutorialManager.Instance != null && (TutorialManager.Instance.isCutscenePlaying || !TutorialManager.Instance.canJump))
             {
                 return;
             }
