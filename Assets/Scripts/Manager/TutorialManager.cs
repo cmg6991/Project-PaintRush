@@ -9,12 +9,10 @@ using NUnit.Framework;
 public class TutorialGuideData
 {
     public TutorialZone.TutorialStep step;
-    public string titleText;                     // Jump, Climb
-    [TextArea] public string descText;           // [Space]키 눌러 점프하세요 
-    public Sprite[] keyIconSprites;                // 키보드 키 아이콘
-    public Sprite[] animationFrames;             // GIF 연출용 프레임 이미지 리스트
-    public float frameRate = 0.15f;              // 각 프레임 전환 속도
-    public float autoHideDelay = 4.0f;
+    [TextArea] public string guideText;                     // 머리 위에 띄울 한 줄 설명문
+    public Sprite[] keySprites;                             // 키 아이콘 스프라이트 배열                       
+    public bool isWideSingleKey;                            // 와이드 대형 1개 키 모드, false : 2분할 키 모드
+    public float autoHideDelay = 4.0f;                      // 가이드 자동 감춤 시간
 }
 
 public class TutorialManager : MonoBehaviour
@@ -23,16 +21,21 @@ public class TutorialManager : MonoBehaviour
 
     [Header("--- 튜토리얼 UI 요소 설정 ---")]
     public GameObject tutorialPanel;
-    public TextMeshProUGUI titleText;
-    public TextMeshProUGUI descText;
-    public List<Image> keyIconImageList = new List<Image>();            // 키보드 키 아이콘 UI
-    public Image animDisplayImage;                                      // GIF 애니메이션 재생 UI Image
+    public TextMeshProUGUI guideText;
+
+    [Header("--- 키 슬롯 모드 ---")]
+    public Image wideSingleKeySlot;     // 단일 와이드, 대형 키 슬롯 UI Image
+    public Image leftKeySlot;           // 왼쪽 키 슬롯 UI Image
+    public Image rightKeySlot;          // 2분할 중 오른쪽 키 슬롯 UI Image
 
     [Header("--- 기믹별 가이드 데이터 리스트 ---")]
     public List<TutorialGuideData> guideDataList = new List<TutorialGuideData>();
 
     [Header("--- 튜토리얼 상태 플래그 ---")]
     public bool isCutscenePlaying = false;          // 컷씬, 카메라 안내 연출 진행 중 여부 
+
+    [Header("--- 튜토리얼 체크포인트(리스폰) 설정 ---")]
+    public Transform currentRespawnPoint;   // 플레이어가 사망 시 돌아갈 최신 Zone 위치
 
     [Header("--- 튜토리얼 입력 허용 플래그 ---")]
     public bool canMove = false;
@@ -44,7 +47,6 @@ public class TutorialManager : MonoBehaviour
     public bool canShowItem = false;
     public bool canMonsterMove = false;
 
-    private Coroutine animCoroutine;
     private Coroutine autoHideCoroutine;
 
     private void Awake()
@@ -68,78 +70,72 @@ public class TutorialManager : MonoBehaviour
         HideTutorialMessage();
     }
 
-    // 단계별 GIF 애니메이션 UI 가이드 시작
-    public void ShowGuideAnimation (TutorialZone.TutorialStep step, string customMessage = "", Transform targetTransform = null)
+    public void ShowGuideUI(TutorialZone.TutorialStep step, string customMessage = "")
     {
-        // 이미 재생 중인 애니메이션이 있다면 중지
-        if (animCoroutine != null) StopCoroutine(animCoroutine);
         if (autoHideCoroutine != null) StopCoroutine(autoHideCoroutine);
 
         TutorialGuideData data = guideDataList.Find(x => x.step == step);
 
         if (data != null)
         {
-            if (tutorialPanel != null)
+            if (tutorialPanel != null) tutorialPanel.SetActive(true);
+
+            // 한줄 텍스트
+            if (guideText != null)
             {
-                tutorialPanel.SetActive(true);
+                guideText.text = !string.IsNullOrEmpty(customMessage) ? customMessage : data.guideText;
             }
-            if (titleText != null) titleText.text = data.titleText;
-            if (descText != null) descText.text = !string.IsNullOrEmpty(customMessage) ? customMessage : data.descText;
-        
-            // 다중 키 아이콘 슬롯 설정 (W, S 키 등)
-            if (keyIconImageList != null && keyIconImageList.Count > 0)
+
+            // 키 슬롯 모드 분기
+            if (data.isWideSingleKey)
             {
-                for (int i = 0; i< keyIconImageList.Count; i++)
+                // 와이드 단일 키 켜기 & 2분할 키 끄기
+                if (wideSingleKeySlot != null && data.keySprites != null && data.keySprites.Length > 0)
                 {
-                    if (data.keyIconSprites != null && i < data.keyIconSprites.Length && data.keyIconSprites[i] != null)
+                    wideSingleKeySlot.sprite = data.keySprites[0];
+                    wideSingleKeySlot.preserveAspect = true;
+                    wideSingleKeySlot.gameObject.SetActive(true);
+                }
+
+                if (leftKeySlot != null) leftKeySlot.gameObject.SetActive(false);
+                if (rightKeySlot != null) rightKeySlot.gameObject.SetActive(false);
+            }
+            else
+            {
+                // 와이드 단일 키 끄기 & 2분할 키 켜기
+                if (wideSingleKeySlot != null) wideSingleKeySlot.gameObject.SetActive(false);
+
+                // 왼쪽 키
+                if (leftKeySlot != null)
+                {
+                    bool hasLeft = data.keySprites != null && data.keySprites.Length > 0 && data.keySprites[0] != null;
+                    leftKeySlot.gameObject.SetActive(hasLeft);
+                    if (hasLeft)
                     {
-                        keyIconImageList[i].sprite = data.keyIconSprites[i];
-                        keyIconImageList[i].gameObject.SetActive(true);
+                        leftKeySlot.sprite = data.keySprites[0];
+                        leftKeySlot.preserveAspect = true;
                     }
-                    else
+                }
+
+                // 오른쪽 키
+                if (rightKeySlot != null)
+                {
+                    bool hasRight = data.keySprites != null && data.keySprites.Length > 1 && data.keySprites[1] != null;
+                    rightKeySlot.gameObject.SetActive(hasRight);
+                    if (hasRight)
                     {
-                        keyIconImageList[i].gameObject.SetActive(false);
+                        rightKeySlot.sprite = data.keySprites[1];
+                        rightKeySlot.preserveAspect = true;
                     }
                 }
             }
 
-            // GIF 프레임 애니메이션 코루틴 재생
-            if (animDisplayImage != null && data.animationFrames != null && data.animationFrames.Length > 0)
-            {
-                animDisplayImage.gameObject.SetActive(true);
-                animCoroutine = StartCoroutine(PlayFrameAnimationRoutine(data));
-            }
-            else if (animDisplayImage != null)
-            {
-                animDisplayImage.gameObject.SetActive(false);
-            }
-
-            // N초후 가이드 패널 자동 감추기 코루틴
+            // N초 후 자동 감춤
             if (data.autoHideDelay > 0)
             {
                 autoHideCoroutine = StartCoroutine(AutoHideRoutine(data.autoHideDelay));
             }
         }
-        else
-        {
-            // 전용 가이드 데이터가 없으면 기존 텍스트만 표시
-            ShowTutorialMessage(customMessage);
-        }
-    }
-
-    // GIF 프레임 이미지 연속 루프 코루틴
-    private IEnumerator PlayFrameAnimationRoutine(TutorialGuideData data)
-    {
-        int index = 0;
-        while (true)
-        {
-            if (data.animationFrames.Length > 0)
-            {
-                animDisplayImage.sprite = data.animationFrames[index];
-                index = (index + 1) % data.animationFrames.Length;
-            }
-            yield return new WaitForSeconds(data.frameRate);
-        }    
     }
 
     // N초 후 자동 닫기 코루틴
@@ -149,22 +145,9 @@ public class TutorialManager : MonoBehaviour
         HideTutorialMessage();
     }
 
-    // 텍스트 전용 메시지 표시
-    public void ShowTutorialMessage(string message)
-    {
-        if (tutorialPanel != null) tutorialPanel.SetActive(true);
-        if (descText != null) descText.text = message;
-    }
-
     // UI 가이드 메시지 및 애니메이션 숨기기
     public void HideTutorialMessage()
     {
-        if (animCoroutine != null)
-        {
-            StopCoroutine(animCoroutine);
-            animCoroutine = null;
-        }
-
         if (autoHideCoroutine != null)
         {
             StopCoroutine(autoHideCoroutine);

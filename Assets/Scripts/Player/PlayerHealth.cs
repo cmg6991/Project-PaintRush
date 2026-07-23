@@ -151,9 +151,44 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     private IEnumerator DieDelayRoutine()
     {
         yield return new WaitForSeconds(1.5f);
-        gameObject.SetActive(false);
-        UIManager.Instance.ShowRestartUI();
 
+        if (TutorialManager.Instance != null && TutorialManager.Instance.currentRespawnPoint != null)
+        {
+            RespawnAtTutorialCheckpoint(TutorialManager.Instance.currentRespawnPoint.position);
+        }
+        else
+        {
+            gameObject.SetActive(false);
+            UIManager.Instance.ShowRestartUI();
+        }
+    }
+
+    // 튜토리얼 전용 부활
+    public void RespawnAtTutorialCheckpoint(Vector3 respawnPosition)
+    {
+        isDead = false;
+        currentHp = maxHp;  // 체력 100퍼 복구
+        UpdateHeartFill();  // 하트 UI 복구
+
+        // 사망할 때 바뀐 레이어 및 위치 복구
+        gameObject.layer = LayerMask.NameToLayer("Player");
+        transform.position = respawnPosition;
+
+        // 사망할 때 멈췄던 물리 복구
+        Rigidbody2D playerRb = GetComponent<Rigidbody2D>();
+        if (playerRb != null)
+        {
+            playerRb.linearVelocity = Vector2.zero; // 남아있는 물리 속도 제거
+            playerRb.gravityScale = 1.5f;           // 중력 원래대로
+        }
+
+        // 사망 모션에서 기본 상태로 애니메이터 리셋
+        Animator anim = GetComponentInChildren<Animator>();
+        if (anim != null)
+        {
+            anim.Rebind();
+            anim.Update(0f);
+        }
     }
 
     private void OnEnable()

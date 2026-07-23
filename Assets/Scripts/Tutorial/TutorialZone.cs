@@ -40,6 +40,8 @@ public class TutorialZone : MonoBehaviour
         if (TutorialManager.Instance != null)
         {
             TutorialManager.Instance.isCutscenePlaying = true;
+
+            TutorialManager.Instance.currentRespawnPoint = this.transform;
         }
 
         // 시네머신 카메라가 지정되어 있지 않다면 자동 검색
@@ -118,8 +120,7 @@ public class TutorialZone : MonoBehaviour
             // TutorialManager를 통한 가이드 UI 텍스트 화면 출력
             if (TutorialManager.Instance != null)
             {
-                // playerTransform을 세 번째 파라미터로 전달하여 머리 위 상단에 팝업 피팅
-                TutorialManager.Instance.ShowGuideAnimation(targetStep, guideMessage, playerTransform);
+                TutorialManager.Instance.ShowGuideUI(targetStep, guideMessage);
             }
        
 
