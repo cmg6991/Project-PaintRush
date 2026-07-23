@@ -53,8 +53,6 @@ public class HeartHp : MonoBehaviour, IDamageable
     public void UpdateHeartFill(int currentHp, int maxHp)
     {
         if (heartFillRenderer == null) return;
-
-        // 체력이 0일 때는 완전히 비움 (0.0)
         if (currentHp <= 0)
         {
             Vector2 zeroSize = heartFillRenderer.size;
@@ -63,20 +61,15 @@ public class HeartHp : MonoBehaviour, IDamageable
             return;
         }
 
-        // 1. 순수 체력 비율 계산 (0.0 ~ 1.0)
         float rawRatio = (float)currentHp / maxHp;
         rawRatio = Mathf.Clamp01(rawRatio);
 
-        // 2. [핵심] 체력이 1이라도 남아있다면, 최소 높이를 0.35(35%)로 보정!
-        // rawRatio가 0~1로 변할 때, 실제 적용 비율은 0.35~1.0 사이로 매핑됨
-        float minVisualRatio = 0.35f; // 체력이 1 남았을 때 보일 최소 비율 (원하는 만큼 0.3~0.4 조절 가능)
+        float minVisualRatio = 0.35f;
         float mappedRatio = Mathf.Lerp(minVisualRatio, 1.0f, rawRatio);
 
-        // 3. 보정된 비율로 Size Y 적용
         Vector2 currentSize = heartFillRenderer.size;
         currentSize.y = maxHeartHeight * mappedRatio;
         heartFillRenderer.size = currentSize;
-
-        //Debug.Log($"[Heart] 실제 체력비율: {rawRatio:F2} -> 연출용 비율: {mappedRatio:F2}, 최종 size.y: {currentSize.y}");
+ 
     }
 }

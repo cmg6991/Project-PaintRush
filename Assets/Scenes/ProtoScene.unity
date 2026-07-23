@@ -11109,6 +11109,52 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &882629932
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 882629934}
+  - component: {fileID: 882629933}
+  m_Layer: 0
+  m_Name: WaterParticlePool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &882629933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 882629932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0953c8c63ebe9c40a08d5c6858d6041, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectPool
+  prefab: {fileID: 3052183747199749607, guid: 673dd86dc0590e84a976de2f8dc35a63, type: 3}
+  startCount: 5
+--- !u!4 &882629934
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 882629932}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 16.3684, y: -4.38568, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &882640838
 GameObject:
   m_ObjectHideFlags: 0
@@ -18026,6 +18072,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6011239351558434823, guid: a254e288ebf12464c9356cd2ac6a2a60, type: 3}
+      propertyPath: splashPool
+      value: 
+      objectReference: {fileID: 882629933}
     - target: {fileID: 6011239351558434823, guid: a254e288ebf12464c9356cd2ac6a2a60, type: 3}
       propertyPath: splashParticles
       value: 
@@ -26012,3 +26062,4 @@ SceneRoots:
   - {fileID: 135300869}
   - {fileID: 1955282784}
   - {fileID: 1176182599}
+  - {fileID: 882629934}
