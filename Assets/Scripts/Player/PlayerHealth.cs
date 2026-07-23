@@ -70,7 +70,6 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         // 🌟 하트 UI 실시간 갱신 호출
         UpdateHeartFill();
 
-        Project.Player.PlayerController2D controller = GetComponent<Project.Player.PlayerController2D>();
         // 피격당할 때 플레이어 본체 넉백 및 스케일 팽창 연출 호출
         if (controller != null && attacker != null)
         {
