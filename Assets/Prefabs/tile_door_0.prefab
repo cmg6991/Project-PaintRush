@@ -312,7 +312,7 @@ MonoBehaviour:
   transitionFader: {fileID: 0}
   interactionPrompt: {fileID: 2128429981070017917}
   interactionKey: 101
-  animationLeadTime: 0
+  animationLeadTime: 0.3
   nextSceneName: Stage2
   loadNextBuildIndexWhenNameEmpty: 1
 --- !u!1 &4633009016908520077
@@ -328,7 +328,7 @@ GameObject:
   - component: {fileID: 7726540885167533745}
   - component: {fileID: 1191247902999130295}
   m_Layer: 0
-  m_Name: tile_door_0 (1)
+  m_Name: tile_door_0
   m_TagString: Door
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -343,7 +343,7 @@ Transform:
   m_GameObject: {fileID: 4633009016908520077}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.89, y: 9.36, z: 0}
+  m_LocalPosition: {x: -3.7, y: 9.52, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children:
