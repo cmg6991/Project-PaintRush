@@ -292,6 +292,10 @@ MonoBehaviour:
     m_Bits: 8
   groundCheckDistance: 0.3
   groundCheckRadius: 0.08
+  ghostEdgeLookAhead: 0.3
+  ghostGroundProbeDistance: 3
+  ghostGroundProbeRadius: 0.12
+  logGhostEdgeTurn: 0
   wallCheckDistance: 0.15
   wallCheckHeightRatio: 0.4
   wallAvoidanceDuration: 0.6
@@ -442,6 +446,7 @@ MonoBehaviour:
     arcHeight: 1
     recoilTime: 0.2
     recoilDistance: 0.65
+  water: {fileID: 0}
 --- !u!114 &6630306015666947039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1032,10 +1037,10 @@ SpriteMask:
   m_MaskInteraction: 0
   m_Sprite: {fileID: 8533748852153243735, guid: 9a9f22064c49041409801e87b9ac0944, type: 3}
   m_MaskAlphaCutoff: 0.2
-  m_FrontSortingLayerID: 0
-  m_BackSortingLayerID: 0
-  m_FrontSortingLayer: 0
-  m_BackSortingLayer: 0
+  m_FrontSortingLayerID: -2077594127
+  m_BackSortingLayerID: -2077594127
+  m_FrontSortingLayer: 3
+  m_BackSortingLayer: 3
   m_FrontSortingOrder: 0
   m_BackSortingOrder: 0
   m_IsCustomRangeActive: 0

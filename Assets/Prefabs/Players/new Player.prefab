@@ -89,7 +89,7 @@ SpriteRenderer:
   m_Size: {x: 0.74, y: 0.66}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &876807117392477732
 GameObject:
@@ -100,7 +100,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4886131857431715616}
-  - component: {fileID: 237502017864454080}
   m_Layer: 0
   m_Name: PlayerHeart
   m_TagString: Untagged
@@ -126,21 +125,6 @@ Transform:
   - {fileID: 8323505586766051146}
   m_Father: {fileID: 6549569982818652505}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &237502017864454080
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 876807117392477732}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 491f94ad73207cd4fb8be0c45bda7078, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerHeartUI
-  maskTransform: {fileID: 8323505586766051146}
-  minYOffset: -0.31
-  maxYOffset: 0.03299999
 --- !u!1 &930343294352757279
 GameObject:
   m_ObjectHideFlags: 0
@@ -288,6 +272,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shoot
   smoke: {fileID: 7349904051509577495}
+  doorPaintCost: 0.1
+  normalPaintCost: 0.2
 --- !u!114 &5084598409433035484
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307,6 +293,7 @@ MonoBehaviour:
   - {fileID: 5914289684482106114, guid: c4e7cf69129a1a44c86bc861e251c009, type: 3}
   brushPrefabs:
   - {fileID: 7363837493382440528, guid: 12374fdc2f779394d80a1cae2e65bb98, type: 3}
+  feverSplashPrefabs: []
 --- !u!114 &7349904051509577495
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1176,7 +1163,7 @@ SpriteRenderer:
   m_Size: {x: 0.74, y: 0.66}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1001 &1492946609205127165
 PrefabInstance:

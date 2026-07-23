@@ -161,10 +161,10 @@ SpriteMask:
   m_MaskInteraction: 0
   m_Sprite: {fileID: -6435710888531977222, guid: 4858dcc96f34dbd46ac1bc7336fa4406, type: 3}
   m_MaskAlphaCutoff: 0.2
-  m_FrontSortingLayerID: 0
-  m_BackSortingLayerID: 0
-  m_FrontSortingLayer: 0
-  m_BackSortingLayer: 0
+  m_FrontSortingLayerID: -2077594127
+  m_BackSortingLayerID: -2077594127
+  m_FrontSortingLayer: 3
+  m_BackSortingLayer: 3
   m_FrontSortingOrder: 0
   m_BackSortingOrder: 0
   m_IsCustomRangeActive: 0
@@ -383,7 +383,21 @@ MonoBehaviour:
     m_Bits: 8
   groundCheckDistance: 0.3
   groundCheckRadius: 0.08
+  ghostEdgeLookAhead: 0.3
+  ghostGroundProbeDistance: 3
+  ghostGroundProbeRadius: 0.12
+  logGhostEdgeTurn: 0
   wallCheckDistance: 0.15
+  wallCheckHeightRatio: 0.55
+  wallAvoidanceDuration: 0.6
+  frogWallSeparationDistance: 0.04
+  frogCollisionTurnLockDuration: 1.2
+  frogCollisionPushSpeed: 0.8
+  logFrogCollisionTurn: 0
+  frogForwardCheckDistance: 0.18
+  frogForwardCheckHeightRatio: 0.35
+  frogEdgeLookAhead: 0.35
+  logFrogPredictiveTurn: 0
   attackDamage: 1
   attackCooldown: 1.2
   attackTrigger: {fileID: 0}
@@ -523,6 +537,7 @@ MonoBehaviour:
     arcHeight: 1
     recoilTime: 0.2
     recoilDistance: 0.65
+  water: {fileID: 0}
 --- !u!114 &3669024214833687644
 MonoBehaviour:
   m_ObjectHideFlags: 0
