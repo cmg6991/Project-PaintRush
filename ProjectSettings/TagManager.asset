@@ -51,6 +51,18 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: PlayerHP
+    uniqueID: 3595749733
+    locked: 0
+  - name: Tile
+    uniqueID: 3049701009
+    locked: 0
+  - name: Monster
+    uniqueID: 2217373169
+    locked: 0
+  - name: Ladder
+    uniqueID: 1297043483
+    locked: 0
   m_RenderingLayers:
   - Default
   m_MigratedRenderPipelines: []

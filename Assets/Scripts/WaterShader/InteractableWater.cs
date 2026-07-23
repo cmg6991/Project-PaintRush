@@ -42,7 +42,8 @@ public class InteractableWater : MonoBehaviour
     private Vector3[] _vertices;
     private int[] topVerticesindex;
     private EdgeCollider2D _coll;
-    [SerializeField] private GameObject splashParticles;
+
+    [SerializeField] private ObjectPool splashPool;
 
     private class WaterPoint
     {
@@ -69,15 +70,10 @@ public class InteractableWater : MonoBehaviour
 
     public void SpawnSplashParticle(float worldX)
     {
-        if (splashParticles == null)
-            return;
+        Vector3 pos = new Vector3(worldX, GetSurfaceY(), 0);
 
-        Vector3 spawnPos = new Vector3(
-            worldX,
-            GetSurfaceY(),
-            0f);
-
-        Instantiate(splashParticles, spawnPos, Quaternion.identity);
+        WaterPool splash = splashPool.Get<WaterPool>();
+        splash.transform.position = pos;
     }
 
     private void FixedUpdate()

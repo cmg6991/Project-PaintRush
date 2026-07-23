@@ -34,7 +34,7 @@ public class ObjectPool : MonoBehaviour
         PoolableObject obj = pool.Dequeue();
 
         obj.gameObject.SetActive(true);
-
+        obj.OnSpawn();
         return obj as T;
     }
 

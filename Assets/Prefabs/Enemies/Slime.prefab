@@ -1076,10 +1076,10 @@ SpriteMask:
   m_MaskInteraction: 0
   m_Sprite: {fileID: -7633230877233678835, guid: 6e44ff0491a0c8244bc3eade0d996b7f, type: 3}
   m_MaskAlphaCutoff: 0.2
-  m_FrontSortingLayerID: 0
-  m_BackSortingLayerID: 0
-  m_FrontSortingLayer: 0
-  m_BackSortingLayer: 0
+  m_FrontSortingLayerID: -2077594127
+  m_BackSortingLayerID: -2077594127
+  m_FrontSortingLayer: 3
+  m_BackSortingLayer: 3
   m_FrontSortingOrder: 0
   m_BackSortingOrder: 0
   m_IsCustomRangeActive: 0
