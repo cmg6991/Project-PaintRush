@@ -9,6 +9,10 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     private bool isDead;
 
     public bool IsDead => isDead;
+    public int CurrentHp => currentHp;
+    public int MaxHp => maxHp;
+    public bool CanHeal => !isDead && currentHp < maxHp;
+    public bool IsFullHealth => currentHp >= maxHp;
 
     [Header("--- 머리 위 하트 UI 설정 ---")]
     [SerializeField] private Transform heartUiTransform; // 머리 위 하트 UI 전체 오브젝트 (회전 고정용)
@@ -76,6 +80,34 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         {
             Die();
         }
+    }
+
+    /// <summary>
+    /// 플레이어 체력을 회복합니다.
+    /// 실제로 회복된 양을 반환합니다.
+    /// </summary>
+    public int Heal(int amount)
+    {
+        if (amount <= 0 || !CanHeal)
+            return 0;
+
+        int previousHp = currentHp;
+        currentHp = Mathf.Min(maxHp, currentHp + amount);
+        int healedAmount = currentHp - previousHp;
+
+        if (healedAmount <= 0)
+            return 0;
+
+        Debug.Log($"플레이어 HP 회복! +{healedAmount}, HP : {currentHp}/{maxHp}");
+
+        UpdateHeartFill();
+
+        if (DataManager.Instance != null)
+        {
+            DataManager.Instance.UpdatePlayerHp(currentHp, maxHp);
+        }
+
+        return healedAmount;
     }
 
     // 🌟 마스크 이동 대신 PlayerHeartUI의 UpdateHeartFill을 불러주도록 수정!

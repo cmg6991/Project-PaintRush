@@ -2,7 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum MonsterMoveResult
+{
+    Moved,
+    Waiting,
+    BlockedByEdge,
+    BlockedByObstacle
+}
+
 [RequireComponent(typeof(Rigidbody2D))]
+[DisallowMultipleComponent]
 public class MonsterMovement : MonoBehaviour
 {
     [System.Serializable]
@@ -40,11 +49,19 @@ public class MonsterMovement : MonoBehaviour
     [SerializeField] private float groundGravityScale = 1.5f;
 
     [Header("몬스터별 속도 배율")]
-    [SerializeField] private float slimeSpeedMultiplier = 0.45f;
-    [SerializeField] private float snailSpeedMultiplier = 0.3f;
-    [SerializeField] private float ghostSpeedMultiplier = 0.55f;
-    [SerializeField] private float spiderSpeedMultiplier = 0.75f;
-    [SerializeField] private float frogSpeedMultiplier = 0.55f;
+    [SerializeField, Min(0f)] private float slimeSpeedMultiplier = 0.45f;
+    [SerializeField, Min(0f)] private float snailSpeedMultiplier = 0.3f;
+    [SerializeField, Min(0f)] private float ghostSpeedMultiplier = 0.55f;
+    [SerializeField, Min(0f)] private float spiderSpeedMultiplier = 0.75f;
+    [SerializeField, Min(0f)] private float frogSpeedMultiplier = 0.55f;
+
+    [Header("몬스터별 최대 이동 속도")]
+    [Tooltip("기본 AI 속도가 지나치게 커도 몬스터 개성이 무너지지 않도록 상한을 둡니다.")]
+    [SerializeField, Min(0.1f)] private float slimeMaxSpeed = 1.8f;
+    [SerializeField, Min(0.1f)] private float snailMaxSpeed = 0.9f;
+    [SerializeField, Min(0.1f)] private float ghostMaxSpeed = 2.4f;
+    [SerializeField, Min(0.1f)] private float spiderMaxSpeed = 3.8f;
+    [SerializeField, Min(0.1f)] private float frogMaxSpeed = 2f;
 
     [Header("유령 이동")]
     [SerializeField] private float ghostFloatHeight = 0.2f;
@@ -63,7 +80,6 @@ public class MonsterMovement : MonoBehaviour
     [SerializeField, Min(0.01f)] private float piranhaReturnThreshold = 0.08f;
 
     [Header("개구리 이동")]
-    [SerializeField] private Transform frogGroundCheck;
     [SerializeField] private LayerMask frogGroundLayer;
     [SerializeField, Min(0.01f)] private float frogGroundCheckDistance = 0.18f;
     [SerializeField, Range(0.1f, 1f)] private float frogGroundCheckWidth = 0.7f;
@@ -78,8 +94,22 @@ public class MonsterMovement : MonoBehaviour
     [SerializeField, Min(0.1f)] private float edgeDownDistance = 0.6f;
     [Tooltip("유령처럼 지면에서 떠 있는 몬스터의 아래쪽 검사 거리입니다.")]
     [SerializeField, Min(0.1f)] private float floatingEdgeDownDistance = 3f;
-    [Tooltip("개구리 점프 경로에서 연속된 바닥을 확인할 샘플 수입니다.")]
+    [Tooltip("타일 사이의 작은 경계 틈을 낭떠러지로 오인하지 않도록 하는 반지름입니다.")]
+    [SerializeField, Min(0.01f)] private float edgeProbeRadius = 0.08f;
+
+    [Header("앞쪽 장애물 검사")]
+    [SerializeField, Min(0.01f)] private float obstacleCheckDistance = 0.14f;
+    [SerializeField, Range(0.1f, 1f)] private float obstacleCheckHeightRatio = 0.55f;
+
+    [Header("개구리 안전 점프")]
+    [Tooltip("점프 경로 아래의 연속된 바닥을 확인할 샘플 수입니다.")]
     [SerializeField, Range(2, 12)] private int frogGroundPathSamples = 6;
+    [Tooltip("안전한 착지 경로가 없으면 수평 거리를 줄여 같은 발판 안에서 점프합니다.")]
+    [SerializeField] private bool preventFrogFromLeavingPlatform = true;
+    [Tooltip("안전한 수평 점프 거리를 찾을 때 속도를 몇 단계로 줄여 검사할지 설정합니다.")]
+    [SerializeField, Range(2, 8)] private int frogSafeSpeedSteps = 5;
+    [Tooltip("작은 발판에서 수평 점프가 불가능할 때 제자리 수직 점프를 허용합니다.")]
+    [SerializeField] private bool allowFrogVerticalHopWhenTrapped = true;
 
     [Header("공격 쿨타임 배율")]
     [SerializeField, Min(0.1f)] private float slimeAttackCooldownMultiplier = 1f;
@@ -87,6 +117,12 @@ public class MonsterMovement : MonoBehaviour
     [SerializeField, Min(0.1f)] private float ghostAttackCooldownMultiplier = 0.9f;
     [SerializeField, Min(0.1f)] private float spiderAttackCooldownMultiplier = 0.7f;
     [SerializeField, Min(0.1f)] private float frogAttackCooldownMultiplier = 1.2f;
+
+    [Header("공격 이동 제한")]
+    [Tooltip("달팽이가 플레이어에게 순간이동하듯 달라붙지 않도록 한 번에 이동할 최대 거리입니다.")]
+    [SerializeField, Min(0.1f)] private float snailMaxAttackTravel = 0.75f;
+    [Tooltip("개구리가 공격 점프로 발판 밖까지 이동하지 않도록 제한하는 최대 수평 거리입니다.")]
+    [SerializeField, Min(0.1f)] private float frogMaxAttackTravel = 1f;
 
     [Header("공격 모션")]
     [Tooltip("슬라임: 몸을 움츠린 뒤 포물선으로 통 튀어오릅니다.")]
@@ -206,17 +242,14 @@ public class MonsterMovement : MonoBehaviour
 
     private void Start()
     {
-        if (monsterType == MonsterType.Frog &&
-            frogGroundCheck == null)
-        {
-            Debug.LogError(
-                $"{gameObject.name}: Frog Ground Check가 연결되지 않았습니다.");
-        }
-
         spawnTime = Time.time;
+        nextFrogJumpTime = Time.time + Random.Range(0f, frogJumpInterval * 0.35f);
 
-        wasAboveSurface =
-            transform.position.y > water.GetSurfaceY();
+        if (IsPiranha && water != null)
+        {
+            wasAboveSurface =
+                transform.position.y > water.GetSurfaceY();
+        }
     }
 
     private void OnDisable()
@@ -260,24 +293,98 @@ public class MonsterMovement : MonoBehaviour
         Bounds bounds = bodyCollider.bounds;
         float forward = Mathf.Max(edgeForwardDistance, lookAhead);
 
-        Vector2 origin = new Vector2(
+        Vector2 origin = new(
             direction > 0
                 ? bounds.max.x + forward
                 : bounds.min.x - forward,
-            bounds.min.y + 0.08f);
+            bounds.min.y + edgeProbeRadius + 0.03f);
 
         float downDistance =
             monsterType == MonsterType.Ghost
                 ? floatingEdgeDownDistance
                 : edgeDownDistance;
 
-        RaycastHit2D hit = Physics2D.Raycast(
+        LayerMask mask = GetPlatformMask();
+
+        RaycastHit2D hit = Physics2D.CircleCast(
             origin,
+            edgeProbeRadius,
             Vector2.down,
             downDistance,
-            platformLayer);
+            mask);
 
-        return hit.collider != null;
+        return hit.collider != null &&
+               !IsSelfCollider(hit.collider);
+    }
+
+    /// <summary>
+    /// 이동, 벽 검사, 발판 끝 검사와 개구리 안전 점프를 한 곳에서 처리합니다.
+    /// AI는 반환값에 따라 방향만 결정하면 됩니다.
+    /// </summary>
+    public MonsterMoveResult TryMoveSafely(
+        int direction,
+        float baseSpeed,
+        bool avoidEdges = true)
+    {
+        if (rb == null || IsAttacking)
+            return MonsterMoveResult.Waiting;
+
+        direction = direction >= 0 ? 1 : -1;
+
+        if (monsterType == MonsterType.Piranha)
+        {
+            MovePiranha();
+            return MonsterMoveResult.Moved;
+        }
+
+        float adjustedSpeed = GetAdjustedSpeed(baseSpeed);
+
+        if (monsterType == MonsterType.Frog)
+        {
+            if (!IsFrogGrounded())
+                return MonsterMoveResult.Moved;
+
+            if (Time.time < nextFrogJumpTime)
+            {
+                SetHorizontalVelocity(0f);
+                return MonsterMoveResult.Waiting;
+            }
+
+            if (HasObstacleAhead(direction))
+                return MonsterMoveResult.BlockedByObstacle;
+
+            if (avoidEdges && preventFrogFromLeavingPlatform)
+            {
+                // 바로 앞에 바닥이 없으면 AI가 먼저 반대 방향으로 전환하게 합니다.
+                if (!HasGroundAhead(direction))
+                    return MonsterMoveResult.BlockedByEdge;
+
+                float safeSpeed = FindSafeFrogHorizontalSpeed(
+                    direction,
+                    adjustedSpeed);
+
+                if (safeSpeed < 0f)
+                    return MonsterMoveResult.BlockedByEdge;
+
+                LaunchFrog(direction, safeSpeed);
+                return MonsterMoveResult.Moved;
+            }
+
+            LaunchFrog(direction, adjustedSpeed);
+            return MonsterMoveResult.Moved;
+        }
+
+        if (HasObstacleAhead(direction))
+            return MonsterMoveResult.BlockedByObstacle;
+
+        if (avoidEdges && UsesGroundObstacleCheck &&
+            !HasGroundAhead(direction))
+        {
+            return MonsterMoveResult.BlockedByEdge;
+        }
+
+        MoveAdjusted(direction, adjustedSpeed);
+        return MonsterMoveResult.Moved;
     }
 
     public void Move(int direction, float speed)
@@ -285,32 +392,23 @@ public class MonsterMovement : MonoBehaviour
         if (rb == null || IsAttacking)
             return;
 
-        switch (monsterType)
+        direction = direction >= 0 ? 1 : -1;
+
+        if (monsterType == MonsterType.Piranha)
         {
-            case MonsterType.Slime:
-                MoveGround(direction, speed * slimeSpeedMultiplier);
-                break;
-
-            case MonsterType.Snail:
-                MoveGround(direction, speed * snailSpeedMultiplier);
-                break;
-
-            case MonsterType.Ghost:
-                MoveGhost(direction, speed * ghostSpeedMultiplier);
-                break;
-
-            case MonsterType.Piranha:
-                MovePiranha();
-                break;
-
-            case MonsterType.Spider:
-                MoveGround(direction, speed * spiderSpeedMultiplier);
-                break;
-
-            case MonsterType.Frog:
-                MoveFrog(direction, speed * frogSpeedMultiplier);
-                break;
+            MovePiranha();
+            return;
         }
+
+        float adjustedSpeed = GetAdjustedSpeed(speed);
+
+        if (monsterType == MonsterType.Frog)
+        {
+            MoveFrog(direction, adjustedSpeed);
+            return;
+        }
+
+        MoveAdjusted(direction, adjustedSpeed);
     }
 
     public void Stop()
@@ -388,7 +486,7 @@ public class MonsterMovement : MonoBehaviour
 
         AttackMotionSettings settings = GetAttackSettings();
         Vector2 attackStart = rb.position;
-        Vector2 initialTarget = GetOverlapPosition(target);
+        Vector2 initialTarget = GetAttackDestination(target, attackStart);
         Vector2 attackDirection =
             (initialTarget - attackStart).normalized;
 
@@ -400,6 +498,9 @@ public class MonsterMovement : MonoBehaviour
         // 1. 공격 전 살짝 반대 방향으로 물러나며 힘을 모읍니다.
         Vector2 windupTarget =
             attackStart - attackDirection * settings.windupDistance;
+        windupTarget = ClampGroundAttackPosition(
+            attackStart,
+            windupTarget);
 
         yield return MoveLinearly(
             attackStart,
@@ -413,8 +514,8 @@ public class MonsterMovement : MonoBehaviour
             target,
             settings);
 
-        // 부동소수점 오차 없이 플레이어 몸체 중심과 정확히 겹칩니다.
-        rb.position = GetOverlapPosition(target);
+        // 달팽이는 짧게 밀고 들어오고, 다른 근접 몬스터는 대상 위치까지 이동합니다.
+        rb.position = GetAttackDestination(target, windupTarget);
         rb.linearVelocity = Vector2.zero;
 
         onImpact?.Invoke();
@@ -430,6 +531,9 @@ public class MonsterMovement : MonoBehaviour
         Vector2 recoilTarget =
             impactPosition -
             recoilDirection * settings.recoilDistance;
+        recoilTarget = ClampGroundAttackPosition(
+            impactPosition,
+            recoilTarget);
 
         yield return MoveLinearly(
             impactPosition,
@@ -460,7 +564,8 @@ public class MonsterMovement : MonoBehaviour
             elapsed += Time.fixedDeltaTime;
             float t = Mathf.Clamp01(elapsed / settings.lungeTime);
             float progress = GetLungeProgress(t);
-            Vector2 targetPosition = GetOverlapPosition(target);
+            Vector2 targetPosition =
+                GetAttackDestination(target, from);
             Vector2 position = Vector2.Lerp(from, targetPosition, progress);
 
             // 슬라임과 개구리는 높게, 거미는 낮게 이동합니다.
@@ -545,6 +650,42 @@ public class MonsterMovement : MonoBehaviour
             default:
                 return slimeAttack;
         }
+    }
+
+    private Vector2 GetAttackDestination(
+        Transform target,
+        Vector2 attackOrigin)
+    {
+        Vector2 desired = GetOverlapPosition(target);
+
+        if (monsterType == MonsterType.Snail)
+        {
+            float deltaX = Mathf.Clamp(
+                desired.x - attackOrigin.x,
+                -snailMaxAttackTravel,
+                snailMaxAttackTravel);
+
+            // 달팽이는 높게 점프하지 않고 같은 지면 높이에서 짧게 밀고 들어옵니다.
+            return ClampGroundAttackPosition(
+                attackOrigin,
+                new Vector2(
+                    attackOrigin.x + deltaX,
+                    attackOrigin.y));
+        }
+
+        if (monsterType == MonsterType.Frog)
+        {
+            float deltaX = Mathf.Clamp(
+                desired.x - attackOrigin.x,
+                -frogMaxAttackTravel,
+                frogMaxAttackTravel);
+
+            return FindSafeFrogAttackDestination(
+                attackOrigin,
+                deltaX);
+        }
+
+        return desired;
     }
 
     private Vector2 GetOverlapPosition(Transform target)
@@ -751,20 +892,21 @@ public class MonsterMovement : MonoBehaviour
         // 수면 통과 체크
         //--------------------------------------------------
 
-        bool isAboveSurface = targetY > water.GetSurfaceY();
-
-        if (isAboveSurface != wasAboveSurface)
+        if (water != null)
         {
-            float force = Mathf.Clamp(
-                Mathf.Abs(verticalVelocity) * 4f,
-                0.5f,
-                water.MaxForce);
+            bool isAboveSurface = targetY > water.GetSurfaceY();
 
-            water.Splash(transform.position.x, force);
+            if (isAboveSurface != wasAboveSurface)
+            {
+                float force = Mathf.Clamp(
+                    Mathf.Abs(verticalVelocity) * 4f,
+                    0.5f,
+                    water.MaxForce);
 
-            water.SpawnSplashParticle(transform.position.x);
-
-            wasAboveSurface = isAboveSurface;
+                water.Splash(transform.position.x, force);
+                water.SpawnSplashParticle(transform.position.x);
+                wasAboveSurface = isAboveSurface;
+            }
         }
     }
 
@@ -835,23 +977,45 @@ public class MonsterMovement : MonoBehaviour
 
     private void MoveFrog(int direction, float speed)
     {
-        if (!IsFrogGrounded())
-            return;
-
-        if (Time.time < nextFrogJumpTime)
+        if (!IsFrogGrounded() ||
+            Time.time < nextFrogJumpTime)
         {
-            SetHorizontalVelocity(0f);
             return;
         }
 
+        if (preventFrogFromLeavingPlatform)
+        {
+            if (!HasGroundAhead(direction))
+            {
+                SetHorizontalVelocity(0f);
+                return;
+            }
+
+            float safeSpeed = FindSafeFrogHorizontalSpeed(direction, speed);
+
+            if (safeSpeed < 0f)
+            {
+                SetHorizontalVelocity(0f);
+                return;
+            }
+
+            LaunchFrog(direction, safeSpeed);
+            return;
+        }
+
+        LaunchFrog(direction, speed);
+    }
+
+    private void LaunchFrog(int direction, float speed)
+    {
         rb.linearVelocity = new Vector2(
             direction * speed,
-            frogJumpPower
-        );
+            frogJumpPower);
 
         nextFrogJumpTime =
             Time.time + frogJumpInterval;
     }
+
     public bool IsFrogGrounded()
     {
         if (rb == null || bodyCollider == null)
@@ -887,6 +1051,113 @@ public class MonsterMovement : MonoBehaviour
                hit.collider != bodyCollider;
     }
 
+    /// <summary>
+    /// 요청 속도로 발판을 벗어나면 속도를 단계적으로 낮춰
+    /// 같은 발판 안에 착지할 수 있는 수평 속도를 찾습니다.
+    /// 작은 발판에서는 0을 반환해 제자리 점프를 사용합니다.
+    /// -1은 점프 자체를 취소해야 한다는 뜻입니다.
+    /// </summary>
+    private float FindSafeFrogHorizontalSpeed(
+        int direction,
+        float requestedSpeed)
+    {
+        int steps = Mathf.Max(2, frogSafeSpeedSteps);
+        float speed = Mathf.Max(0f, requestedSpeed);
+
+        for (int step = 0; step < steps; step++)
+        {
+            float ratio = 1f - step / (float)steps;
+            float candidate = speed * ratio;
+
+            if (HasContinuousGroundPath(direction, candidate))
+                return candidate;
+        }
+
+        return allowFrogVerticalHopWhenTrapped ? 0f : -1f;
+    }
+
+    private Vector2 FindSafeFrogAttackDestination(
+        Vector2 attackOrigin,
+        float requestedDeltaX)
+    {
+        int steps = Mathf.Max(2, frogSafeSpeedSteps);
+
+        for (int step = 0; step <= steps; step++)
+        {
+            float ratio = 1f - step / (float)steps;
+            float candidateX =
+                attackOrigin.x + requestedDeltaX * ratio;
+
+            if (HasGroundPathBetween(
+                    attackOrigin.x,
+                    candidateX))
+            {
+                return new Vector2(candidateX, attackOrigin.y);
+            }
+        }
+
+        return attackOrigin;
+    }
+
+    private Vector2 ClampGroundAttackPosition(
+        Vector2 origin,
+        Vector2 desired)
+    {
+        if (monsterType != MonsterType.Snail &&
+            monsterType != MonsterType.Frog)
+        {
+            return desired;
+        }
+
+        return HasGroundPathBetween(origin.x, desired.x)
+            ? new Vector2(desired.x, origin.y)
+            : origin;
+    }
+
+    private bool HasGroundPathBetween(
+        float startX,
+        float endX)
+    {
+        if (bodyCollider == null)
+            return false;
+
+        float distance = Mathf.Abs(endX - startX);
+        int sampleCount = Mathf.Max(
+            2,
+            Mathf.CeilToInt(distance / 0.2f) + 1);
+
+        Bounds bounds = bodyCollider.bounds;
+        LayerMask mask =
+            frogGroundLayer.value != 0
+                ? frogGroundLayer
+                : GetPlatformMask();
+
+        float downDistance = Mathf.Max(
+            edgeDownDistance,
+            frogGroundCheckDistance + 0.2f);
+
+        for (int i = 0; i <= sampleCount; i++)
+        {
+            float ratio = i / (float)sampleCount;
+            float x = Mathf.Lerp(startX, endX, ratio);
+            Vector2 origin = new(
+                x,
+                bounds.min.y + edgeProbeRadius + 0.08f);
+
+            RaycastHit2D hit = Physics2D.CircleCast(
+                origin,
+                edgeProbeRadius,
+                Vector2.down,
+                downDistance,
+                mask);
+
+            if (hit.collider == null || IsSelfCollider(hit.collider))
+                return false;
+        }
+
+        return true;
+    }
+
     private bool HasContinuousGroundPath(
         int direction,
         float horizontalSpeed)
@@ -901,18 +1172,20 @@ public class MonsterMovement : MonoBehaviour
             ? (2f * frogJumpPower) / gravity
             : frogJumpInterval;
 
-        float predictedDistance =
-            Mathf.Max(
-                edgeForwardDistance,
-                Mathf.Abs(horizontalSpeed) * flightTime);
+        float predictedDistance = Mathf.Max(
+            bodyCollider.bounds.extents.x + edgeForwardDistance,
+            Mathf.Abs(horizontalSpeed) * flightTime);
 
         Bounds bounds = bodyCollider.bounds;
         LayerMask mask =
             frogGroundLayer.value != 0
                 ? frogGroundLayer
-                : platformLayer;
+                : GetPlatformMask();
 
         int sampleCount = Mathf.Max(2, frogGroundPathSamples);
+        float downDistance = Mathf.Max(
+            edgeDownDistance,
+            frogGroundCheckDistance + 0.2f);
 
         for (int i = 1; i <= sampleCount; i++)
         {
@@ -920,21 +1193,130 @@ public class MonsterMovement : MonoBehaviour
             float x = bounds.center.x +
                       direction * predictedDistance * ratio;
 
-            Vector2 origin = new Vector2(
+            Vector2 origin = new(
                 x,
-                bounds.min.y + 0.15f);
+                bounds.min.y + edgeProbeRadius + 0.08f);
 
-            RaycastHit2D hit = Physics2D.Raycast(
+            RaycastHit2D hit = Physics2D.CircleCast(
                 origin,
+                edgeProbeRadius,
                 Vector2.down,
-                Mathf.Max(edgeDownDistance, frogGroundCheckDistance + 0.2f),
+                downDistance,
                 mask);
 
-            if (hit.collider == null)
+            if (hit.collider == null || IsSelfCollider(hit.collider))
                 return false;
         }
 
         return true;
+    }
+
+    private bool HasObstacleAhead(int direction)
+    {
+        if (bodyCollider == null || obstacleCheckDistance <= 0f)
+            return false;
+
+        Bounds bounds = bodyCollider.bounds;
+
+        Vector2 origin = new(
+            bounds.center.x +
+            direction * (bounds.extents.x + 0.015f),
+            bounds.center.y + bounds.extents.y * 0.05f);
+
+        Vector2 size = new(
+            0.04f,
+            Mathf.Max(0.08f, bounds.size.y * obstacleCheckHeightRatio));
+
+        RaycastHit2D[] hits = Physics2D.BoxCastAll(
+            origin,
+            size,
+            0f,
+            Vector2.right * direction,
+            obstacleCheckDistance,
+            GetPlatformMask());
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (hit.collider == null ||
+                hit.collider.isTrigger ||
+                IsSelfCollider(hit.collider))
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private LayerMask GetPlatformMask()
+    {
+        if (platformLayer.value != 0)
+            return platformLayer;
+
+        if (frogGroundLayer.value != 0)
+            return frogGroundLayer;
+
+        int groundLayerIndex = LayerMask.NameToLayer("Ground");
+        if (groundLayerIndex >= 0)
+            return 1 << groundLayerIndex;
+
+        return (LayerMask)Physics2D.DefaultRaycastLayers;
+    }
+
+    private bool IsSelfCollider(Collider2D collider)
+    {
+        return collider != null &&
+               (collider.transform == transform ||
+                collider.transform.IsChildOf(transform));
+    }
+
+    private float GetAdjustedSpeed(float baseSpeed)
+    {
+        float multiplier;
+        float maximum;
+
+        switch (monsterType)
+        {
+            case MonsterType.Snail:
+                multiplier = snailSpeedMultiplier;
+                maximum = snailMaxSpeed;
+                break;
+            case MonsterType.Ghost:
+                multiplier = ghostSpeedMultiplier;
+                maximum = ghostMaxSpeed;
+                break;
+            case MonsterType.Spider:
+                multiplier = spiderSpeedMultiplier;
+                maximum = spiderMaxSpeed;
+                break;
+            case MonsterType.Frog:
+                multiplier = frogSpeedMultiplier;
+                maximum = frogMaxSpeed;
+                break;
+            default:
+                multiplier = slimeSpeedMultiplier;
+                maximum = slimeMaxSpeed;
+                break;
+        }
+
+        return Mathf.Min(
+            Mathf.Max(0f, baseSpeed) * Mathf.Max(0f, multiplier),
+            Mathf.Max(0.1f, maximum));
+    }
+
+    private void MoveAdjusted(int direction, float adjustedSpeed)
+    {
+        switch (monsterType)
+        {
+            case MonsterType.Ghost:
+                MoveGhost(direction, adjustedSpeed);
+                break;
+            default:
+                MoveGround(direction, adjustedSpeed);
+                break;
+        }
     }
 
     private void SetHorizontalVelocity(float targetSpeed)
@@ -971,45 +1353,81 @@ public class MonsterMovement : MonoBehaviour
         }
     }
 
+    private void OnValidate()
+    {
+        acceleration = Mathf.Max(0f, acceleration);
+        edgeProbeRadius = Mathf.Max(0.01f, edgeProbeRadius);
+        obstacleCheckDistance = Mathf.Max(0.01f, obstacleCheckDistance);
+        frogJumpInterval = Mathf.Max(0.05f, frogJumpInterval);
+        frogJumpPower = Mathf.Max(0f, frogJumpPower);
+        frogGroundPathSamples = Mathf.Clamp(frogGroundPathSamples, 2, 12);
+        frogSafeSpeedSteps = Mathf.Clamp(frogSafeSpeedSteps, 2, 8);
+        snailMaxAttackTravel = Mathf.Max(0.1f, snailMaxAttackTravel);
+        frogMaxAttackTravel = Mathf.Max(0.1f, frogMaxAttackTravel);
+    }
+
     private void OnDrawGizmosSelected()
     {
         Collider2D collider =
             bodyCollider != null
                 ? bodyCollider
-                : GetComponent<Collider2D>();
+                : GetComponentInChildren<Collider2D>();
 
-        if (collider == null)
+        if (collider == null || collider.isTrigger)
             return;
 
         Bounds bounds = collider.bounds;
-
-        Gizmos.color = Color.cyan;
-        Vector3 groundOrigin = new Vector3(
-            bounds.center.x,
-            bounds.min.y + 0.04f,
-            transform.position.z);
-
-        Vector3 groundSize = new Vector3(
-            Mathf.Max(0.05f, bounds.size.x * frogGroundCheckWidth),
-            0.06f,
-            0f);
-
-        Gizmos.DrawWireCube(groundOrigin, groundSize);
-        Gizmos.DrawLine(
-            groundOrigin,
-            groundOrigin + Vector3.down * frogGroundCheckDistance);
+        int previewDirection = 1;
 
         Gizmos.color = Color.yellow;
-        Vector3 edgeOrigin = new Vector3(
+        Vector3 edgeOrigin = new(
             bounds.max.x + edgeForwardDistance,
-            bounds.min.y + 0.08f,
+            bounds.min.y + edgeProbeRadius + 0.03f,
             transform.position.z);
 
+        Gizmos.DrawWireSphere(edgeOrigin, edgeProbeRadius);
         Gizmos.DrawLine(
             edgeOrigin,
             edgeOrigin + Vector3.down *
             (monsterType == MonsterType.Ghost
                 ? floatingEdgeDownDistance
                 : edgeDownDistance));
+
+        Gizmos.color = Color.magenta;
+        Vector3 obstacleOrigin = new(
+            bounds.center.x +
+            previewDirection * (bounds.extents.x + 0.015f),
+            bounds.center.y + bounds.extents.y * 0.05f,
+            transform.position.z);
+
+        Vector3 obstacleSize = new(
+            0.04f,
+            Mathf.Max(0.08f, bounds.size.y * obstacleCheckHeightRatio),
+            0f);
+
+        Gizmos.DrawWireCube(obstacleOrigin, obstacleSize);
+        Gizmos.DrawLine(
+            obstacleOrigin,
+            obstacleOrigin +
+            Vector3.right * obstacleCheckDistance);
+
+        if (monsterType == MonsterType.Frog)
+        {
+            Gizmos.color = Color.cyan;
+            Vector3 groundOrigin = new(
+                bounds.center.x,
+                bounds.min.y + 0.04f,
+                transform.position.z);
+
+            Vector3 groundSize = new(
+                Mathf.Max(0.05f, bounds.size.x * frogGroundCheckWidth),
+                0.06f,
+                0f);
+
+            Gizmos.DrawWireCube(groundOrigin, groundSize);
+            Gizmos.DrawLine(
+                groundOrigin,
+                groundOrigin + Vector3.down * frogGroundCheckDistance);
+        }
     }
 }

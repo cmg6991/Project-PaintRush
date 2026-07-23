@@ -275,6 +275,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAI
   currentState: 0
   maxHp: 50
+  balanceProfile: {fileID: 11400000, guid: 5f07d1ba0c3e4b64c9234c87cd143d67, type: 2}
+  applyBalanceProfileOnAwake: 1
   patrolSpeed: 1.5
   chaseSpeed: 2.2
   detectRange: 4.5
@@ -285,31 +287,14 @@ MonoBehaviour:
   patrolRange: 10
   patrolTurnCooldown: 0.25
   randomStartDirection: 1
-  groundCheck: {fileID: 564165833680426708}
-  wallCheck: {fileID: 1572487863892376207}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  groundCheckDistance: 0.3
-  groundCheckRadius: 0.08
-  ghostEdgeLookAhead: 0.3
-  ghostGroundProbeDistance: 3
-  ghostGroundProbeRadius: 0.12
-  logGhostEdgeTurn: 0
-  wallCheckDistance: 0.15
-  wallCheckHeightRatio: 0.4
-  wallAvoidanceDuration: 0.6
-  frogWallSeparationDistance: 0.03
-  frogCollisionTurnLockDuration: 0.5
-  frogCollisionPushSpeed: 0.8
-  logFrogCollisionTurn: 1
-  frogForwardCheckDistance: 0.15
-  frogForwardCheckHeightRatio: 0.3
-  frogEdgeLookAhead: 0.2
-  logFrogPredictiveTurn: 0
+  obstacleTurnLockDuration: 0.6
   attackDamage: 1
   attackCooldown: 1.6
   attackTrigger: {fileID: 0}
+  slimeRangedAttack: {fileID: 0}
   blockPiranhaAttackWhilePlayerHanging: 1
   logBlockedPiranhaAttack: 0
   canRunAway: 1
@@ -333,7 +318,6 @@ MonoBehaviour:
   monsterHitSoundVolume: 1
   monsterHitPitchRange: {x: 0.95, y: 1.05}
   monsterHitSpatialBlend: 0
-  sparkleEffectPrefab: {fileID: 6532625474870085665, guid: 07a977963523b3b4dbcaa27119f6b469, type: 3}
   currentElement: 0
   redElementColor: {r: 1, g: 0, b: 0, a: 1}
   blueElementColor: {r: 0, g: 0, b: 1, a: 1}
@@ -344,13 +328,15 @@ MonoBehaviour:
   noticeIcon: {fileID: 129329972008183851}
   runAwayIcon: {fileID: 6730673250842525683}
   paletteIcon: {fileID: 0}
-  defaultDropPrefab: {fileID: 1719896524428501687, guid: 58db9cf4d4a698f4b9dc84b5ef96977b, type: 3}
+  defaultDropPrefab: {fileID: 0}
   redDropPrefab: {fileID: 1719896524428501687, guid: cdaf1545c2a684c46a3500ac3ef23ab5, type: 3}
   blueDropPrefab: {fileID: 1719896524428501687, guid: 493b3b82425a53d41927b7d6abcd5888, type: 3}
   yellowDropPrefab: {fileID: 1719896524428501687, guid: 1e07116d06f58514fb297434e702d62b, type: 3}
   greenDropPrefab: {fileID: 5051658664445571470, guid: bd51eacad49577d4ab77535719967194, type: 3}
   purpleDropPrefab: {fileID: 6863371975533239461, guid: 0314bdc30ee5dea40934f98540740735, type: 3}
   paintDropChance: 0.5
+  healthDropPrefab: {fileID: 8268438765250318584, guid: bbab21c8e5213c8458bea114d1130351, type: 3}
+  colorlessHealthDropChance: 1
   hasPaletteItem: 0
   paletteItemPrefab: {fileID: 0}
   player: {fileID: 0}
@@ -376,6 +362,11 @@ MonoBehaviour:
   ghostSpeedMultiplier: 0.55
   spiderSpeedMultiplier: 0.75
   frogSpeedMultiplier: 0.9
+  slimeMaxSpeed: 1.8
+  snailMaxSpeed: 0.9
+  ghostMaxSpeed: 2.4
+  spiderMaxSpeed: 3.8
+  frogMaxSpeed: 2
   ghostFloatHeight: 0.35
   ghostFloatFrequency: 2
   ghostVerticalCorrection: 5
@@ -386,24 +377,31 @@ MonoBehaviour:
   piranhaEngageDistance: 2.5
   piranhaReturnSpeed: 3
   piranhaReturnThreshold: 0.08
-  frogGroundCheck: {fileID: 564165833680426708}
   frogGroundLayer:
     serializedVersion: 2
     m_Bits: 8
   frogGroundCheckDistance: 0.18
   frogGroundCheckWidth: 0.7
   frogGroundedMaxUpSpeed: 0.05
-  frogJumpPower: 5
-  frogJumpInterval: 0.8
+  frogJumpPower: 4
+  frogJumpInterval: 1.3
   edgeForwardDistance: 0.12
   edgeDownDistance: 0.6
   floatingEdgeDownDistance: 3
+  edgeProbeRadius: 0.08
+  obstacleCheckDistance: 0.14
+  obstacleCheckHeightRatio: 0.55
   frogGroundPathSamples: 6
+  preventFrogFromLeavingPlatform: 1
+  frogSafeSpeedSteps: 5
+  allowFrogVerticalHopWhenTrapped: 1
   slimeAttackCooldownMultiplier: 1
   snailAttackCooldownMultiplier: 1.35
   ghostAttackCooldownMultiplier: 0.9
   spiderAttackCooldownMultiplier: 0.7
   frogAttackCooldownMultiplier: 1.2
+  snailMaxAttackTravel: 0.75
+  frogMaxAttackTravel: 1
   slimeAttack:
     windupTime: 0.12
     windupDistance: 0.18
@@ -480,6 +478,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00b52dc1544996b4f82898db72c4d51a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FillColor
+  sameColorTolerance: 0.12
+  fullThreshold: 0.999
   feverLight: {fileID: 0}
   minIntensity: 0.5
   maxIntensity: 2
