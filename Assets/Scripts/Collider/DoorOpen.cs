@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 문 개방 조건을 관리합니다.
-/// 조건 1: 피라냐를 제외한 몬스터의 지정 비율 이상 처치.
-/// 조건 2: 현재 스테이지에 필요한 모든 색을 문에 한 번씩 칠하기.
+/// 문 개방 조건과 준비 상태를 관리합니다.
+/// 조건이 완료되면 문은 즉시 씬을 이동시키지 않고 Ready 상태가 되며,
+/// 실제 열림 애니메이션과 씬 전환은 DoorStageTransition이 담당합니다.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class DoorOpen : MonoBehaviour
@@ -17,26 +17,28 @@ public sealed class DoorOpen : MonoBehaviour
     [Header("몬스터 조건")]
     [SerializeField, Range(0f, 1f)]
     private float requiredKillRatio = 0.7f;
+    [Tooltip("스포너 등록 전에 총 몬스터 수가 0인 순간 문이 준비되는 것을 막습니다.")]
+    [SerializeField] private bool requireAtLeastOneKillableMonster = true;
 
     [Header("색상 조건")]
-    [Tooltip("켜면 StagePaletteManager의 Paint Requirements를 문 필수 색으로 사용합니다.")]
-    [SerializeField]
-    private bool useStagePaletteRequirements = true;
+    [SerializeField] private bool useStagePaletteRequirements = true;
+    [SerializeField] private List<ElementType> requiredElements = new();
+    [SerializeField, Min(0.001f)] private float colorTolerance = 0.15f;
 
-    [Tooltip("StagePaletteManager를 사용하지 않을 때 직접 지정할 필수 색입니다.")]
-    [SerializeField]
-    private List<ElementType> requiredElements = new();
-
-    [SerializeField, Min(0.001f)]
-    private float colorTolerance = 0.15f;
-
-    [Header("문 열림 연출")]
+    [Header("문 상태 연출")]
     [SerializeField] private Animator animator;
+    [Tooltip("Animator에 해당 Bool 파라미터가 있을 때 Ready 상태에서 켭니다.")]
+    [SerializeField] private string readyBool = "Ready";
+    [Tooltip("E 상호작용을 시작할 때 실행할 열림 Trigger입니다.")]
     [SerializeField] private string openTrigger = "Open";
+    [Tooltip("조건 완료 시 문 위 반짝임, 화살표 등의 표시입니다.")]
+    [SerializeField] private GameObject readyIndicator;
+    [Tooltip("실제 문 열림을 시작할 때 비활성화할 물리 Collider입니다.")]
     [SerializeField] private List<Collider2D> collidersToDisable = new();
 
     [Header("런타임 확인")]
     [SerializeField] private bool isOpened;
+    [SerializeField] private bool isTransitioning;
     [SerializeField] private List<ElementType> paintedElements = new();
 
     private readonly List<ElementType> resolvedRequiredElements = new();
@@ -45,51 +47,45 @@ public sealed class DoorOpen : MonoBehaviour
     private bool monsterSubscribed;
     private bool paletteSubscribed;
 
+    /// <summary>조건을 모두 완료해 문 사용이 가능하거나 이미 전환 중인 상태입니다.</summary>
     public bool IsOpened => isOpened;
+    public bool IsReady => isOpened && !isTransitioning;
+    public bool IsTransitioning => isTransitioning;
+
     public float RequiredKillRatio => requiredKillRatio;
-    public IReadOnlyList<ElementType> RequiredElements =>
-        resolvedRequiredElements;
-    public IReadOnlyList<ElementType> PaintedElements =>
-        paintedElements;
+    public IReadOnlyList<ElementType> RequiredElements => resolvedRequiredElements;
+    public IReadOnlyList<ElementType> PaintedElements => paintedElements;
 
     public int TotalKillableCount =>
-        monsterManager != null
-            ? monsterManager.TotalKillableCount
-            : 0;
+        monsterManager != null ? monsterManager.TotalKillableCount : 0;
 
     public int RequiredKillCount =>
         monsterManager != null
-            ? monsterManager.CalculateRequiredKills(
-                requiredKillRatio)
+            ? monsterManager.CalculateRequiredKills(requiredKillRatio)
             : 0;
 
     public int KillableKillCount =>
-        monsterManager != null
-            ? monsterManager.KillableKillCount
-            : 0;
+        monsterManager != null ? monsterManager.KillableKillCount : 0;
 
     public int CompletedKillCount =>
-        Mathf.Min(
-            KillableKillCount,
-            RequiredKillCount);
+        Mathf.Min(KillableKillCount, RequiredKillCount);
 
     public int RemainingKillCount =>
         monsterManager != null
-            ? monsterManager.CalculateRemainingRequiredKills(
-                requiredKillRatio)
+            ? monsterManager.CalculateRemainingRequiredKills(requiredKillRatio)
             : 0;
 
     public bool IsKillConditionMet =>
         monsterManager != null &&
-        monsterManager.IsKillRequirementMet(
-            requiredKillRatio);
+        (!requireAtLeastOneKillableMonster ||
+         monsterManager.TotalKillableCount > 0) &&
+        monsterManager.IsKillRequirementMet(requiredKillRatio);
 
     public bool IsColorConditionMet
     {
         get
         {
-            foreach (ElementType element in
-                     resolvedRequiredElements)
+            foreach (ElementType element in resolvedRequiredElements)
             {
                 if (!paintedElementSet.Contains(element))
                     return false;
@@ -100,6 +96,13 @@ public sealed class DoorOpen : MonoBehaviour
     }
 
     public event Action OnConditionChanged;
+    public event Action OnDoorReady;
+    public event Action OnTransitionStarted;
+
+    /// <summary>
+    /// 이전 코드 호환용입니다. 이제 조건 완료 시점이 아니라
+    /// 실제 E 상호작용으로 문 열림이 시작될 때 호출됩니다.
+    /// </summary>
     public event Action OnDoorOpened;
 
     private void Awake()
@@ -107,6 +110,7 @@ public sealed class DoorOpen : MonoBehaviour
         RestorePaintedElementSet();
         ResolveReferences();
         RebuildRequiredElements();
+        RefreshReadyVisual();
     }
 
     private void OnEnable()
@@ -119,7 +123,6 @@ public sealed class DoorOpen : MonoBehaviour
 
     private void Start()
     {
-        // 실행 순서상 Manager가 OnEnable 이후 생성된 경우를 보완합니다.
         ResolveReferences();
         Subscribe();
         RebuildRequiredElements();
@@ -133,9 +136,7 @@ public sealed class DoorOpen : MonoBehaviour
 
     public bool AddPaintColor(Color color)
     {
-        return TryResolveElement(
-                   color,
-                   out ElementType element) &&
+        return TryResolveElement(color, out ElementType element) &&
                AddPaintElement(element);
     }
 
@@ -152,10 +153,8 @@ public sealed class DoorOpen : MonoBehaviour
         paintedElements.Add(element);
 
         Debug.Log(
-            $"문 색상 진행도: " +
-            $"{paintedElementSet.Count}/" +
-            $"{resolvedRequiredElements.Count} " +
-            $"({element})");
+            $"문 색상 진행도: {paintedElementSet.Count}/" +
+            $"{resolvedRequiredElements.Count} ({element})");
 
         RefreshAndCheck();
         return true;
@@ -171,30 +170,75 @@ public sealed class DoorOpen : MonoBehaviour
         return paintedElementSet.Contains(element);
     }
 
+    /// <summary>
+    /// DoorStageTransition이 E 입력을 받았을 때 호출합니다.
+    /// 문 열림 애니메이션을 실행하고 중복 입력을 차단합니다.
+    /// </summary>
+    public void BeginTransition()
+    {
+        if (isTransitioning)
+            return;
+
+        isTransitioning = true;
+
+        Debug.Log(
+            $"[Door] BeginTransition 호출됨 / " +
+            $"Animator={animator} / Trigger={openTrigger}",
+            this
+        );
+
+        if (readyIndicator != null)
+            readyIndicator.SetActive(false);
+
+        if (animator != null)
+        {
+            if (!string.IsNullOrWhiteSpace(readyBool))
+                animator.SetBool(readyBool, false);
+
+            if (!string.IsNullOrWhiteSpace(openTrigger))
+            {
+                animator.ResetTrigger(openTrigger);
+                animator.SetTrigger(openTrigger);
+
+                Debug.Log(
+                    $"[Door] Open 트리거 실행: {openTrigger}",
+                    this
+                );
+            }
+        }
+        else
+        {
+            Debug.LogError(
+                "[Door] Animator가 연결되지 않았습니다.",
+                this
+            );
+        }
+
+        foreach (Collider2D colliderToDisable in collidersToDisable)
+        {
+            if (colliderToDisable != null)
+                colliderToDisable.enabled = false;
+        }
+    }
+
     private void ResolveReferences()
     {
-        monsterManager ??=
-            MonsterManager.Instance;
-
-        monsterManager ??=
-            FindAnyObjectByType<MonsterManager>();
+        monsterManager ??= MonsterManager.Instance;
+        monsterManager ??= FindAnyObjectByType<MonsterManager>();
 
         if (paletteManager == null ||
             paletteManager.gameObject.scene != gameObject.scene)
         {
-            paletteManager =
-                StagePaletteManager.FindForScene(this);
+            paletteManager = StagePaletteManager.FindForScene(this);
         }
     }
 
     private void Subscribe()
     {
-        if (!monsterSubscribed &&
-            monsterManager != null)
+        if (!monsterSubscribed && monsterManager != null)
         {
             monsterManager.OnMonsterProgressChanged +=
                 HandleMonsterProgressChanged;
-
             monsterSubscribed = true;
         }
 
@@ -204,22 +248,19 @@ public sealed class DoorOpen : MonoBehaviour
         {
             paletteManager.OnPaletteStateChanged +=
                 HandlePaletteStateChanged;
-
             paletteSubscribed = true;
         }
     }
 
     private void Unsubscribe()
     {
-        if (monsterSubscribed &&
-            monsterManager != null)
+        if (monsterSubscribed && monsterManager != null)
         {
             monsterManager.OnMonsterProgressChanged -=
                 HandleMonsterProgressChanged;
         }
 
-        if (paletteSubscribed &&
-            paletteManager != null)
+        if (paletteSubscribed && paletteManager != null)
         {
             paletteManager.OnPaletteStateChanged -=
                 HandlePaletteStateChanged;
@@ -244,14 +285,12 @@ public sealed class DoorOpen : MonoBehaviour
     {
         resolvedRequiredElements.Clear();
 
-        if (useStagePaletteRequirements &&
-            paletteManager != null)
+        if (useStagePaletteRequirements && paletteManager != null)
         {
-            foreach (StagePaletteManager.PaintRequirement
-                     requirement in paletteManager.Requirements)
+            foreach (StagePaletteManager.PaintRequirement requirement in
+                     paletteManager.Requirements)
             {
-                AddRequiredElement(
-                    requirement.Element);
+                AddRequiredElement(requirement.Element);
             }
         }
 
@@ -262,8 +301,7 @@ public sealed class DoorOpen : MonoBehaviour
         }
 
         paintedElements.RemoveAll(
-            element =>
-                !resolvedRequiredElements.Contains(element));
+            element => !resolvedRequiredElements.Contains(element));
 
         RestorePaintedElementSet();
     }
@@ -281,9 +319,7 @@ public sealed class DoorOpen : MonoBehaviour
     {
         paintedElementSet.Clear();
 
-        for (int i = paintedElements.Count - 1;
-             i >= 0;
-             i--)
+        for (int i = paintedElements.Count - 1; i >= 0; i--)
         {
             ElementType element = paintedElements[i];
 
@@ -295,22 +331,14 @@ public sealed class DoorOpen : MonoBehaviour
         }
     }
 
-    private bool TryResolveElement(
-        Color color,
-        out ElementType resolved)
+    private bool TryResolveElement(Color color, out ElementType resolved)
     {
         resolved = ElementType.None;
+        float nearestDistance = float.PositiveInfinity;
 
-        float nearestDistance =
-            float.PositiveInfinity;
-
-        foreach (ElementType candidate in
-                 resolvedRequiredElements)
+        foreach (ElementType candidate in resolvedRequiredElements)
         {
-            float distance =
-                GetElementColorDistance(
-                    color,
-                    candidate);
+            float distance = GetElementColorDistance(color, candidate);
 
             if (distance >= nearestDistance)
                 continue;
@@ -326,63 +354,43 @@ public sealed class DoorOpen : MonoBehaviour
         }
 
         resolved = ElementType.None;
-
-        Debug.Log(
-            $"문 색상 판정 실패. " +
-            $"입력=({color.r:F3}, {color.g:F3}, {color.b:F3}), " +
-            $"tolerance={colorTolerance:F3}");
-
         return false;
     }
 
-    private float GetElementColorDistance(
-        Color input,
-        ElementType element)
+    private float GetElementColorDistance(Color input, ElementType element)
     {
         float canonicalDistance =
-            ColorDistance(
-                input,
-                GetCanonicalElementColor(element));
+            ColorDistance(input, GetCanonicalElementColor(element));
 
         if (paletteManager == null)
             return canonicalDistance;
 
-        float gaugeDistance =
-            ColorDistance(
-                input,
-                paletteManager.GetElementGaugeColor(
-                    element));
+        float gaugeDistance = ColorDistance(
+            input,
+            paletteManager.GetElementGaugeColor(element));
 
-        return Mathf.Min(
-            canonicalDistance,
-            gaugeDistance);
+        return Mathf.Min(canonicalDistance, gaugeDistance);
     }
 
-    private static Color GetCanonicalElementColor(
-        ElementType element)
+    private static Color GetCanonicalElementColor(ElementType element)
     {
         return element switch
         {
             ElementType.Red => Color.red,
             ElementType.Blue => Color.blue,
             ElementType.Yellow => Color.yellow,
-            ElementType.Green =>
-                new Color(0f, 1f, 0f, 1f),
-            ElementType.Purple =>
-                new Color(170f / 255f, 0f, 1f, 1f),
+            ElementType.Green => new Color(0f, 1f, 0f, 1f),
+            ElementType.Purple => new Color(170f / 255f, 0f, 1f, 1f),
             _ => Color.white
         };
     }
 
-    private static float ColorDistance(
-        Color first,
-        Color second)
+    private static float ColorDistance(Color first, Color second)
     {
-        Vector3 difference =
-            new(
-                first.r - second.r,
-                first.g - second.g,
-                first.b - second.b);
+        Vector3 difference = new(
+            first.r - second.r,
+            first.g - second.g,
+            first.b - second.b);
 
         return difference.magnitude;
     }
@@ -395,29 +403,70 @@ public sealed class DoorOpen : MonoBehaviour
             IsKillConditionMet &&
             IsColorConditionMet)
         {
-            OpenDoor();
+            SetDoorReady();
         }
     }
 
-    private void OpenDoor()
+    private void SetDoorReady()
     {
         isOpened = true;
+        isTransitioning = false;
 
-        if (animator != null &&
-            !string.IsNullOrWhiteSpace(openTrigger))
-        {
-            animator.SetTrigger(openTrigger);
-        }
+        SetAnimatorBool(readyBool, true);
+        RefreshReadyVisual();
 
-        foreach (Collider2D target in collidersToDisable)
-        {
-            if (target != null)
-                target.enabled = false;
-        }
-
-        Debug.Log("문이 열립니다!");
+        Debug.Log("문 조건 완료! 문 앞에서 E키로 다음 스테이지로 이동할 수 있습니다.");
 
         OnConditionChanged?.Invoke();
-        OnDoorOpened?.Invoke();
+        OnDoorReady?.Invoke();
+    }
+
+    private void RefreshReadyVisual()
+    {
+        if (readyIndicator != null)
+            readyIndicator.SetActive(IsReady);
+    }
+
+    private void SetAnimatorBool(string parameterName, bool value)
+    {
+        if (animator == null ||
+            string.IsNullOrWhiteSpace(parameterName) ||
+            !HasAnimatorParameter(parameterName, AnimatorControllerParameterType.Bool))
+        {
+            return;
+        }
+
+        animator.SetBool(parameterName, value);
+    }
+
+    private void SetAnimatorTrigger(string parameterName)
+    {
+        if (animator == null ||
+            string.IsNullOrWhiteSpace(parameterName) ||
+            !HasAnimatorParameter(parameterName, AnimatorControllerParameterType.Trigger))
+        {
+            return;
+        }
+
+        animator.SetTrigger(parameterName);
+    }
+
+    private bool HasAnimatorParameter(
+        string parameterName,
+        AnimatorControllerParameterType type)
+    {
+        foreach (AnimatorControllerParameter parameter in animator.parameters)
+        {
+            if (parameter.type == type && parameter.name == parameterName)
+                return true;
+        }
+
+        return false;
+    }
+
+    private void OnValidate()
+    {
+        requiredKillRatio = Mathf.Clamp01(requiredKillRatio);
+        colorTolerance = Mathf.Max(0.001f, colorTolerance);
     }
 }

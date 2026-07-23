@@ -1,96 +1,69 @@
 using UnityEngine;
 
 /// <summary>
-/// 몬스터가 드롭하는 색상 물감 아이템.
+/// 몬스터가 떨어뜨리는 물감 아이템입니다.
 ///
-/// 동작 순서:
-/// 1. 생성 직후 Dynamic Rigidbody2D로 바닥에 떨어진다.
-/// 2. Ground에 착지하면 Kinematic으로 전환한 뒤 둥둥 떠 있는다.
-/// 3. 플레이어가 획득 가능한 상태에서 Magnet Range 안으로 들어오면 끌려간다.
-/// 4. Collect Distance 안에 도달하면 총 또는 팔레트에 색을 등록한다.
+/// 획득 우선순위:
+/// 1. 총이 비어 있음: 총에 새 색을 가득 충전합니다.
+/// 2. 총에 같은 색이 조금 남음: 총만 가득 재충전합니다.
+/// 3. 총이 같은 색으로 가득 참: 팔레트 조건을 만족하면 팔레트에 저장합니다.
+/// 4. 총과 다른 색: 총은 유지하고 팔레트 조건을 만족하면 피버 게이지/수량에 저장합니다.
+///
+/// 총 충전에 사용된 물감은 StagePaletteManager에 등록하지 않으므로
+/// 피버 게이지와 팔레트 물감 수가 증가하지 않습니다.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
+[DisallowMultipleComponent]
 public class ColorDropItem : MonoBehaviour
 {
-    [Header("물감 정보")]
-    [Tooltip("팔레트 시스템에서 사용할 색상 ID. 예: Red, Blue, Yellow")]
-    [SerializeField]
-    private string colorId = "Red";
+    private enum ReceiveRoute
+    {
+        None,
+        FillEmptyGun,
+        RefillSameColorGun,
+        StoreInPalette
+    }
 
-    [Tooltip("플레이어 총에 실제로 적용할 색")]
-    [SerializeField]
-    private Color paintColor = Color.red;
+    [Header("물감 정보")]
+    [SerializeField] private string colorId = "Red";
+    [SerializeField] private Color paintColor = Color.red;
 
     [Header("바닥 물리")]
-    [Tooltip("아이템이 착지할 바닥 레이어")]
-    [SerializeField]
-    private LayerMask groundLayer;
-
-    [Tooltip("생성 직후 아이템에 적용할 중력")]
-    [SerializeField, Min(0f)]
-    private float fallingGravityScale = 1f;
-
-    [Tooltip("바닥에 닿은 뒤 위쪽으로 약간 띄울 높이")]
-    [SerializeField, Min(0f)]
-    private float landingLift = 0.03f;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField, Min(0f)] private float fallingGravityScale = 1f;
+    [SerializeField, Min(0f)] private float landingLift = 0.03f;
 
     [Header("둥둥 연출")]
-    [SerializeField, Min(0f)]
-    private float floatSpeed = 3f;
-
-    [Tooltip("바닥 위에서 떠오르는 높이")]
-    [SerializeField, Min(0f)]
-    private float floatAmount = 0.12f;
+    [SerializeField, Min(0f)] private float floatSpeed = 3f;
+    [SerializeField, Min(0f)] private float floatAmount = 0.12f;
 
     [Header("자석 범위")]
-    [Tooltip("이 거리 안에 플레이어가 들어오면 끌려가기 시작")]
-    [SerializeField, Min(0.1f)]
-    private float magnetRange = 2.5f;
+    [SerializeField, Min(0.1f)] private float magnetRange = 2.5f;
+    [SerializeField, Min(0.01f)] private float collectDistance = 0.35f;
 
-    [Tooltip("플레이어 중심과 이 거리 이내가 되면 획득")]
-    [SerializeField, Min(0.01f)]
-    private float collectDistance = 0.35f;
-
-    [Header("자석 이동 속도")]
-    [SerializeField, Min(0f)]
-    private float initialPullSpeed = 2f;
-
-    [SerializeField, Min(0f)]
-    private float maximumPullSpeed = 12f;
-
-    [SerializeField, Min(0f)]
-    private float pullAcceleration = 18f;
-
-    [Header("자석 이동 연출")]
-    [Tooltip("끌려가면서 좌우로 흔들리는 정도")]
-    [SerializeField, Min(0f)]
-    private float pullWobbleAmount = 0.08f;
-
-    [SerializeField, Min(0f)]
-    private float pullWobbleSpeed = 18f;
+    [Header("자석 이동")]
+    [SerializeField, Min(0f)] private float initialPullSpeed = 2f;
+    [SerializeField, Min(0f)] private float maximumPullSpeed = 12f;
+    [SerializeField, Min(0f)] private float pullAcceleration = 18f;
+    [SerializeField, Min(0f)] private float pullWobbleAmount = 0.08f;
+    [SerializeField, Min(0f)] private float pullWobbleSpeed = 18f;
 
     [Header("참조")]
-    [Tooltip("비워두면 씬에서 자동으로 탐색")]
-    [SerializeField]
-    private StagePaletteManager paletteManager;
+    [SerializeField] private StagePaletteManager paletteManager;
+    [SerializeField] private bool showDebugLogs;
 
     private Rigidbody2D rb;
     private Collider2D itemCollider;
-
     private Transform playerTransform;
     private Collider2D playerBodyCollider;
     private FillColor gunFillColor;
 
-    private RigidbodyType2D initialBodyType;
-
     private bool isGrounded;
     private bool isBeingPulled;
     private bool isCollected;
-
     private float pullSpeed;
     private float pullStartTime;
-
     private Vector2 hoverBasePosition;
 
     public string ColorId => colorId;
@@ -101,16 +74,13 @@ public class ColorDropItem : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         itemCollider = GetComponent<Collider2D>();
 
-        initialBodyType = rb.bodyType;
-
         ConfigureInitialPhysics();
 
         if (itemCollider.isTrigger)
         {
             Debug.LogWarning(
-                $"{gameObject.name}: 바닥 충돌을 위해 " +
-                "ColorDropItem의 Collider2D Is Trigger를 해제해야 합니다."
-            );
+                $"{name}: ColorDropItem Collider2D의 Is Trigger를 해제해야 " +
+                "바닥에 정상적으로 착지합니다.");
         }
     }
 
@@ -123,28 +93,19 @@ public class ColorDropItem : MonoBehaviour
     private void Update()
     {
         if (isCollected)
-        {
             return;
-        }
 
-        if (playerTransform == null ||
-            gunFillColor == null)
-        {
+        if (playerTransform == null || gunFillColor == null)
             FindPlayerReferences();
-        }
 
         if (!isBeingPulled)
-        {
             TryStartPull();
-        }
     }
 
     private void FixedUpdate()
     {
         if (isCollected)
-        {
             return;
-        }
 
         if (isBeingPulled)
         {
@@ -154,9 +115,23 @@ public class ColorDropItem : MonoBehaviour
         }
 
         if (isGrounded)
-        {
             UpdateFloatingMovement();
-        }
+    }
+
+    public void StartMagnet(Transform target, float startSpeed)
+    {
+        if (isCollected || isBeingPulled || target == null)
+            return;
+
+        if (ResolveReceiveRoute() == ReceiveRoute.None)
+            return;
+
+        BeginPull(target, startSpeed);
+    }
+
+    public void StartMagnet(Transform target)
+    {
+        StartMagnet(target, initialPullSpeed);
     }
 
     private void ConfigureInitialPhysics()
@@ -170,165 +145,69 @@ public class ColorDropItem : MonoBehaviour
 
     private void TryStartPull()
     {
-        if (playerTransform == null)
-        {
-            Debug.LogWarning(
-                $"[물감 드롭/{colorId}] Player 태그 오브젝트를 찾지 못함"
-            );
+        if (playerTransform == null || gunFillColor == null)
             return;
-        }
 
-        if (gunFillColor == null)
-        {
-            Debug.LogWarning(
-                $"[물감 드롭/{colorId}] 플레이어 자식에서 FillColor를 찾지 못함"
-            );
+        if (ResolveReceiveRoute() == ReceiveRoute.None)
             return;
-        }
-
-        ResolvePaletteManager();
-
-        bool gunHasColor = gunFillColor.HasColor;
-        bool hasPalette =
-            paletteManager != null &&
-            paletteManager.HasPaletteItem;
 
         float distance = Vector2.Distance(
             rb.position,
-            GetPlayerTargetPosition()
-        );
+            GetPlayerTargetPosition());
 
-        //Debug.Log(
-        //    $"[물감 드롭/{colorId}] " +
-        //    $"거리={distance:F2}, " +
-        //    $"자석범위={magnetRange:F2}, " +
-        //    $"총색상={gunHasColor}, " +
-        //    $"팔레트={hasPalette}"
-        //);
-
-        if (!CanPlayerReceiveItem())
-        {
-            return;
-        }
-
-        if (distance > magnetRange)
-        {
-            return;
-        }
-
-        BeginPull(
-            playerTransform,
-            initialPullSpeed
-        );
+        if (distance <= magnetRange)
+            BeginPull(playerTransform, initialPullSpeed);
     }
 
-    /// <summary>
-    /// 기존 PlayerMagnet 등의 외부 스크립트가 호출할 수 있는 함수.
-    /// </summary>
-    public void StartMagnet(
-        Transform target,
-        float startSpeed)
+    private ReceiveRoute ResolveReceiveRoute()
     {
-        if (isCollected ||
-            isBeingPulled ||
-            target == null)
+        if (gunFillColor == null || gunFillColor.IsFever)
+            return ReceiveRoute.None;
+
+        if (!gunFillColor.HasColor)
+            return ReceiveRoute.FillEmptyGun;
+
+        bool sameColor =
+            gunFillColor.IsSameColor(paintColor);
+
+        // 같은 색이고 총이 덜 찼을 때만 총을 우선 재충전합니다.
+        if (sameColor && !gunFillColor.IsFull)
+            return ReceiveRoute.RefillSameColorGun;
+
+        ResolvePaletteManager();
+
+        // 총과 다른 색이거나, 같은 색이지만 총이 이미 가득 찬 경우:
+        // 팔레트를 보유했고 현재 스테이지 허용 색이면 피버 게이지/수량으로 보냅니다.
+        if (paletteManager != null &&
+            paletteManager.HasPaletteItem &&
+            paletteManager.IsRequiredColor(colorId))
         {
-            return;
+            return ReceiveRoute.StoreInPalette;
         }
 
-        if (!CanPlayerReceiveItem())
-        {
-            return;
-        }
-
-        BeginPull(target, startSpeed);
+        return ReceiveRoute.None;
     }
 
-    /// <summary>
-    /// 속도 인자를 전달하지 않는 기존 코드와의 호환용.
-    /// </summary>
-    public void StartMagnet(Transform target)
-    {
-        StartMagnet(
-            target,
-            initialPullSpeed
-        );
-    }
-
-    private void BeginPull(
-        Transform target,
-        float startSpeed)
+    private void BeginPull(Transform target, float startSpeed)
     {
         playerTransform = target;
-
         isBeingPulled = true;
         isGrounded = false;
-
-        pullSpeed = Mathf.Max(
-            0f,
-            startSpeed
-        );
-
+        pullSpeed = Mathf.Max(0f, startSpeed);
         pullStartTime = Time.time;
 
-        // 물리 충돌의 영향을 받지 않고
-        // 플레이어를 향해 이동하도록 Kinematic으로 전환한다.
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.gravityScale = 0f;
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
 
-        Debug.Log(
-            $"[물감 드롭] {colorId} 아이템이 " +
-            "플레이어에게 끌려가기 시작합니다."
-        );
-    }
-
-    private bool CanPlayerReceiveItem()
-    {
-        if (gunFillColor == null)
-        {
-            return false;
-        }
-
-        // 총에 색이 없으면 물감을 총에 채울 수 있다.
-        if (!gunFillColor.HasColor)
-        {
-            return true;
-        }
-
-        ResolvePaletteManager();
-
-        // 총에 색이 있는 경우에는
-        // 팔레트를 장착해야 색을 등록할 수 있다.
-        if (paletteManager == null ||
-            !paletteManager.HasPaletteItem)
-        {
-            return false;
-        }
-
-        if (!paletteManager.IsRequiredColor(colorId))
-        {
-            return false;
-        }
-
-        if (paletteManager.IsColorCollected(colorId))
-        {
-            return false;
-        }
-
-        return true;
+        if (showDebugLogs)
+            Debug.Log($"[물감 드롭] {colorId} 끌어오기 시작");
     }
 
     private void UpdatePullMovement()
     {
-        if (playerTransform == null)
-        {
-            CancelPull();
-            return;
-        }
-
-        if (!CanPlayerReceiveItem())
+        if (playerTransform == null || ResolveReceiveRoute() == ReceiveRoute.None)
         {
             CancelPull();
             return;
@@ -336,47 +215,25 @@ public class ColorDropItem : MonoBehaviour
 
         pullSpeed = Mathf.Min(
             maximumPullSpeed,
-            pullSpeed +
-            pullAcceleration *
-            Time.fixedDeltaTime
-        );
+            pullSpeed + pullAcceleration * Time.fixedDeltaTime);
 
         Vector2 currentPosition = rb.position;
-        Vector2 targetPosition =
-            GetPlayerTargetPosition();
+        Vector2 targetPosition = GetPlayerTargetPosition();
+        Vector2 direction = targetPosition - currentPosition;
 
-        Vector2 direction =
-            targetPosition - currentPosition;
-
-        if (direction.sqrMagnitude >
-            0.0001f)
-        {
+        if (direction.sqrMagnitude > 0.0001f)
             direction.Normalize();
-        }
 
-        Vector2 perpendicular =
-            new Vector2(
-                -direction.y,
-                direction.x
-            );
+        Vector2 perpendicular = new(-direction.y, direction.x);
+        float wobble = Mathf.Sin(
+            (Time.time - pullStartTime) * pullWobbleSpeed) *
+            pullWobbleAmount;
 
-        float wobble =
-            Mathf.Sin(
-                (Time.time - pullStartTime) *
-                pullWobbleSpeed
-            ) * pullWobbleAmount;
-
-        Vector2 curvedTarget =
-            targetPosition +
-            perpendicular * wobble;
-
-        Vector2 nextPosition =
-            Vector2.MoveTowards(
-                currentPosition,
-                curvedTarget,
-                pullSpeed *
-                Time.fixedDeltaTime
-            );
+        Vector2 curvedTarget = targetPosition + perpendicular * wobble;
+        Vector2 nextPosition = Vector2.MoveTowards(
+            currentPosition,
+            curvedTarget,
+            pullSpeed * Time.fixedDeltaTime);
 
         rb.MovePosition(nextPosition);
     }
@@ -384,270 +241,158 @@ public class ColorDropItem : MonoBehaviour
     private void CheckCollectDistance()
     {
         if (playerTransform == null)
-        {
             return;
-        }
 
-        float distance = Vector2.Distance(
-            rb.position,
-            GetPlayerTargetPosition()
-        );
-
-        if (distance >
-            collectDistance)
-        {
-            return;
-        }
-
-        TryCollect();
+        if (Vector2.Distance(rb.position, GetPlayerTargetPosition()) <= collectDistance)
+            TryCollect();
     }
 
     private void TryCollect()
     {
-        if (isCollected ||
-            gunFillColor == null)
-        {
+        if (isCollected || gunFillColor == null)
             return;
-        }
 
-        /*
-         * 총이 비어 있는 상태에서 먹은 물감은
-         * 오직 총 충전에만 사용합니다.
-         *
-         * 이 분기에서는 StagePaletteManager.RegisterColor /
-         * RegisterPaint를 절대 호출하지 않으므로
-         * 피버 게이지와 물감 개수가 증가하지 않습니다.
-         */
-        if (!gunFillColor.HasColor)
+        ReceiveRoute route = ResolveReceiveRoute();
+        bool collected = route switch
         {
-            TryFillEmptyGun();
-            return;
-        }
+            ReceiveRoute.FillEmptyGun => TryChargeGun("빈 총 충전"),
+            ReceiveRoute.RefillSameColorGun => TryChargeGun("같은 색 재충전"),
+            ReceiveRoute.StoreInPalette => TryStoreInPalette(),
+            _ => false
+        };
 
-        /*
-         * 총에 이미 색이 있을 때만
-         * 팔레트 수집 대상으로 처리합니다.
-         */
-        TryStorePaintInPalette();
-    }
-
-    private void TryFillEmptyGun()
-    {
-        bool colorApplied =
-            gunFillColor.SetColor(paintColor);
-
-        if (!colorApplied)
-        {
+        if (collected)
+            CompleteCollection();
+        else
             CancelPull();
-            return;
-        }
-
-        Debug.Log(
-            $"[물감 드롭] 총이 비어 있어 " +
-            $"{colorId} 색을 총에만 채웠습니다. " +
-            "피버 게이지에는 반영하지 않습니다.");
-
-        CompleteCollection();
     }
 
-    private void TryStorePaintInPalette()
+    private bool TryChargeGun(string reason)
+    {
+        bool charged = gunFillColor.TryFillOrRefill(paintColor);
+
+        if (charged && showDebugLogs)
+        {
+            Debug.Log(
+                $"[물감 드롭] {colorId}: {reason}. " +
+                "팔레트 및 피버 게이지에는 반영하지 않음");
+        }
+
+        return charged;
+    }
+
+    private bool TryStoreInPalette()
     {
         ResolvePaletteManager();
 
-        if (paletteManager == null ||
-            !paletteManager.HasPaletteItem)
-        {
-            Debug.Log(
-                $"[물감 드롭] 팔레트를 장착하지 않아 " +
-                $"{colorId} 색을 등록하지 못했습니다.");
+        if (paletteManager == null || !paletteManager.HasPaletteItem)
+            return false;
 
-            CancelPull();
-            return;
-        }
+        bool registered = paletteManager.RegisterColor(colorId);
 
-        bool registered =
-            paletteManager.RegisterColor(colorId);
+        if (registered && showDebugLogs)
+            Debug.Log($"[물감 드롭] {colorId} 팔레트 저장");
 
-        if (!registered)
-        {
-            CancelPull();
-            return;
-        }
-
-        Debug.Log(
-            $"[물감 드롭] {colorId} 색을 " +
-            "팔레트에 등록했습니다.");
-
-        CompleteCollection();
+        return registered;
     }
 
     private void CompleteCollection()
     {
         if (isCollected)
-        {
             return;
-        }
 
         isCollected = true;
-
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
 
         if (itemCollider != null)
-        {
             itemCollider.enabled = false;
-        }
 
         Destroy(gameObject);
     }
 
     private void CancelPull()
     {
+        if (isCollected)
+            return;
+
         isBeingPulled = false;
         pullSpeed = 0f;
-
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
-
-        /*
-         * 끌려오다가 조건이 사라진 경우:
-         * 현재 위치에서 다시 중력으로 떨어지도록 한다.
-         */
         rb.bodyType = RigidbodyType2D.Dynamic;
         rb.gravityScale = fallingGravityScale;
-
         isGrounded = false;
     }
 
     private void UpdateFloatingMovement()
     {
-        /*
-         * -floatAmount ~ +floatAmount가 아니라
-         * 0 ~ floatAmount 사이에서만 움직이게 한다.
-         * 그래야 바닥 안으로 파고들지 않는다.
-         */
-        float wave =
-            (Mathf.Sin(
-                Time.time * floatSpeed
-            ) + 1f) * 0.5f;
-
-        float verticalOffset =
-            wave * floatAmount;
-
-        Vector2 targetPosition =
-            hoverBasePosition +
-            Vector2.up * verticalOffset;
-
+        float wave = (Mathf.Sin(Time.time * floatSpeed) + 1f) * 0.5f;
+        Vector2 targetPosition = hoverBasePosition +
+                                 Vector2.up * (wave * floatAmount);
         rb.MovePosition(targetPosition);
     }
 
-    private void OnCollisionEnter2D(
-        Collision2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
         TryLandOnGround(collision);
     }
 
-    private void OnCollisionStay2D(
-        Collision2D collision)
+    private void OnCollisionStay2D(Collision2D collision)
     {
         TryLandOnGround(collision);
     }
 
-    private void TryLandOnGround(
-        Collision2D collision)
+    private void TryLandOnGround(Collision2D collision)
     {
-        if (isCollected ||
-            isBeingPulled ||
-            isGrounded)
+        if (isCollected || isBeingPulled || isGrounded ||
+            !IsGroundLayer(collision.gameObject.layer))
         {
             return;
         }
 
-        if (!IsGroundLayer(
-                collision.gameObject.layer))
+        for (int i = 0; i < collision.contactCount; i++)
         {
+            if (collision.GetContact(i).normal.y <= 0.35f)
+                continue;
+
+            LandOnGround();
             return;
         }
-
-        /*
-         * 벽 옆면 접촉을 바닥 착지로 오인하지 않도록
-         * 접촉면의 노멀 방향도 확인한다.
-         */
-        bool touchedGroundTop = false;
-
-        for (int i = 0;
-             i < collision.contactCount;
-             i++)
-        {
-            ContactPoint2D contact =
-                collision.GetContact(i);
-
-            if (contact.normal.y > 0.35f)
-            {
-                touchedGroundTop = true;
-                break;
-            }
-        }
-
-        if (!touchedGroundTop)
-        {
-            return;
-        }
-
-        LandOnGround();
     }
 
     private void LandOnGround()
     {
         isGrounded = true;
-
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
         rb.gravityScale = 0f;
-
-        /*
-         * 착지 후에는 물리 중력으로 떨어질 필요가 없으므로
-         * Kinematic으로 바꾸고 MovePosition으로 둥둥 움직인다.
-         */
         rb.bodyType = RigidbodyType2D.Kinematic;
-
-        hoverBasePosition =
-            rb.position +
-            Vector2.up * landingLift;
+        hoverBasePosition = rb.position + Vector2.up * landingLift;
     }
 
     private bool IsGroundLayer(int layer)
     {
-        return
-            (groundLayer.value &
-             (1 << layer)) != 0;
+        return (groundLayer.value & (1 << layer)) != 0;
     }
 
     private Vector2 GetPlayerTargetPosition()
     {
         if (playerBodyCollider != null &&
             playerBodyCollider.enabled &&
-            playerBodyCollider.gameObject
-                .activeInHierarchy)
+            playerBodyCollider.gameObject.activeInHierarchy)
         {
-            return
-                playerBodyCollider.bounds.center;
+            return playerBodyCollider.bounds.center;
         }
 
-        if (playerTransform != null)
-        {
-            return playerTransform.position;
-        }
-
-        return rb.position;
+        return playerTransform != null
+            ? (Vector2)playerTransform.position
+            : rb.position;
     }
 
     private void FindPlayerReferences()
     {
-        GameObject playerObject =
-            GameObject.FindGameObjectWithTag(
-                "Player"
-            );
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
 
         if (playerObject == null)
         {
@@ -657,40 +402,18 @@ public class ColorDropItem : MonoBehaviour
             return;
         }
 
-        playerTransform =
-            playerObject.transform;
-
-        gunFillColor =
-            playerObject
-                .GetComponentInChildren
-                <FillColor>(true);
-
-        playerBodyCollider =
-            FindPlayerBodyCollider(
-                playerObject
-            );
+        playerTransform = playerObject.transform;
+        gunFillColor = playerObject.GetComponentInChildren<FillColor>(true);
+        playerBodyCollider = FindPlayerBodyCollider(playerObject);
     }
 
-    private static Collider2D
-        FindPlayerBodyCollider(
-            GameObject playerObject)
+    private static Collider2D FindPlayerBodyCollider(GameObject playerObject)
     {
-        Collider2D[] colliders =
-            playerObject
-                .GetComponentsInChildren
-                <Collider2D>(true);
-
-        foreach (Collider2D candidate
-                 in colliders)
+        foreach (Collider2D candidate in
+                 playerObject.GetComponentsInChildren<Collider2D>(true))
         {
-            if (candidate == null ||
-                !candidate.enabled ||
-                candidate.isTrigger)
-            {
-                continue;
-            }
-
-            return candidate;
+            if (candidate != null && candidate.enabled && !candidate.isTrigger)
+                return candidate;
         }
 
         return null;
@@ -698,59 +421,30 @@ public class ColorDropItem : MonoBehaviour
 
     private void ResolvePaletteManager()
     {
-        if (paletteManager != null)
+        if (paletteManager != null &&
+            paletteManager.gameObject.scene == gameObject.scene)
         {
             return;
         }
 
-        paletteManager =
-            StagePaletteManager.Instance;
-
-        if (paletteManager == null)
-        {
-            paletteManager =
-                FindAnyObjectByType
-                <StagePaletteManager>();
-        }
+        paletteManager = StagePaletteManager.FindForScene(this);
     }
 
     private void OnValidate()
     {
-        if (string.IsNullOrWhiteSpace(
-                colorId))
-        {
-            colorId = "UnnamedColor";
-        }
-        else
-        {
-            colorId = colorId.Trim();
-        }
+        colorId = string.IsNullOrWhiteSpace(colorId)
+            ? "UnnamedColor"
+            : colorId.Trim();
 
-        collectDistance = Mathf.Min(
-            collectDistance,
-            magnetRange
-        );
-
-        maximumPullSpeed = Mathf.Max(
-            maximumPullSpeed,
-            initialPullSpeed
-        );
+        collectDistance = Mathf.Min(collectDistance, magnetRange);
+        maximumPullSpeed = Mathf.Max(maximumPullSpeed, initialPullSpeed);
     }
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
-
-        Gizmos.DrawWireSphere(
-            transform.position,
-            magnetRange
-        );
-
+        Gizmos.DrawWireSphere(transform.position, magnetRange);
         Gizmos.color = Color.green;
-
-        Gizmos.DrawWireSphere(
-            transform.position,
-            collectDistance
-        );
+        Gizmos.DrawWireSphere(transform.position, collectDistance);
     }
 }

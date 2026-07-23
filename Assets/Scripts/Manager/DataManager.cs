@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 [System.Serializable]
@@ -60,6 +59,10 @@ public class DataManager : MonoBehaviour
         CurrentPlayerStat.redInk = 0;
         CurrentPlayerStat.greenInk = 0;
         CurrentPlayerStat.blueInk = 0;
+
+        CurrentPlayerStat.hasColor = false;
+        CurrentPlayerStat.currentColorHex = "#FFFFFFFF";
+        CurrentPlayerStat.colorAmount = 0f;
     }
 
     // 플레이어 HP 갱신
@@ -76,6 +79,49 @@ public class DataManager : MonoBehaviour
         CurrentPlayerStat.redInk = red;
         CurrentPlayerStat.greenInk = green;
         CurrentPlayerStat.blueInk = blue;
+    }
+
+    /// <summary>
+    /// 스테이지 전환 뒤에도 총 색과 잔량을 유지하기 위한 동기화 API입니다.
+    /// 피버의 임시 무지개 상태가 아니라 일반 총 상태만 저장합니다.
+    /// </summary>
+    public void UpdateGunColor(
+        bool hasColor,
+        Color color,
+        float amount)
+    {
+        CurrentPlayerStat.hasColor = hasColor;
+        CurrentPlayerStat.currentColorHex =
+            "#" + ColorUtility.ToHtmlStringRGBA(color);
+        CurrentPlayerStat.colorAmount =
+            hasColor ? Mathf.Clamp01(amount) : 0f;
+    }
+
+    public bool TryGetGunColor(
+        out Color color,
+        out float amount)
+    {
+        color = Color.white;
+        amount = 0f;
+
+        if (!CurrentPlayerStat.hasColor ||
+            string.IsNullOrWhiteSpace(
+                CurrentPlayerStat.currentColorHex))
+        {
+            return false;
+        }
+
+        if (!ColorUtility.TryParseHtmlString(
+                CurrentPlayerStat.currentColorHex,
+                out color))
+        {
+            return false;
+        }
+
+        amount = Mathf.Clamp01(
+            CurrentPlayerStat.colorAmount);
+
+        return amount > 0f;
     }
 
     // 몬스터 스탯이 저장되어 있는지 확인
@@ -114,4 +160,10 @@ public class DataManager : MonoBehaviour
 
         Debug.Log($"[DataManager] 몬스터 '{id}' 동적 스탯/속성 동기화 (HP: {currentHp}/{maxHp}, Element: {element})");
     }
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
 }
