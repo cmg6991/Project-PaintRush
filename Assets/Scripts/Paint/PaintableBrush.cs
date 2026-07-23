@@ -51,6 +51,6 @@ public class PaintableBrush : MonoBehaviour, IPaintable
                 brushObj.transform.localPosition = new Vector3(brushObj.transform.localPosition.x, brushObj.transform.localPosition.y, -0.01f);
             }
         }
-        PaintManager.instance.SpawnDefaultSplash(hitPoint, color,10f,0.1f);
+        PaintManager.instance.SpawnDefaultSplash(hitPoint, color, 10f, 0.1f, PaletteSpecialAttack.Instance.IsFeverActive);
     }
 }

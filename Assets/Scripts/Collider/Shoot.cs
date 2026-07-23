@@ -12,7 +12,7 @@ public sealed class Shoot : MonoBehaviour
 
     [Header("물감 소비량")]
     [SerializeField, Min(0f)] private float doorPaintCost = 0.1f;
-    [SerializeField, Min(0f)] private float normalPaintCost = 0.3f;
+    [SerializeField, Min(0f)] private float normalPaintCost = 0.2f;
 
     private FillColor fillColor;
 
@@ -110,7 +110,8 @@ public sealed class Shoot : MonoBehaviour
                 hitPoint,
                 shotColor,
                 20f,
-                0.5f);
+                0.5f,
+                PaletteSpecialAttack.Instance.IsFeverActive);
 
             fillColor.Consume(doorPaintCost);
             smoke?.PlayParticle(shotColor);

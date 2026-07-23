@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1341739846577589645}
   - component: {fileID: 3425773066578918327}
   - component: {fileID: 9113593768300729752}
-  m_Layer: 6
+  m_Layer: 4
   m_Name: Piranha
   m_TagString: Monster
   m_Icon: {fileID: 0}
@@ -174,25 +174,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 088ed4742fac531468eb03f08799a23a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAI
-  hitSpriteTime: 0.15
-  deadSpriteTime: 0.3
-  stopWhileHit: 0
   currentState: 0
-  currentElement: 0
-  redElementColor: {r: 1, g: 0, b: 0, a: 1}
-  blueElementColor: {r: 0, g: 0, b: 1, a: 1}
-  yellowElementColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  colorTolerance: 0.08
-  groundCheck: {fileID: 0}
-  wallCheck: {fileID: 0}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  groundCheckDistance: 0.8
-  wallCheckDistance: 0.8
-  patrolRange: 5
-  patrolTurnCooldown: 0.2
-  randomStartDirection: 1
+  maxHp: 5
   patrolSpeed: 4
   chaseSpeed: 3.5
   detectRange: 7
@@ -200,15 +183,65 @@ MonoBehaviour:
   noticeTime: 0.5
   turnDelay: 0.4
   searchTime: 1.2
+  patrolRange: 5
+  patrolTurnCooldown: 0.2
+  randomStartDirection: 1
+  groundCheck: {fileID: 0}
+  wallCheck: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  groundCheckDistance: 0.8
+  groundCheckRadius: 0.08
+  ghostEdgeLookAhead: 0.3
+  ghostGroundProbeDistance: 3
+  ghostGroundProbeRadius: 0.12
+  logGhostEdgeTurn: 0
+  wallCheckDistance: 0.8
+  wallCheckHeightRatio: 0.55
+  wallAvoidanceDuration: 0.6
+  frogWallSeparationDistance: 0.04
+  frogCollisionTurnLockDuration: 1.2
+  frogCollisionPushSpeed: 0.8
+  logFrogCollisionTurn: 0
+  frogForwardCheckDistance: 0.18
+  frogForwardCheckHeightRatio: 0.35
+  frogEdgeLookAhead: 0.35
+  logFrogPredictiveTurn: 0
   attackDamage: 1
   attackCooldown: 1.5
   attackTrigger: {fileID: 0}
+  blockPiranhaAttackWhilePlayerHanging: 1
+  logBlockedPiranhaAttack: 0
   canRunAway: 1
   runAwayHp: 2
   runAwaySpeed: 4
   runAwayDistance: 6
   runAwayDuration: 2.5
-  maxHp: 5
+  hitSpriteTime: 0.15
+  deadSpriteTime: 0.3
+  deadFadeDuration: 0.9
+  stopWhileHit: 0
+  attackHitEffectPrefab: {fileID: 0}
+  attackHitEffectScale: 1
+  attackHitEffectLifetime: 1
+  attackHitEffectOffset: {x: 0, y: 0, z: 0}
+  monsterHitEffectPrefab: {fileID: 0}
+  monsterHitEffectOffset: {x: 0, y: 0, z: 0}
+  monsterHitEffectLifetime: 1
+  monsterHitSounds: []
+  monsterHitAudioSource: {fileID: 0}
+  monsterHitSoundVolume: 1
+  monsterHitPitchRange: {x: 0.95, y: 1.05}
+  monsterHitSpatialBlend: 0
+  sparkleEffectPrefab: {fileID: 0}
+  currentElement: 0
+  redElementColor: {r: 1, g: 0, b: 0, a: 1}
+  blueElementColor: {r: 0, g: 0, b: 1, a: 1}
+  yellowElementColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  greenElementColor: {r: 0, g: 1, b: 0, a: 1}
+  purpleElementColor: {r: 0.6666667, g: 0, b: 1, a: 1}
+  colorTolerance: 0.08
   noticeIcon: {fileID: 7775434926947725014}
   runAwayIcon: {fileID: 6836934171905380612}
   paletteIcon: {fileID: 0}
@@ -216,6 +249,8 @@ MonoBehaviour:
   redDropPrefab: {fileID: 1719896524428501687, guid: cdaf1545c2a684c46a3500ac3ef23ab5, type: 3}
   blueDropPrefab: {fileID: 1719896524428501687, guid: 493b3b82425a53d41927b7d6abcd5888, type: 3}
   yellowDropPrefab: {fileID: 1719896524428501687, guid: 1e07116d06f58514fb297434e702d62b, type: 3}
+  greenDropPrefab: {fileID: 0}
+  purpleDropPrefab: {fileID: 0}
   paintDropChance: 0.7
   hasPaletteItem: 0
   paletteItemPrefab: {fileID: 0}
@@ -238,6 +273,7 @@ MonoBehaviour:
   acceleration: 10
   groundGravityScale: 1
   slimeSpeedMultiplier: 0.45
+  snailSpeedMultiplier: 0.3
   ghostSpeedMultiplier: 0.55
   spiderSpeedMultiplier: 0.75
   frogSpeedMultiplier: 0.55
@@ -247,13 +283,71 @@ MonoBehaviour:
   ghostMaxVerticalSpeed: 2
   piranhaJumpHeight: 2.5
   piranhaFrequency: 2.5
+  piranhaEngageHeightRatio: 0.6
+  piranhaEngageDistance: 2.5
+  piranhaReturnSpeed: 3
+  piranhaReturnThreshold: 0.08
   frogGroundCheck: {fileID: 0}
   frogGroundLayer:
     serializedVersion: 2
     m_Bits: 0
-  frogGroundCheckRadius: 0.15
+  frogGroundCheckDistance: 0.18
+  frogGroundCheckWidth: 0.7
+  frogGroundedMaxUpSpeed: 0.05
   frogJumpPower: 6
   frogJumpInterval: 1.2
+  edgeForwardDistance: 0.12
+  edgeDownDistance: 0.6
+  floatingEdgeDownDistance: 3
+  frogGroundPathSamples: 6
+  slimeAttackCooldownMultiplier: 1
+  snailAttackCooldownMultiplier: 1.35
+  ghostAttackCooldownMultiplier: 0.9
+  spiderAttackCooldownMultiplier: 0.7
+  frogAttackCooldownMultiplier: 1.2
+  slimeAttack:
+    windupTime: 0.14
+    windupDistance: 0.16
+    lungeTime: 0.2
+    arcHeight: 0.75
+    recoilTime: 0.18
+    recoilDistance: 0.55
+  snailAttack:
+    windupTime: 0.22
+    windupDistance: 0.08
+    lungeTime: 0.32
+    arcHeight: 0.05
+    recoilTime: 0.24
+    recoilDistance: 0.32
+  ghostAttack:
+    windupTime: 0.08
+    windupDistance: 0.18
+    lungeTime: 0.16
+    arcHeight: 0.12
+    recoilTime: 0.24
+    recoilDistance: 0.8
+  piranhaAttack:
+    windupTime: 0.06
+    windupDistance: 0.1
+    lungeTime: 0.14
+    arcHeight: 0.35
+    recoilTime: 0.18
+    recoilDistance: 0.6
+  spiderAttack:
+    windupTime: 0.04
+    windupDistance: 0.12
+    lungeTime: 0.08
+    arcHeight: 0.02
+    recoilTime: 0.12
+    recoilDistance: 0.48
+  frogAttack:
+    windupTime: 0.18
+    windupDistance: 0.18
+    lungeTime: 0.26
+    arcHeight: 1.15
+    recoilTime: 0.22
+    recoilDistance: 0.68
+  water: {fileID: 0}
 --- !u!114 &9113593768300729752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286,7 +380,7 @@ GameObject:
   - component: {fileID: 3528652499399376484}
   - component: {fileID: 3946554123942159626}
   - component: {fileID: 1598809810728701169}
-  m_Layer: 8
+  m_Layer: 4
   m_Name: AttackRange
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -366,6 +460,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e257281d3ab365439e312df5e231114, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackTrigger
+  showDebugLogs: 0
 --- !u!1 &6836934171905380612
 GameObject:
   m_ObjectHideFlags: 0
@@ -376,7 +471,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5433847865900411136}
   - component: {fileID: 8172631053868652028}
-  m_Layer: 0
+  m_Layer: 4
   m_Name: emote_drops_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -467,7 +562,7 @@ GameObject:
   m_Component:
   - component: {fileID: 811752601249907669}
   - component: {fileID: 8580978519468181141}
-  m_Layer: 6
+  m_Layer: 4
   m_Name: StateIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}

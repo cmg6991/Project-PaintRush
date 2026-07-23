@@ -4,6 +4,8 @@ using System.Collections;
 
 public class FillColor : MonoBehaviour
 {
+    public static FillColor Instance { get; private set; }
+
     public bool HasColor { get; private set; }
     public Color CurrentColor { get; private set; }
     public Color ShootColor
@@ -37,6 +39,7 @@ public class FillColor : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
         gradation = GetComponent<Gradation>();
     }
 
@@ -142,6 +145,7 @@ public class FillColor : MonoBehaviour
         prevAmount = ColorAmount;
 
         IsFever = true;
+        Debug.Log($"FillColor: IsFever가 {IsFever}로 변경되었습니다.");
 
         HasColor = true;
         ColorAmount = 1f;

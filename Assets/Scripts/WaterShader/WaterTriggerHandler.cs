@@ -18,9 +18,10 @@ public class WaterTriggerHandler : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if((_waterMask.value & (1<<collision.gameObject.layer))!=0)
+        Debug.Log("Trigger : " + collision.name);
+        if ((_waterMask.value & (1<<collision.gameObject.layer))!=0)
         {
-            Rigidbody2D rb = collision.GetComponent<Rigidbody2D>();
+            Rigidbody2D rb = collision.GetComponentInParent<Rigidbody2D>();
 
             if(rb!= null)
             {
@@ -28,7 +29,9 @@ public class WaterTriggerHandler : MonoBehaviour
                 Vector2 hitObjectPos = collision.transform.position;
                 Bounds hitObjectBounds = collision.bounds;
 
-                Vector3 spawnPos = Vector3.zero;
+                //Vector3 spawnPos = Vector3.zero;
+                float waterSurfaceY = transform.TransformPoint(_edgeColl.points[0]).y;
+                Vector3 spawnPos = new Vector3(collision.bounds.center.x,waterSurfaceY,0f);
                 if (collision.transform.position.y >= _edgeColl.points[1].y + _edgeColl.offset.y +localPos.y)
                 {
                     spawnPos = hitObjectPos - new Vector2(0f, hitObjectBounds.extents.y);
@@ -51,7 +54,7 @@ public class WaterTriggerHandler : MonoBehaviour
                 float vel = rb.linearVelocity.y * _water.ForceMultiplier;
                 vel = Mathf.Clamp(Mathf.Abs(vel), 0f, _water.MaxForce);
                 vel *= multiplier;
-                _water.Splash(collision, vel);
+                //_water.Splash(collision, 3f);
             }
         }
     }

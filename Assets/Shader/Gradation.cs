@@ -58,7 +58,8 @@ public class Gradation : MonoBehaviour
             mat.SetColor("_TargetColor", baseColor);
         }
 
-        mat.SetFloat("_FillAmount", amount);
+        float displayAmount = amount <= 0f ? 0f : Mathf.Lerp(0.15f, 1f, amount);
+        mat.SetFloat("_FillAmount", displayAmount);
 
     }
 

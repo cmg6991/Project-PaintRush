@@ -113,6 +113,11 @@ public class MonsterMovement : MonoBehaviour
     [SerializeField] private AttackMotionSettings frogAttack =
         new AttackMotionSettings(0.18f, 0.18f, 0.26f, 1.15f, 0.22f, 0.68f);
 
+    [SerializeField] private InteractableWater water;
+
+    private bool wasAboveSurface;
+
+
     private readonly struct CollisionPair
     {
         public readonly Collider2D first;
@@ -191,6 +196,11 @@ public class MonsterMovement : MonoBehaviour
         spawnTime = Time.time;
         ghostPhase = UnityEngine.Random.Range(0f, Mathf.PI * 2f);
 
+        if (water == null)
+        {
+            water = FindAnyObjectByType<InteractableWater>();
+        }
+
         ConfigureRigidbody();
     }
 
@@ -202,6 +212,11 @@ public class MonsterMovement : MonoBehaviour
             Debug.LogError(
                 $"{gameObject.name}: Frog Ground Check가 연결되지 않았습니다.");
         }
+
+        spawnTime = Time.time;
+
+        wasAboveSurface =
+            transform.position.y > water.GetSurfaceY();
     }
 
     private void OnDisable()
@@ -678,6 +693,33 @@ public class MonsterMovement : MonoBehaviour
 
     private void MovePiranha()
     {
+        //float elapsedTime = Time.time - spawnTime;
+        //float phase =
+        //    elapsedTime * piranhaFrequency -
+        //    Mathf.PI * 0.5f;
+
+        //piranhaHeightRatio =
+        //    (Mathf.Sin(phase) + 1f) * 0.5f;
+
+        //float targetY =
+        //    startPosition.y +
+        //    piranhaHeightRatio * piranhaJumpHeight;
+
+        //float verticalVelocity = Mathf.Cos(phase);
+
+        //if (verticalVelocity > 0.01f)
+        //    verticalDirection = 1;
+        //else if (verticalVelocity < -0.01f)
+        //    verticalDirection = -1;
+
+        //if (piranhaHeightRatio <= 0.03f &&
+        //    verticalDirection >= 0)
+        //{
+        //    piranhaAttackUsedThisCycle = false;
+        //}
+
+        //rb.MovePosition(
+        //    new Vector2(startPosition.x, targetY));
         float elapsedTime = Time.time - spawnTime;
         float phase =
             elapsedTime * piranhaFrequency -
@@ -703,8 +745,27 @@ public class MonsterMovement : MonoBehaviour
             piranhaAttackUsedThisCycle = false;
         }
 
-        rb.MovePosition(
-            new Vector2(startPosition.x, targetY));
+        rb.MovePosition(new Vector2(startPosition.x, targetY));
+
+        //--------------------------------------------------
+        // 수면 통과 체크
+        //--------------------------------------------------
+
+        bool isAboveSurface = targetY > water.GetSurfaceY();
+
+        if (isAboveSurface != wasAboveSurface)
+        {
+            float force = Mathf.Clamp(
+                Mathf.Abs(verticalVelocity) * 4f,
+                0.5f,
+                water.MaxForce);
+
+            water.Splash(transform.position.x, force);
+
+            water.SpawnSplashParticle(transform.position.x);
+
+            wasAboveSurface = isAboveSurface;
+        }
     }
 
     public bool CanPiranhaEngage(Transform target)
