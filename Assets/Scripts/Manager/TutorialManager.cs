@@ -46,6 +46,8 @@ public class TutorialManager : MonoBehaviour
     public bool canShowGun = false;
     public bool canShowItem = false;
     public bool canMonsterMove = false;
+    public bool canUseSkill = false;
+    public bool canOpenDoor = false;
 
     private Coroutine autoHideCoroutine;
 
@@ -67,6 +69,8 @@ public class TutorialManager : MonoBehaviour
         canShowItem = false;
         canShowGun = false;
         canMonsterMove = false;
+        canUseSkill = false;
+        canOpenDoor = false;
         HideTutorialMessage();
     }
 

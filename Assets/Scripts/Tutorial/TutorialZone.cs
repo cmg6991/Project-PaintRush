@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class TutorialZone : MonoBehaviour
 {
-    public enum TutorialStep {  Move, Jump, Shoot, Climb, Hang, ShowGun, Item, Monster}
+    public enum TutorialStep {  Move, Jump, Shoot, Climb, Hang, ShowGun, Item, Monster, Skill, OpenDoor}
     public TutorialStep targetStep;
 
     [Header("--- 가이드 연출 설정 ---")]
@@ -107,6 +107,12 @@ public class TutorialZone : MonoBehaviour
                     break;
                 case TutorialStep.Monster:
                     TutorialManager.Instance.canMonsterMove = true;
+                    break;
+                case TutorialStep.Skill:
+                    TutorialManager.Instance.canUseSkill = true;
+                    break;
+                case TutorialStep.OpenDoor:
+                    TutorialManager.Instance.canOpenDoor = true;
                     break;
             }
 
