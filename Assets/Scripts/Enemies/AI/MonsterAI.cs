@@ -19,7 +19,6 @@ public enum MonsterState {
 [RequireComponent(typeof(MonsterVisual))]
 public class MonsterAI : MonoBehaviour, IDamageable {
     private const float DirectionThreshold = 0.2f;
-    private const float WallNormalThreshold = 0.5f;
     private const string PlayerTag = "Player";
     private const string PaletteIconName = "PaletteIcon";
 
@@ -27,6 +26,12 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     [Header("상태 및 체력")]
     [SerializeField] private MonsterState currentState = MonsterState.Patrol;
     [SerializeField, Min(1)] private int maxHp = 3;
+
+    [Header("밸런스 프로필")]
+    [Tooltip("연결하면 최대 HP를 제외한 이동·감지·공격 수치를 타입별로 일괄 적용합니다.")]
+    [SerializeField] private MonsterBalanceProfile balanceProfile;
+    [SerializeField] private bool applyBalanceProfileOnAwake = true;
+
     [Header("이동 및 감지")]
     [SerializeField, Min(0f)] private float patrolSpeed = 2f;
     [SerializeField, Min(0f)] private float chaseSpeed = 3.5f;
@@ -39,50 +44,21 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     [SerializeField, Min(0f)] private float patrolRange = 5f;
     [SerializeField, Min(0f)] private float patrolTurnCooldown = 0.2f;
     [SerializeField] private bool randomStartDirection = true;
-    [Tooltip("발 앞쪽에서 아래 방향으로 바닥을 검사합니다.")]
-    [SerializeField] private Transform groundCheck;
-    [Tooltip("진행 방향 앞쪽의 벽을 검사합니다.")]
-    [SerializeField] private Transform wallCheck;
+
+    [Header("이동 안전")]
+    [Tooltip("발판과 벽이 사용하는 레이어입니다. 실제 검사는 MonsterMovement 한 곳에서 담당합니다.")]
     [SerializeField] private LayerMask groundLayer;
-    [SerializeField, Min(0f)] private float groundCheckDistance = 0.7f;
-    [SerializeField, Min(0.01f)] private float groundCheckRadius = 0.08f;
-    [Header("유령 발판 이탈 방지")]
-    [Tooltip("유령이 진행 방향 앞쪽에서 바닥을 검사할 거리입니다.")]
-    [SerializeField, Min(0.05f)] private float ghostEdgeLookAhead = 0.3f;
-    [Tooltip("공중에 떠 있는 유령이 아래 발판을 찾기 위한 검사 거리입니다.")]
-    [SerializeField, Min(0.1f)] private float ghostGroundProbeDistance = 3f;
-    [Tooltip("타일 사이 작은 틈을 낭떠러지로 오인하지 않도록 하는 검사 반지름입니다.")]
-    [SerializeField, Min(0.01f)] private float ghostGroundProbeRadius = 0.12f;
-    [Tooltip("유령 발판 끝 감지 로그를 표시합니다.")]
-    [SerializeField] private bool logGhostEdgeTurn;
+    [Tooltip("장애물을 만나 방향을 바꾼 직후 플레이어 방향이 다시 덮어쓰지 않도록 유지하는 시간입니다.")]
+    [SerializeField, Min(0f)] private float obstacleTurnLockDuration = 0.6f;
 
-    [SerializeField, Min(0f)] private float wallCheckDistance = 0.4f;
-    [Tooltip("벽 감지 BoxCast의 높이 비율입니다. 몸체 높이의 일부만 검사해 바닥을 벽으로 오인하지 않게 합니다.")]
-    [SerializeField, Range(0.1f, 1f)] private float wallCheckHeightRatio = 0.55f;
-    [Tooltip("벽을 만난 뒤 플레이어 추적이 즉시 같은 방향으로 덮어쓰지 않도록 유지하는 시간입니다.")]
-    [SerializeField, Min(0f)] private float wallAvoidanceDuration = 0.6f;
-    [Tooltip("개구리가 벽에 밀착했을 때 반대쪽으로 아주 조금 떼어내는 거리입니다.")]
-    [SerializeField, Min(0f)] private float frogWallSeparationDistance = 0.04f;
-    [Tooltip("개구리가 옆면 충돌 후 플레이어 방향으로 다시 돌아서지 않는 시간입니다.")]
-    [SerializeField, Min(0.05f)] private float frogCollisionTurnLockDuration = 1.2f;
-    [Tooltip("옆면 충돌 순간 개구리를 반대쪽으로 밀어내는 수평 속도입니다.")]
-    [SerializeField, Min(0f)] private float frogCollisionPushSpeed = 0.8f;
-    [Tooltip("개구리 옆면 충돌 방향 전환 로그를 표시합니다.")]
-    [SerializeField] private bool logFrogCollisionTurn;
-
-    [Header("개구리 선제 방향 전환")]
-    [Tooltip("개구리 몸 앞에서 장애물을 미리 검사하는 거리입니다.")]
-    [SerializeField, Min(0.02f)] private float frogForwardCheckDistance = 0.18f;
-    [Tooltip("개구리 몸체 높이 중 장애물 검사에 사용할 비율입니다.")]
-    [SerializeField, Range(0.1f, 0.8f)] private float frogForwardCheckHeightRatio = 0.35f;
-    [Tooltip("개구리 앞쪽 바닥을 얼마나 멀리 내다볼지 설정합니다.")]
-    [SerializeField, Min(0.05f)] private float frogEdgeLookAhead = 0.35f;
-    [Tooltip("개구리가 장애물 또는 발판 끝을 미리 감지했을 때 로그를 표시합니다.")]
-    [SerializeField] private bool logFrogPredictiveTurn;
     [Header("공격")]
     [SerializeField, Min(1)] private int attackDamage = 1;
     [SerializeField, Min(0f)] private float attackCooldown = 1.5f;
     [SerializeField] private MonsterAttackTrigger attackTrigger;
+
+    [Header("슬라임 원거리 공격")]
+    [Tooltip("Slime 타입에서 연결되면 공통 몸통 박치기 대신 포물선 점액 공격을 사용합니다.")]
+    [SerializeField] private SlimeRangedAttack slimeRangedAttack;
     [Header("피라냐 공격 제한")]
     [Tooltip("플레이어가 행거에 매달린 동안 피라냐가 공격을 시작하거나 피해를 주지 않습니다.")]
     [SerializeField] private bool blockPiranhaAttackWhilePlayerHanging = true;
@@ -114,9 +90,6 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     [SerializeField, Range(0f, 1f)] private float monsterHitSoundVolume = 1f;
     [SerializeField] private Vector2 monsterHitPitchRange = new(0.95f, 1.05f);
     [SerializeField, Range(0f, 1f)] private float monsterHitSpatialBlend = 0f;
-    [Header("팔레트 이펙트")]
-    [SerializeField] private GameObject sparkleEffectPrefab;
-    private GameObject sparkleInstance;
     [Header("속성")]
     [SerializeField] private ElementType currentElement = ElementType.None;
     [SerializeField] private Color redElementColor = Color.red;
@@ -137,6 +110,11 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     [SerializeField] private GameObject greenDropPrefab;
     [SerializeField] private GameObject purpleDropPrefab;
     [SerializeField, Range(0f, 1f)] private float paintDropChance = 0.7f;
+
+    [Header("무색 몬스터 회복 드롭")]
+    [Tooltip("ElementType.None 상태로 죽은 몬스터가 드롭할 회복 아이템입니다.")]
+    [SerializeField] private GameObject healthDropPrefab;
+    [SerializeField, Range(0f, 1f)] private float colorlessHealthDropChance = 1f;
     [Header("팔레트 아이템")]
     [SerializeField] private bool hasPaletteItem;
     [SerializeField] private GameObject paletteItemPrefab;
@@ -150,13 +128,12 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     private MonsterMovement movement;
     private MonsterVisual visual;
     private Collider2D bodyCollider;
+    private ColorMinus colorMinus;
     private int currentHp;
     private int moveDirection = 1;
-    private string monsterUniqueId;
     private float startX;
     private float lastPatrolTurnTime;
-    private float wallAvoidanceUntil;
-    private float frogCollisionTurnLockUntil;
+    private float obstacleTurnLockUntil;
     private float noticeTimer;
     private float searchTimer;
     private float lastTurnTime;
@@ -174,6 +151,10 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     private Project.Player.PlayerController2D playerController;
     private Coroutine hitRoutine;
 
+    private bool IsAnyAttackRunning =>
+        movement != null && movement.IsAttacking ||
+        slimeRangedAttack != null && slimeRangedAttack.IsAttacking;
+
     #endregion
 
     #region Public API
@@ -184,6 +165,11 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     public int MaxHp => maxHp;
     public bool IsDead => isDead;
     public bool HasPaletteItem => hasPaletteItem;
+    public MonsterType Type =>
+        movement != null ? movement.Type : MonsterType.Slime;
+    public bool IsColorless =>
+        currentElement == ElementType.None &&
+        (colorMinus == null || !colorMinus.IsAbsorbed);
     public bool IsPiranha =>
         movement != null &&
         movement.IsPiranha;
@@ -227,7 +213,6 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             $"{name} 피격! 데미지: {damage}, 남은 체력: {currentHp}" +
             (feverApplied ? " (피버 공격)" : string.Empty));
 
-        SyncStatsToDataManager();
         if (currentHp <= 0) {
             isDead = true;
             StartCoroutine(DieRoutine());
@@ -381,24 +366,33 @@ public class MonsterAI : MonoBehaviour, IDamageable {
 
     #region Unity Lifecycle
 
-    private void Awake() {
+    private void Awake()
+    {
         rb = GetComponent<Rigidbody2D>();
         movement = GetComponent<MonsterMovement>();
         visual = GetComponent<MonsterVisual>();
         bodyCollider = FindBodyCollider();
+        colorMinus ??= GetComponentInChildren<ColorMinus>(true);
         fillColor ??= GetComponent<FillColor>();
         attackTrigger ??= GetComponentInChildren<MonsterAttackTrigger>(true);
+        slimeRangedAttack ??= GetComponent<SlimeRangedAttack>();
+
+        ApplyBalanceProfileIfAvailable();
         ConfigureMonsterHitAudio();
+
         currentHp = maxHp;
         basePatrolSpeed = patrolSpeed;
         baseChaseSpeed = chaseSpeed;
         baseRunAwaySpeed = runAwaySpeed;
+
         rb.freezeRotation = true;
+
         ResolvePaletteIcon();
         HideAllIcons();
     }
 
-    private void Start() {
+    private void Start()
+    {
         if (player == null)
             FindPlayer();
         else
@@ -408,24 +402,32 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         monsterManager ??= FindAnyObjectByType<MonsterManager>();
         RegisterToManager();
 
+        // 발판 끝, 벽, 유령과 개구리 안전 검사는 MonsterMovement만 담당합니다.
+        movement.InitializePlatformConstraint(
+            groundLayer,
+            0.6f);
+
         startX = transform.position.x;
+
         if (randomStartDirection)
             moveDirection = Random.value < 0.5f ? -1 : 1;
+
         if (currentElement == ElementType.None)
             SyncElementFromFillColor();
         else
             ApplyElement();
+
         SetActive(paletteIcon, hasPaletteItem);
         UpdateFacing();
     }
 
-    private void Update() {
+    private void Update()
+    {
         if (isDead)
             return;
 
         SyncElementFromFillColor();
 
-        // 피라냐가 돌진 중이어도 플레이어가 행거를 잡는 즉시 공격을 취소합니다.
         if (movement.IsPiranha &&
             movement.IsAttacking &&
             IsPlayerHanging())
@@ -433,8 +435,8 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             CancelPiranhaAttackForHangingPlayer();
         }
 
-        // 공격 모션 중에는 거리 판정으로 상태가 바뀌지 않도록 잠급니다.
-        if (!movement.IsAttacking &&
+        // 공격 중에는 거리 판정이 상태를 덮어쓰지 않습니다.
+        if (!IsAnyAttackRunning &&
             movement.UsesPlayerTracking &&
             !movement.IsPiranha)
         {
@@ -444,11 +446,13 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         UpdateFacing();
     }
 
-    private void FixedUpdate() {
-        if (isDead || movement.IsAttacking)
+    private void FixedUpdate()
+    {
+        if (isDead || IsAnyAttackRunning)
             return;
 
-        if (isHit && stopWhileHit) {
+        if (isHit && stopWhileHit)
+        {
             movement.Stop();
             return;
         }
@@ -462,101 +466,10 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         UpdateCurrentState();
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnDisable()
     {
-        HandleFrogWallCollision(collision);
-    }
+        slimeRangedAttack?.CancelAttack();
 
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        // 이미 벽에 붙어 있는 상태에서 방향만 바뀐 경우에도
-        // Enter가 다시 발생하지 않을 수 있으므로 Stay에서도 보완합니다.
-        HandleFrogWallCollision(collision);
-    }
-
-    private void HandleFrogWallCollision(Collision2D collision)
-    {
-        if (isDead ||
-            movement == null ||
-            movement.Type != MonsterType.Frog ||
-            collision == null)
-        {
-            return;
-        }
-
-        foreach (ContactPoint2D contact in collision.contacts)
-        {
-            // 바닥 접촉(normal.y 중심)은 무시하고,
-            // 레이어·상태와 관계없이 옆면 접촉은 모두 장애물로 처리합니다.
-            if (Mathf.Abs(contact.normal.x) < 0.2f)
-                continue;
-
-            int awayDirection =
-                contact.normal.x > 0f ? 1 : -1;
-
-            ForceFrogTurnFromCollision(
-                awayDirection,
-                collision.gameObject);
-
-            return;
-        }
-    }
-
-    private void ForceFrogTurnFromCollision(
-        int awayDirection,
-        GameObject obstacle)
-    {
-        awayDirection = awayDirection >= 0 ? 1 : -1;
-
-        moveDirection = awayDirection;
-
-        float lockUntil =
-            Time.time + frogCollisionTurnLockDuration;
-
-        frogCollisionTurnLockUntil =
-            Mathf.Max(frogCollisionTurnLockUntil, lockUntil);
-
-        wallAvoidanceUntil =
-            Mathf.Max(wallAvoidanceUntil, lockUntil);
-
-        lastPatrolTurnTime = Time.time;
-
-        // 공격 모션이 벽 방향 속도를 계속 덮어쓰는 경우를 차단합니다.
-        if (movement.IsAttacking)
-            movement.CancelAttackMotion();
-
-        if (rb != null)
-        {
-            float pushSpeed =
-                frogCollisionPushSpeed * moveDirection;
-
-            rb.linearVelocity = new Vector2(
-                pushSpeed,
-                rb.linearVelocity.y);
-
-            if (frogWallSeparationDistance > 0f)
-            {
-                rb.position +=
-                    Vector2.right *
-                    moveDirection *
-                    frogWallSeparationDistance;
-            }
-        }
-
-        UpdateFacing();
-
-        if (logFrogCollisionTurn)
-        {
-            string obstacleName =
-                obstacle != null ? obstacle.name : "Unknown";
-
-            Debug.Log(
-                $"{name}: 개구리 옆면 충돌 → " +
-                $"방향 {moveDirection}, 대상 {obstacleName}");
-        }
-    }
-
-    private void OnDisable() {
         if (!deathReported)
             UnregisterFromManager();
     }
@@ -693,10 +606,29 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         }
         if (currentState == MonsterState.Notice)
             return;
-        bool targetInTrigger = attackTrigger != null && attackTrigger.HasTarget;
-        currentState = targetInTrigger || distance <= attackRange
+        bool canEnterAttackState = CanEnterAttackState(distance);
+
+        currentState = canEnterAttackState
             ? MonsterState.Attack
             : MonsterState.Chase;
+    }
+
+    private bool CanEnterAttackState(float distanceToPlayer)
+    {
+        // 슬라임은 원거리 공격이므로 공격 거리 안에 들어오면 Attack 상태 진입.
+        if (movement.Type == MonsterType.Slime &&
+            slimeRangedAttack != null &&
+            slimeRangedAttack.IsConfigured)
+        {
+            return distanceToPlayer <= attackRange;
+        }
+
+        // 근접 몬스터는 실제 공격 Trigger 안에 플레이어가 들어왔을 때만
+        // Attack 상태로 전환합니다.
+        // 단순히 attackRange 안에 들어왔다는 이유만으로 멈추면,
+        // Trigger에는 아직 닿지 않은 상태에서 제자리 정지할 수 있습니다.
+        return attackTrigger != null &&
+               attackTrigger.HasTarget;
     }
 
     private void EnterPatrol() {
@@ -762,7 +694,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         }
 
         FacePlayer();
-        bool moved = TryMoveSafely(chaseSpeed, false);
+        bool moved = TryMoveSafely(chaseSpeed, true);
 
         visual.SetState(
             moved && IsActuallyMoving()
@@ -784,47 +716,100 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             EnterPatrol();
     }
 
-    private void UpdateAttack() {
+    private void UpdateAttack()
+    {
         SetStateIcons(false, false);
-        visual.SetState(MonsterVisualState.Attack);
 
-        if (player != null)
-            FacePlayer();
+        if (player == null)
+        {
+            EnterPatrol();
+            return;
+        }
 
+        float distance = Vector2.Distance(
+            transform.position,
+            player.position);
+
+        if (!CanEnterAttackState(distance))
+        {
+            currentState = MonsterState.Chase;
+            return;
+        }
+
+        FacePlayer();
         movement.Stop();
-        TryStartAttack();
+
+        // 실제 공격 중일 때만 공격 자세 유지
+        if (IsAnyAttackRunning)
+        {
+            visual.SetState(
+                MonsterVisualState.Attack);
+            return;
+        }
+
+        float adjustedCooldown =
+            attackCooldown *
+            movement.AttackCooldownMultiplier;
+
+        if (Time.time - lastAttackTime <
+            adjustedCooldown)
+        {
+            visual.SetState(
+                MonsterVisualState.Idle);
+            return;
+        }
+
+        bool started = TryStartAttack();
+
+        visual.SetState(
+            started
+                ? MonsterVisualState.Attack
+                : MonsterVisualState.Idle);
     }
 
-    private void UpdateRunAway() {
-        if (!CanRunAway || player == null) {
+    private void UpdateRunAway()
+    {
+        if (!CanRunAway || player == null)
+        {
             EnterPatrol();
             return;
         }
-        SetStateIcons(false, true);
-        visual.SetState(MonsterVisualState.Move);
-        runAwayTimer += Time.fixedDeltaTime;
-        float distance = Vector2.Distance(transform.position, player.position);
-        // 도망 거리 또는 도망 시간에 도달하면 순찰 상태로 전환
-        bool reachedDistance =runAwayDistance > 0f && distance >= runAwayDistance;
-        bool reachedDuration = runAwayDuration > 0f && runAwayTimer >= runAwayDuration;
-        if (reachedDistance || reachedDuration) {
-            EnterPatrol();
-            return;
-        }
-        bool frogDirectionLocked =
-            movement.Type == MonsterType.Frog &&
-            Time.time < frogCollisionTurnLockUntil;
 
-        if (Time.time >= wallAvoidanceUntil &&
-            !frogDirectionLocked)
+        SetStateIcons(false, true);
+        runAwayTimer += Time.fixedDeltaTime;
+
+        float distance = Vector2.Distance(
+            transform.position,
+            player.position);
+
+        bool reachedDistance =
+            runAwayDistance > 0f &&
+            distance >= runAwayDistance;
+
+        bool reachedDuration =
+            runAwayDuration > 0f &&
+            runAwayTimer >= runAwayDuration;
+
+        if (reachedDistance || reachedDuration)
+        {
+            EnterPatrol();
+            return;
+        }
+
+        if (Time.time >= obstacleTurnLockUntil)
         {
             moveDirection =
-                transform.position.x >= player.position.x ? 1 : -1;
+                transform.position.x >= player.position.x
+                    ? 1
+                    : -1;
         }
 
-        bool moved = TryMoveSafely(runAwaySpeed, false);
+        bool moved = TryMoveSafely(runAwaySpeed, true);
+
         visual.SetState(
-            moved ? MonsterVisualState.Move : MonsterVisualState.Idle);
+            moved && IsActuallyMoving()
+                ? MonsterVisualState.Move
+                : MonsterVisualState.Idle);
     }
     private bool CanRunAway =>
         canRunAway && movement.UsesPlayerTracking;
@@ -848,324 +833,47 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     }
 
     /// <summary>
-    /// 진행 방향 앞쪽에 바닥이 있는지 작은 원 범위로 검사합니다.
-    /// 한 줄 Raycast보다 개별 타일 사이의 미세한 틈에 덜 민감합니다.
+    /// 이동 가능 여부는 MonsterMovement가 판단하고,
+    /// 이 클래스는 막혔을 때 방향만 전환합니다.
     /// </summary>
-    private bool HasGroundAhead(float lookAhead)
+    private bool TryMoveSafely(float speed, bool turnWhenBlocked)
     {
-        Vector2 origin = GetGroundProbeOrigin(lookAhead);
+        MonsterMoveResult result =
+            movement.TryMoveSafely(
+                moveDirection,
+                speed,
+                true);
 
-        RaycastHit2D hit = Physics2D.CircleCast(
-            origin,
-            groundCheckRadius,
-            Vector2.down,
-            groundCheckDistance,
-            groundLayer);
-
-        return hit.collider != null;
-    }
-
-    private Vector2 GetGroundProbeOrigin(float lookAhead)
-    {
-        if (groundCheck != null)
-        {
-            return (Vector2)groundCheck.position +
-                   Vector2.right * moveDirection * lookAhead;
-        }
-
-        if (bodyCollider == null)
-            bodyCollider = FindBodyCollider();
-
-        if (bodyCollider != null)
-        {
-            Bounds bounds = bodyCollider.bounds;
-
-            return new Vector2(
-                bounds.center.x +
-                moveDirection * (bounds.extents.x + lookAhead),
-                bounds.min.y + groundCheckRadius + 0.02f);
-        }
-
-        return (Vector2)transform.position +
-               new Vector2(moveDirection * lookAhead, -0.2f);
-    }
-
-    private bool TryMoveGhostWithinPlatform(float speed)
-    {
-        if (bodyCollider == null)
-            bodyCollider = FindBodyCollider();
-
-        float halfWidth =
-            bodyCollider != null
-                ? bodyCollider.bounds.extents.x
-                : 0.2f;
-
-        Vector2 probeOrigin = new Vector2(
-            transform.position.x +
-            moveDirection *
-            (halfWidth + ghostEdgeLookAhead),
-            bodyCollider != null
-                ? bodyCollider.bounds.center.y
-                : transform.position.y);
-
-        RaycastHit2D hit = Physics2D.CircleCast(
-            probeOrigin,
-            ghostGroundProbeRadius,
-            Vector2.down,
-            ghostGroundProbeDistance,
-            groundLayer);
-
-        if (hit.collider == null)
-        {
-            if (Time.time - lastPatrolTurnTime >= patrolTurnCooldown)
-            {
-                TurnAround();
-                lastPatrolTurnTime = Time.time;
-
-                if (logGhostEdgeTurn)
-                {
-                    Debug.Log(
-                        $"{name}: 유령 발판 끝 감지 → 방향 {moveDirection}");
-                }
-            }
-
-            return false;
-        }
-
-        movement.Move(moveDirection, speed);
-        return true;
-    }
-
-    private bool ShouldFrogTurnBeforeMove(out string reason)
-    {
-        reason = string.Empty;
-
-        if (movement == null ||
-            movement.Type != MonsterType.Frog ||
-            !movement.IsFrogGrounded())
-        {
-            return false;
-        }
-
-        if (HasFrogObstacleAhead())
-        {
-            reason = "앞쪽 장애물";
+        if (result == MonsterMoveResult.Moved)
             return true;
-        }
 
-        if (!HasGroundAhead(frogEdgeLookAhead))
+        if (result == MonsterMoveResult.Waiting)
+            return IsActuallyMoving();
+
+        movement.Stop();
+
+        if (!turnWhenBlocked ||
+            Time.time < obstacleTurnLockUntil ||
+            !TryTurnAround())
         {
-            reason = "발판 끝";
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool HasFrogObstacleAhead()
-    {
-        if (bodyCollider == null)
-            bodyCollider = FindBodyCollider();
-
-        if (bodyCollider == null)
-            return false;
-
-        Bounds bounds = bodyCollider.bounds;
-
-        Vector2 origin = new Vector2(
-            bounds.center.x +
-            moveDirection * (bounds.extents.x + 0.01f),
-            bounds.center.y + bounds.extents.y * 0.12f);
-
-        Vector2 size = new Vector2(
-            0.04f,
-            Mathf.Max(
-                0.08f,
-                bounds.size.y * frogForwardCheckHeightRatio));
-
-        RaycastHit2D[] hits = Physics2D.BoxCastAll(
-            origin,
-            size,
-            0f,
-            Vector2.right * moveDirection,
-            frogForwardCheckDistance,
-            groundLayer);
-
-        foreach (RaycastHit2D hit in hits)
-        {
-            Collider2D hitCollider = hit.collider;
-
-            if (hitCollider == null ||
-                hitCollider.isTrigger ||
-                hitCollider.transform == transform ||
-                hitCollider.transform.IsChildOf(transform))
-            {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private void ForceFrogPredictiveTurn(string reason)
-    {
-        if (Time.time < frogCollisionTurnLockUntil)
-            return;
-
-        int newDirection = -moveDirection;
-
-        moveDirection = newDirection;
-
-        float lockUntil =
-            Time.time + frogCollisionTurnLockDuration;
-
-        frogCollisionTurnLockUntil = lockUntil;
-        wallAvoidanceUntil =
-            Mathf.Max(wallAvoidanceUntil, lockUntil);
-        lastPatrolTurnTime = Time.time;
-
-        if (movement.IsAttacking)
-            movement.CancelAttackMotion();
-
-        StopHorizontalMotion();
-
-        if (rb != null &&
-            frogWallSeparationDistance > 0f)
-        {
-            rb.position +=
-                Vector2.right *
-                moveDirection *
-                frogWallSeparationDistance;
-        }
-
-        UpdateFacing();
-
-        if (logFrogPredictiveTurn)
-        {
-            Debug.Log(
-                $"{name}: 개구리 선제 방향 전환 " +
-                $"({reason}) → 방향 {moveDirection}");
-        }
-    }
-
-    private bool HasWallAhead()
-    {
-        if (wallCheckDistance <= 0f)
-            return false;
-
-        if (bodyCollider == null)
-            bodyCollider = FindBodyCollider();
-
-        Vector2 direction = Vector2.right * moveDirection;
-        Vector2 origin;
-        Vector2 probeSize;
-
-        if (bodyCollider != null)
-        {
-            Bounds bounds = bodyCollider.bounds;
-
-            // 몸체 바로 바깥에서 시작하므로 자기 Collider를 감지하지 않습니다.
-            origin = new Vector2(
-                bounds.center.x +
-                moveDirection * (bounds.extents.x + 0.015f),
-                bounds.center.y + bounds.extents.y * 0.05f);
-
-            probeSize = new Vector2(
-                0.04f,
-                Mathf.Max(0.08f, bounds.size.y * wallCheckHeightRatio));
-        }
-        else
-        {
-            origin = wallCheck != null
-                ? (Vector2)wallCheck.position
-                : (Vector2)transform.position +
-                  new Vector2(moveDirection * 0.25f, 0f);
-
-            probeSize = new Vector2(0.04f, 0.2f);
-        }
-
-        RaycastHit2D hit = Physics2D.BoxCast(
-            origin,
-            probeSize,
-            0f,
-            direction,
-            wallCheckDistance,
-            groundLayer);
-
-        return hit.collider != null;
-    }
-
-    /// <summary>
-    /// 플랫폼 끝이나 벽을 확인한 뒤 안전하게 이동합니다.
-    /// 순찰/탐색에서는 방향을 전환하고, 추적/도망에서는 장애물 앞에서 멈춥니다.
-    /// </summary>
-    private bool TryMoveSafely(float speed, bool turnAtEdge)
-    {
-        // 유령은 일반 GroundCheck를 사용하지 않고,
-        // 진행 방향 앞쪽에서 아래로 긴 CircleCast를 내려
-        // 연속된 발판 위에서만 이동합니다.
-        if (movement.Type == MonsterType.Ghost)
-        {
-            return TryMoveGhostWithinPlatform(speed);
-        }
-
-        if (!movement.UsesGroundObstacleCheck)
-        {
-            movement.Move(moveDirection, speed);
-            return true;
-        }
-
-        bool blockedByWall = HasWallAhead();
-
-        // 벽은 상태와 관계없이 반드시 반대 방향으로 회피합니다.
-        // Chase/RunAway에서도 플레이어 방향 갱신이 잠시 잠겨서
-        // 같은 벽을 향해 즉시 다시 돌아서는 현상을 막습니다.
-        if (blockedByWall)
-        {
-            StopHorizontalMotion();
-            TurnAwayFromWall();
             return false;
         }
 
-        // 개구리는 방향 전환 직후 잠금 시간 동안
-        // 새 방향으로 실제 이동/점프할 기회를 먼저 줍니다.
-        // 이전 코드는 잠금 중에도 매 프레임 return false가 되어
-        // 방향만 바뀌고 영원히 점프하지 못할 수 있었습니다.
+        obstacleTurnLockUntil =
+            Time.time + obstacleTurnLockDuration;
+
+        // 개구리는 발판 끝에서 방향만 바꾸고 멈추지 않도록
+        // 반대쪽이 안전하면 같은 FixedUpdate에 바로 점프를 시도합니다.
         if (movement.Type == MonsterType.Frog)
         {
-            if (Time.time < frogCollisionTurnLockUntil)
-            {
-                movement.Move(moveDirection, speed);
-                return true;
-            }
+            MonsterMoveResult retry =
+                movement.TryMoveSafely(
+                    moveDirection,
+                    speed,
+                    true);
 
-            if (ShouldFrogTurnBeforeMove(out string reason))
-            {
-                ForceFrogPredictiveTurn(reason);
-                return false;
-            }
-
-            movement.Move(moveDirection, speed);
-            return true;
+            return retry == MonsterMoveResult.Moved;
         }
-
-        float lookAhead =
-            Mathf.Max(0.05f, speed * Time.fixedDeltaTime);
-
-        bool hasGroundAhead = HasGroundAhead(lookAhead);
-
-        if (hasGroundAhead && !blockedByWall)
-        {
-            movement.Move(moveDirection, speed);
-            return true;
-        }
-
-        StopHorizontalMotion();
-
-        if (turnAtEdge)
-            TryTurnAround();
 
         return false;
     }
@@ -1185,23 +893,22 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         return Mathf.Abs(rb.linearVelocity.x) > 0.02f;
     }
 
-    private void FacePlayer() {
+    private void FacePlayer()
+    {
         if (player == null ||
-            Time.time < wallAvoidanceUntil ||
-            (movement != null &&
-             movement.Type == MonsterType.Frog &&
-             Time.time < frogCollisionTurnLockUntil) ||
+            Time.time < obstacleTurnLockUntil ||
             Time.time - lastTurnTime < turnDelay)
         {
             return;
         }
-        float deltaX = player.position.x - transform.position.x;
-        if (deltaX > DirectionThreshold)
-            moveDirection = 1;
-        else if (deltaX < -DirectionThreshold)
-            moveDirection = -1;
-        else
+
+        float deltaX =
+            player.position.x - transform.position.x;
+
+        if (Mathf.Abs(deltaX) <= DirectionThreshold)
             return;
+
+        moveDirection = deltaX > 0f ? 1 : -1;
         lastTurnTime = Time.time;
     }
 
@@ -1224,72 +931,16 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     private void TurnAround()
     {
         moveDirection *= -1;
-        StopHorizontalMotion();
-        UpdateFacing();
-    }
-
-    private void TurnAwayFromWall()
-    {
-        ForceDirectionAwayFromWall(-moveDirection);
-    }
-
-    private void ForceDirectionAwayFromWall(int direction)
-    {
-        direction = direction >= 0 ? 1 : -1;
-
-        if (moveDirection == direction &&
-            Time.time < wallAvoidanceUntil)
-        {
-            return;
-        }
-
-        moveDirection = direction;
-        wallAvoidanceUntil =
-            Time.time + Mathf.Max(0.05f, wallAvoidanceDuration);
-        lastPatrolTurnTime = Time.time;
-
-        StopHorizontalMotion();
-
-        if (movement != null &&
-            movement.Type == MonsterType.Frog &&
-            rb != null &&
-            frogWallSeparationDistance > 0f)
-        {
-            rb.position +=
-                Vector2.right *
-                moveDirection *
-                frogWallSeparationDistance;
-        }
-
-        UpdateFacing();
-    }
-
-    private void StopHorizontalMotion()
-    {
         movement.Stop();
-
-        // 개구리는 공중에서 MonsterMovement.Stop()이 X 속도를 유지할 수 있으므로
-        // Rigidbody의 수평 속도도 직접 제거합니다.
-        if (rb != null)
-        {
-            rb.linearVelocity =
-                new Vector2(0f, rb.linearVelocity.y);
-        }
+        UpdateFacing();
     }
 
-    private void UpdateFacing() {
+    private void UpdateFacing()
+    {
         visual.SetDirection(moveDirection);
-        MirrorCheckPoint(groundCheck);
-        MirrorCheckPoint(wallCheck);
     }
 
-    private void MirrorCheckPoint(Transform point) {
-        if (point == null)
-            return;
-        Vector3 localPosition = point.localPosition;
-        localPosition.x = Mathf.Abs(localPosition.x) * moveDirection;
-        point.localPosition = localPosition;
-    }
+
 
     private Collider2D FindBodyCollider()
     {
@@ -1303,13 +954,17 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         return null;
     }
 
-    private bool IsGroundLayer(int layer) =>
-        ((1 << layer) & groundLayer) != 0;
 
-    private void FindPlayer() {
-        GameObject target = GameObject.FindGameObjectWithTag(PlayerTag);
-        if (target == null) {
-            Debug.LogWarning($"{name}: Player 태그 오브젝트를 찾지 못했습니다.");
+
+    private void FindPlayer()
+    {
+        GameObject target =
+            GameObject.FindGameObjectWithTag(PlayerTag);
+
+        if (target == null)
+        {
+            Debug.LogWarning(
+                $"{name}: Player 태그 오브젝트를 찾지 못했습니다.");
             return;
         }
 
@@ -1364,22 +1019,84 @@ public class MonsterAI : MonoBehaviour, IDamageable {
 
     #region Combat And Element
 
-    private bool TryStartAttack() {
-        if (!movement.CanAttackPlayer ||
-            attackTrigger == null ||
-            movement.IsAttacking ||
-            Time.time - lastAttackTime <
-                attackCooldown * movement.AttackCooldownMultiplier ||
-            !attackTrigger.TryGetTarget(out PlayerHealth target)) {
+    private bool TryStartAttack()
+    {
+        if (IsAnyAttackRunning)
+            return false;
+
+        float adjustedCooldown =
+            attackCooldown * movement.AttackCooldownMultiplier;
+
+        if (Time.time - lastAttackTime < adjustedCooldown)
+            return false;
+
+        // 슬라임은 근접 공격 가능 여부와 AttackTrigger를 검사하지 않습니다.
+        // 원거리 공격 컴포넌트와 거리만 확인합니다.
+        if (movement.Type == MonsterType.Slime &&
+            slimeRangedAttack != null &&
+            slimeRangedAttack.IsConfigured)
+        {
+            if (player == null)
+                return false;
+
+            PlayerHealth rangedTarget =
+                FindPlayerHealth(player);
+
+            if (rangedTarget == null ||
+                rangedTarget.IsDead)
+            {
+                return false;
+            }
+
+            float distance = Vector2.Distance(
+                transform.position,
+                rangedTarget.transform.position);
+
+            if (distance > attackRange)
+                return false;
+
+            FaceTargetImmediately(
+                rangedTarget.transform);
+
+            bool rangedStarted =
+                slimeRangedAttack.TryStartAttack(
+                    rangedTarget.transform,
+                    attackDamage,
+                    OnAttackMotionComplete);
+
+            if (!rangedStarted)
+                return false;
+
+            lastAttackTime = Time.time;
+            visual.SetState(
+                MonsterVisualState.Attack);
+
+            Debug.Log(
+                $"{name}: 슬라임 원거리 공격 시작 / " +
+                $"거리={distance:F2}, 사거리={attackRange:F2}",
+                this);
+
+            return true;
+        }
+
+        // 여기부터 근접 공격 몬스터 전용 검사
+        if (!movement.CanAttackPlayer)
+            return false;
+
+        if (attackTrigger == null ||
+            !attackTrigger.TryGetTarget(
+                out PlayerHealth target))
+        {
             return false;
         }
 
         FaceTargetImmediately(target.transform);
 
-        bool started = movement.TryStartAttackMotion(
-            target.transform,
-            () => ApplyAttackDamage(target),
-            OnAttackMotionComplete);
+        bool started =
+            movement.TryStartAttackMotion(
+                target.transform,
+                () => ApplyAttackDamage(target),
+                OnAttackMotionComplete);
 
         if (!started)
             return false;
@@ -1412,7 +1129,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             gameObject,
             true);
 
-        SoundManager.Instance.PlaySFX(SFXType.Hit);
+        SoundManager.Instance?.PlaySFX(SFXType.Hit);
 
         Debug.Log(
             $"{name}: 플레이어와 겹쳐 공격, 데미지 {attackDamage}");
@@ -1534,7 +1251,6 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         currentElement = newElement;
         ApplyElement();
         Debug.Log($"{name}: 속성 확정 - {currentElement}");
-        SyncStatsToDataManager();
     }
 
     private void ApplyElement() {
@@ -1650,7 +1366,7 @@ public class MonsterAI : MonoBehaviour, IDamageable {
     private IEnumerator DieRoutine() {
         PrepareDeath();
         ReportDeath();
-        SoundManager.Instance.PlaySFX(SFXType.MonsterDead);
+        SoundManager.Instance?.PlaySFX(SFXType.MonsterDead);
         Debug.Log($"{name}: 몬스터 사망");
         if (deadSpriteTime > 0f)
             yield return new WaitForSeconds(deadSpriteTime);
@@ -1660,20 +1376,28 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         Destroy(gameObject);
     }
 
-    private void PrepareDeath() {
+    private void PrepareDeath()
+    {
         StopHitRoutine();
+        slimeRangedAttack?.CancelAttack();
         movement.CancelAttackMotion();
         movement.Stop();
+
         HideAllIcons();
         visual.PlayDead();
+
         foreach (MonsterAttackTrigger trigger in
-                 GetComponentsInChildren<MonsterAttackTrigger>(true)) {
+                 GetComponentsInChildren<MonsterAttackTrigger>(true))
+        {
             trigger.enabled = false;
         }
+
         foreach (Collider2D collider in
-                 GetComponentsInChildren<Collider2D>(true)) {
+                 GetComponentsInChildren<Collider2D>(true))
+        {
             collider.enabled = false;
         }
+
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
         rb.simulated = false;
@@ -1700,31 +1424,66 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         }
     }
 
-    private void DropItem() {
-        if (hasPaletteItem) {
-            if (paletteItemPrefab == null) {
+    private void DropItem()
+    {
+        // 팔레트 보유 몬스터는 다른 드롭보다 팔레트 아이템이 우선입니다.
+        if (hasPaletteItem)
+        {
+            if (paletteItemPrefab == null)
+            {
                 Debug.LogWarning(
                     $"{name}: Palette Item Prefab이 연결되지 않았습니다.");
                 return;
             }
+
             Instantiate(
                 paletteItemPrefab,
                 transform.position,
                 Quaternion.identity);
+
             Debug.Log($"{name}: 팔레트 아이템 드롭");
             return;
         }
-        if (Random.value > paintDropChance) {
-            Debug.Log($"{name}: 물감 드롭 안 됨");
+
+        // 타일 색을 한 번도 흡수하지 않은 몬스터는 회복 아이템을 드롭합니다.
+        if (IsColorless)
+        {
+            if (Random.value > colorlessHealthDropChance)
+                return;
+
+            if (healthDropPrefab == null)
+            {
+                Debug.LogWarning(
+                    $"{name}: 무색 몬스터용 Health Pickup Prefab이 없습니다.");
+                return;
+            }
+
+            Instantiate(
+                healthDropPrefab,
+                transform.position,
+                Quaternion.identity);
+
+            Debug.Log($"{name}: 무색 몬스터 회복 아이템 드롭");
             return;
         }
-        GameObject prefab = GetDropPrefab();
-        if (prefab == null) {
+
+        if (Random.value > paintDropChance)
+            return;
+
+        GameObject paintPrefab = GetDropPrefab();
+
+        if (paintPrefab == null)
+        {
             Debug.LogWarning(
-                $"{name}: {currentElement} 드롭 프리팹이 없습니다.");
+                $"{name}: {currentElement} 물감 드롭 프리팹이 없습니다.");
             return;
         }
-        Instantiate(prefab, transform.position, Quaternion.identity);
+
+        Instantiate(
+            paintPrefab,
+            transform.position,
+            Quaternion.identity);
+
         Debug.Log($"{name}: {currentElement} 물감 드롭");
     }
 
@@ -1818,161 +1577,157 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         monsterManager.RegisterDeath(this);
         registeredToManager = false;
     }
-    
-    private void SyncStatsToDataManager() {
-        if (DataManager.Instance == null ||
-            string.IsNullOrEmpty(monsterUniqueId)) { return; }
 
-        DataManager.Instance.UpdateMonsterStat(
-            monsterUniqueId,
-            currentHp,
-            maxHp,
-            patrolSpeed,
-            chaseSpeed,
-            detectRange,
-            attackRange,
-            attackDamage,
-            currentElement.ToString());
+
+
+    private void ApplyBalanceProfileIfAvailable()
+    {
+        if (!applyBalanceProfileOnAwake ||
+            balanceProfile == null ||
+            movement == null ||
+            !balanceProfile.TryGet(
+                movement.Type,
+                out MonsterBalanceProfile.Entry entry))
+        {
+            return;
+        }
+
+        patrolSpeed = entry.PatrolSpeed;
+        chaseSpeed = entry.ChaseSpeed;
+        detectRange = entry.DetectRange;
+        attackRange = entry.AttackRange;
+        attackDamage = entry.AttackDamage;
+        attackCooldown = entry.AttackCooldown;
+        canRunAway = entry.CanRunAway;
+        runAwayHp = Mathf.Clamp(
+            entry.RunAwayHp,
+            0,
+            Mathf.Max(0, maxHp - 1));
+        runAwaySpeed = entry.RunAwaySpeed;
+        runAwayDistance = entry.RunAwayDistance;
+        runAwayDuration = entry.RunAwayDuration;
     }
 
-    private void OnDrawGizmosSelected() {
+    [ContextMenu("몬스터 타입 권장 밸런스 적용")]
+    private void ApplyRecommendedBalance()
+    {
+        MonsterMovement targetMovement =
+            movement != null
+                ? movement
+                : GetComponent<MonsterMovement>();
+
+        if (targetMovement == null)
+            return;
+
+        switch (targetMovement.Type)
+        {
+            case MonsterType.Slime:
+                patrolSpeed = 2.4f;
+                chaseSpeed = 3f;
+                detectRange = 5f;
+                attackRange = 4f;
+                attackDamage = 1;
+                attackCooldown = 2.2f;
+                canRunAway = false;
+                break;
+
+            case MonsterType.Snail:
+                patrolSpeed = 2f;
+                chaseSpeed = 2.4f;
+                detectRange = 3.5f;
+                attackRange = 0.75f;
+                attackDamage = 1;
+                attackCooldown = 2.4f;
+                canRunAway = false;
+                break;
+
+            case MonsterType.Ghost:
+                patrolSpeed = 3f;
+                chaseSpeed = 4f;
+                detectRange = 5f;
+                attackRange = 1.2f;
+                attackDamage = 1;
+                attackCooldown = 1.5f;
+                canRunAway = true;
+                runAwaySpeed = 4.5f;
+                break;
+
+            case MonsterType.Spider:
+                patrolSpeed = 4f;
+                chaseSpeed = 5f;
+                detectRange = 5.5f;
+                attackRange = 0.9f;
+                attackDamage = 1;
+                attackCooldown = 1.1f;
+                canRunAway = true;
+                runAwaySpeed = 5.5f;
+                break;
+
+            case MonsterType.Frog:
+                patrolSpeed = 2.5f;
+                chaseSpeed = 3f;
+                detectRange = 4.5f;
+                attackRange = 1.25f;
+                attackDamage = 1;
+                attackCooldown = 2f;
+                canRunAway = false;
+                break;
+
+            case MonsterType.Piranha:
+                detectRange = 3f;
+                attackRange = 1.2f;
+                attackDamage = 1;
+                attackCooldown = 2f;
+                canRunAway = false;
+                break;
+        }
+
+        runAwayHp = Mathf.Clamp(
+            runAwayHp,
+            0,
+            Mathf.Max(0, maxHp - 1));
+
+#if UNITY_EDITOR
+        UnityEditor.EditorUtility.SetDirty(this);
+#endif
+    }
+
+    private void OnValidate()
+    {
+        maxHp = Mathf.Max(1, maxHp);
+        runAwayHp = Mathf.Clamp(
+            runAwayHp,
+            0,
+            Mathf.Max(0, maxHp - 1));
+        patrolSpeed = Mathf.Max(0f, patrolSpeed);
+        chaseSpeed = Mathf.Max(0f, chaseSpeed);
+        detectRange = Mathf.Max(0f, detectRange);
+        attackRange = Mathf.Max(0f, attackRange);
+        attackCooldown = Mathf.Max(0f, attackCooldown);
+        patrolRange = Mathf.Max(0f, patrolRange);
+        obstacleTurnLockDuration = Mathf.Max(0f, obstacleTurnLockDuration);
+        colorlessHealthDropChance = Mathf.Clamp01(colorlessHealthDropChance);
+        paintDropChance = Mathf.Clamp01(paintDropChance);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectRange);
+
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
-        if (runAwayDistance > 0f) {
+
+        if (runAwayDistance > 0f)
+        {
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(transform.position, runAwayDistance);
         }
+
         Gizmos.color = Color.green;
         Gizmos.DrawLine(
             transform.position + Vector3.left * patrolRange,
             transform.position + Vector3.right * patrolRange);
-        if (groundCheck != null) {
-            Gizmos.color = Color.blue;
-            Gizmos.DrawWireSphere(
-                groundCheck.position,
-                groundCheckRadius);
-            Gizmos.DrawLine(
-                groundCheck.position,
-                groundCheck.position +
-                Vector3.down * groundCheckDistance);
-        }
-        if (wallCheck != null || bodyCollider != null) {
-            Gizmos.color = Color.magenta;
-
-            Collider2D colliderForGizmo =
-                bodyCollider != null ? bodyCollider : FindBodyCollider();
-
-            if (colliderForGizmo != null)
-            {
-                Bounds bounds = colliderForGizmo.bounds;
-                Vector3 origin = new Vector3(
-                    bounds.center.x +
-                    moveDirection * (bounds.extents.x + 0.015f),
-                    bounds.center.y + bounds.extents.y * 0.05f,
-                    transform.position.z);
-
-                Vector3 size = new Vector3(
-                    0.04f,
-                    Mathf.Max(0.08f, bounds.size.y * wallCheckHeightRatio),
-                    0f);
-
-                Gizmos.DrawWireCube(origin, size);
-                Gizmos.DrawLine(
-                    origin,
-                    origin +
-                    Vector3.right * moveDirection * wallCheckDistance);
-            }
-            else if (wallCheck != null)
-            {
-                Gizmos.DrawLine(
-                    wallCheck.position,
-                    wallCheck.position +
-                    Vector3.right * moveDirection * wallCheckDistance);
-            }
-        }
-
-        MonsterMovement previewMovement =
-            movement != null ? movement : GetComponent<MonsterMovement>();
-
-        Collider2D previewCollider =
-            bodyCollider != null ? bodyCollider : FindBodyCollider();
-
-        if (previewMovement != null &&
-            previewMovement.Type == MonsterType.Ghost)
-        {
-            float halfWidth =
-                previewCollider != null
-                    ? previewCollider.bounds.extents.x
-                    : 0.2f;
-
-            Vector3 ghostProbeOrigin = new Vector3(
-                transform.position.x +
-                moveDirection *
-                (halfWidth + ghostEdgeLookAhead),
-                previewCollider != null
-                    ? previewCollider.bounds.center.y
-                    : transform.position.y,
-                transform.position.z);
-
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(
-                ghostProbeOrigin,
-                ghostGroundProbeRadius);
-            Gizmos.DrawLine(
-                ghostProbeOrigin,
-                ghostProbeOrigin +
-                Vector3.down * ghostGroundProbeDistance);
-        }
-
-        Collider2D frogCollider =
-            bodyCollider != null ? bodyCollider : FindBodyCollider();
-
-        if (previewMovement != null &&
-            previewMovement.Type == MonsterType.Frog &&
-            frogCollider != null)
-        {
-            Bounds bounds = frogCollider.bounds;
-
-            Vector3 obstacleOrigin = new Vector3(
-                bounds.center.x +
-                moveDirection * (bounds.extents.x + 0.01f),
-                bounds.center.y + bounds.extents.y * 0.12f,
-                transform.position.z);
-
-            Vector3 obstacleSize = new Vector3(
-                0.04f,
-                Mathf.Max(
-                    0.08f,
-                    bounds.size.y * frogForwardCheckHeightRatio),
-                0f);
-
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireCube(obstacleOrigin, obstacleSize);
-            Gizmos.DrawLine(
-                obstacleOrigin,
-                obstacleOrigin +
-                Vector3.right *
-                moveDirection *
-                frogForwardCheckDistance);
-
-            Vector3 edgeOrigin = new Vector3(
-                bounds.center.x +
-                moveDirection *
-                (bounds.extents.x + frogEdgeLookAhead),
-                bounds.min.y + groundCheckRadius + 0.02f,
-                transform.position.z);
-
-            Gizmos.color = Color.blue;
-            Gizmos.DrawWireSphere(
-                edgeOrigin,
-                groundCheckRadius);
-            Gizmos.DrawLine(
-                edgeOrigin,
-                edgeOrigin +
-                Vector3.down * groundCheckDistance);
-        }
     }
 
     #endregion
