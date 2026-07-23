@@ -643,11 +643,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!4 &185446358 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8323505586766051146, guid: c94a1c76320a9d947ab19b1661206f8b, type: 3}
-  m_PrefabInstance: {fileID: 504852218}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &239174748 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4886131857431715616, guid: c94a1c76320a9d947ab19b1661206f8b, type: 3}
@@ -962,7 +957,7 @@ PrefabInstance:
     - target: {fileID: 3346328749140749400, guid: c94a1c76320a9d947ab19b1661206f8b, type: 3}
       propertyPath: maskTransform
       value: 
-      objectReference: {fileID: 185446358}
+      objectReference: {fileID: 0}
     - target: {fileID: 3346328749140749400, guid: c94a1c76320a9d947ab19b1661206f8b, type: 3}
       propertyPath: heartUiTransform
       value: 
@@ -2899,9 +2894,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c19492a09669ef488558da3454d88a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoorOpen
-  requiredColors:
-  - {r: 0.89411765, g: 1, b: 0, a: 0}
-  - {r: 0.98039216, g: 0, b: 0, a: 0}
+  monsterManager: {fileID: 0}
+  paletteManager: {fileID: 0}
+  requiredKillRatio: 0.7
+  requireAtLeastOneKillableMonster: 1
+  useStagePaletteRequirements: 1
+  requiredElements: 
+  colorTolerance: 0.15
+  animator: {fileID: 0}
+  readyBool: Ready
+  openTrigger: Open
+  readyIndicator: {fileID: 0}
+  collidersToDisable: []
+  isOpened: 0
+  isTransitioning: 0
+  paintedElements: 
 --- !u!212 &1073305371
 SpriteRenderer:
   serializedVersion: 2
@@ -3629,18 +3636,15 @@ MonoBehaviour:
   spawnParent: {fileID: 0}
   paintColorCatalog: {fileID: 11400000, guid: b81296731a17b074295244e3c682098f, type: 2}
   blockPrefabs:
-  - {fileID: 3460408229200777079, guid: 2e11576eae009d84bb85bf13c5849e12, type: 3}
-  - {fileID: 7753952058208247794, guid: c8a1f64d88e1e714fb461c5e14d00cb6, type: 3}
-  - {fileID: 2200124421993732874, guid: 2ab323da14a7ac64d9af60a1de380d97, type: 3}
-  - {fileID: 9153619257040553122, guid: 7ae8383311a69aa40bf97d055f2c64e2, type: 3}
-  - {fileID: 7109906585286794402, guid: 9f2dd8700e71fb549af91501450a1f59, type: 3}
-  - {fileID: 4084647857030043483, guid: 51bdbe19685e6c34b8373c5a3fd67f1d, type: 3}
-  - {fileID: 4312405529429607877, guid: b68a2a3c86e416d4eb2f23f65847ef5d, type: 3}
-  - {fileID: 4804726970376534874, guid: 1bbd6edc2c579eb4f92bd14d27ff6e21, type: 3}
-  - {fileID: 1765396222950108710, guid: 0cacb7d637f01a44aa4620ff0cdd0ef2, type: 3}
-  - {fileID: 1765396222950108710, guid: 0cacb7d637f01a44aa4620ff0cdd0ef2, type: 3}
-  - {fileID: 8482913487778567374, guid: 69ee0f1c86be55b4988a35a3ddfac69a, type: 3}
-  - {fileID: 5021808782332635218, guid: 645a27186a629f6489e59d452ab5842f, type: 3}
+  - {fileID: 3460408229200777079, guid: 8d262453ee9fab544a89cbdd6335bbdc, type: 3}
+  - {fileID: 2200124421993732874, guid: caf313ab29b6fa0489c19f9bd3035419, type: 3}
+  - {fileID: 9153619257040553122, guid: 2af87e596fd4d5143b0235dca49a7987, type: 3}
+  - {fileID: 7109906585286794402, guid: 5b38623c53ea14b4a8475d3ce2a9fc9d, type: 3}
+  - {fileID: 7938809913559708597, guid: 28b68dd4b54bc0b4186ca77dd27994b8, type: 3}
+  - {fileID: 4084647857030043483, guid: 8c21fea057985c148bb78fcd6592442d, type: 3}
+  - {fileID: 4312405529429607877, guid: 7bf0208c50178684bb2d621ff5a3aa8a, type: 3}
+  - {fileID: 8482913487778567374, guid: 6703dd245f6b3e2429ab56e0afc383e6, type: 3}
+  - {fileID: 9098431229869422235, guid: ee45d3514d85297419062ba558f7ad03, type: 3}
   selectedPrefabIndex: 0
   isPaintMode: 1
   isEraserMode: 0
@@ -4198,17 +4202,15 @@ MonoBehaviour:
   gridUnitSize: 1.28
   mapParent: {fileID: 0}
   blockPrefabs:
-  - {fileID: 3460408229200777079, guid: 2e11576eae009d84bb85bf13c5849e12, type: 3}
-  - {fileID: 7753952058208247794, guid: c8a1f64d88e1e714fb461c5e14d00cb6, type: 3}
-  - {fileID: 2200124421993732874, guid: 2ab323da14a7ac64d9af60a1de380d97, type: 3}
-  - {fileID: 7109906585286794402, guid: 9f2dd8700e71fb549af91501450a1f59, type: 3}
-  - {fileID: 4084647857030043483, guid: 51bdbe19685e6c34b8373c5a3fd67f1d, type: 3}
-  - {fileID: 4312405529429607877, guid: b68a2a3c86e416d4eb2f23f65847ef5d, type: 3}
-  - {fileID: 4084647857030043483, guid: 51bdbe19685e6c34b8373c5a3fd67f1d, type: 3}
-  - {fileID: 4804726970376534874, guid: 1bbd6edc2c579eb4f92bd14d27ff6e21, type: 3}
-  - {fileID: 1765396222950108710, guid: 0cacb7d637f01a44aa4620ff0cdd0ef2, type: 3}
-  - {fileID: 8482913487778567374, guid: 69ee0f1c86be55b4988a35a3ddfac69a, type: 3}
-  - {fileID: 5021808782332635218, guid: 645a27186a629f6489e59d452ab5842f, type: 3}
+  - {fileID: 3460408229200777079, guid: 8d262453ee9fab544a89cbdd6335bbdc, type: 3}
+  - {fileID: 2200124421993732874, guid: caf313ab29b6fa0489c19f9bd3035419, type: 3}
+  - {fileID: 9153619257040553122, guid: 2af87e596fd4d5143b0235dca49a7987, type: 3}
+  - {fileID: 7109906585286794402, guid: 5b38623c53ea14b4a8475d3ce2a9fc9d, type: 3}
+  - {fileID: 7938809913559708597, guid: 28b68dd4b54bc0b4186ca77dd27994b8, type: 3}
+  - {fileID: 4084647857030043483, guid: 8c21fea057985c148bb78fcd6592442d, type: 3}
+  - {fileID: 4312405529429607877, guid: 7bf0208c50178684bb2d621ff5a3aa8a, type: 3}
+  - {fileID: 8482913487778567374, guid: 6703dd245f6b3e2429ab56e0afc383e6, type: 3}
+  - {fileID: 9098431229869422235, guid: ee45d3514d85297419062ba558f7ad03, type: 3}
   paintColorCatalog: {fileID: 11400000, guid: b81296731a17b074295244e3c682098f, type: 2}
   redPercent: 25
   bluePercent: 25
