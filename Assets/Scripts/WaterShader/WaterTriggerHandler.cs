@@ -40,7 +40,7 @@ public class WaterTriggerHandler : MonoBehaviour
                 {
                     spawnPos = hitObjectPos + new Vector2(0f, hitObjectBounds.extents.y);
                 }
-                Instantiate(_splashParticles, spawnPos, Quaternion.identity);
+                //Instantiate(_splashParticles, spawnPos, Quaternion.identity);
 
                 int multiplier = -1;
                 if (rb.linearVelocity.y < 0)
