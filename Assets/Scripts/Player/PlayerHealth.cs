@@ -59,6 +59,11 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     {
         if (isDead) return;
 
+        Project.Player.PlayerController2D controller = GetComponent<Project.Player.PlayerController2D>();
+        
+        // 무적 상태라면 체력 차감, 넉백, 데이터 동기ㅗ하 스킵하고 탈출
+        if (controller != null && controller.IsInvincible) return;
+
         currentHp = Mathf.Max(0, currentHp - damage);
 
         Debug.Log($"플레이어 피격! HP : {currentHp}");
@@ -67,7 +72,6 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         UpdateHeartFill();
 
         // 피격당할 때 플레이어 본체 넉백 및 스케일 팽창 연출 호출
-        Project.Player.PlayerController2D controller = GetComponent<Project.Player.PlayerController2D>();
         if (controller != null && attacker != null)
         {
             controller.ApplyKnockback(attacker.transform.position);
@@ -126,7 +130,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         Animator anim = GetComponentInChildren<Animator>();
         if (anim != null)
         {
-            anim.SetTrigger("die");
+            anim.SetTrigger("death");
         }
 
         // 지형과는 부딪혀 안착하되 몬스터/투사체 충돌은 방어하도록 레이어를 임시 변경

@@ -600,9 +600,9 @@ Animator:
   m_GameObject: {fileID: 2400402291004064894}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: f8e1e00eb770304459d7da75f7107fc0, type: 2}
+  m_Controller: {fileID: 9100000, guid: 1da73dc448e145a438e50d4519536220, type: 2}
   m_CullingMode: 0
-  m_UpdateMode: 1
+  m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
@@ -717,6 +717,11 @@ MonoBehaviour:
   hangerXOffset: -0.4
   invincibleDuration: 1.5
   blinkInterval: 0.1
+  knockbackForceX: 7
+  knockbackForceY: 5
+  knockbackDuration: 0.2
+  hitScaleMultiplier: 1.3
+  hitScaleDuration: 0.15
   isInsideLadder: 0
   isClimbing: 0
   isInsideHanger: 0
@@ -735,7 +740,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   maxHp: 5
-  heartUI: {fileID: 0}
+  heartUiTransform: {fileID: 0}
+  maskTransform: {fileID: 0}
+  minYOffset: -0.5
+  maxYOffset: 0
 --- !u!114 &1989683943351753408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -752,6 +760,7 @@ MonoBehaviour:
   feverDuration: 7
   feverDamage: 100
   enableDirectInput: 1
+  qKeyOnly: 1
   useQKey: 1
   useEKey: 1
   useRightMouseButton: 1

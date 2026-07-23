@@ -51,15 +51,28 @@ public class TutorialZone : MonoBehaviour
         // 카메라가 비춰줄 타겟이 지정되어 있다면 카메라 이동 연출 수행
         if (virtualCamera != null && cameraFocusTarget != null)
         {
-            Transform originalFollow = virtualCamera.Follow;
-
-            // 카메라 타겟을 장애물 / 기믹 위치로 변경
+            // 시네머신의 Follow 컴포넌트 가져오기
+            CinemachineFollow followComp = virtualCamera.GetComponent<CinemachineFollow>();
+            Vector3 originalDamping = Vector3.zero;
+            if (followComp != null)
+            {
+                // 평소 플레이어를 빠르게 따라가던 Damping 수치를 변수에 기억해둠
+                originalDamping = followComp.TrackerSettings.PositionDamping;
+                // FocusTarget으로 날아갈 때만 Damping을 느긋하게 변경
+                followComp.TrackerSettings.PositionDamping = new Vector3(5f, 5f, 1f);
+            }
+            // FocusTarget으로 이동 (느긋하고 부드럽게 지이이잉~ 이동)
             virtualCamera.Follow = cameraFocusTarget;
 
-            // 지정된 시간만큼 대기 (기믹 안내)
+            // 지형/장애물 보여주며 대기 (cameraHoldDuration 초 동안)
             yield return new WaitForSeconds(cameraHoldDuration);
 
-            // 카메라를 다시 플레이어로 복귀
+            // 플레이어로 돌아오기 전에 Damping을 원래의 빠른 수치로 즉시 원복
+            if (followComp != null)
+            {
+                followComp.TrackerSettings.PositionDamping = originalDamping;
+            }
+            // 플레이어로 카메라 복귀
             virtualCamera.Follow = playerTransform;
             yield return new WaitForSeconds(0.3f);
         }

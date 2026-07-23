@@ -49,6 +49,8 @@ namespace Project.Player
         public bool IsGroundedToAnim => isGrounded;                           // 애니메이션에게 땅 착지 여부 전달
         public bool IsFallingFromLadder => isFallingFromLadder;               // 사다리 낙하 여부 노출
 
+        public bool IsInvincible => isInvincible;                             // 무적 여부 변수
+
         // Ladder State
         public bool isInsideLadder = false;                                   // 사다리 충돌범위안 판별
         public bool isClimbing = false;                                       // 사다리 오르는 중인가 판별
@@ -351,6 +353,21 @@ namespace Project.Player
                 }
             }
         }
+
+        private void OnCollisionEnter2D(Collision2D collision)
+        {
+            if (collision.gameObject.CompareTag("Monster"))
+            {
+                if (isInvincible) return;
+
+                PlayerHealth health = GetComponent<PlayerHealth>();
+                if (health != null)
+                {
+                    health.TakeDamage(1, Color.white, collision.gameObject, true);
+                }
+            }
+        }
+
         private void OnTriggerExit2D(Collider2D collision)
         {
             if (collision.GetComponent<ColorDropItem>() != null) return;
@@ -444,6 +461,9 @@ namespace Project.Player
                 rb.gravityScale = originalGravityScale;
                 transform.rotation = Quaternion.Euler(0f, IsFacingRight ? 0f : 180f, 0f);
             }
+
+            // 피격 애니메이션 트리거 신호 보장
+            isHurtTriggered = true;
 
             // 넉백, 스케일 바운스, 그리고 무적 깜빡이 코루틴을 동시에 실행!
             StartCoroutine(KnockbackRoutine(attackerPosition, knockbackForceX, knockbackForceY, knockbackDuration));
