@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 7810818459621428082}
   - component: {fileID: 3756515776815226883}
   - component: {fileID: 6098908017857759054}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: tile_spikes_0
-  m_TagString: Untagged
+  m_TagString: Spike
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
