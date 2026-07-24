@@ -116,7 +116,7 @@ GameObject:
   - component: {fileID: 8280593724723125144}
   m_Layer: 0
   m_Name: DoorVisual
-  m_TagString: Untagged
+  m_TagString: Door
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -183,7 +183,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 5628198344725179689, guid: ac4e7761ad96de24697721d80286e255, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
