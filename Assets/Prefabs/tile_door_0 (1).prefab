@@ -185,7 +185,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: c65829610e1e69a449f1b6058a23a530, type: 2}
+  m_Sprite: {fileID: 5628198344725179689, guid: ac4e7761ad96de24697721d80286e255, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -312,7 +312,7 @@ MonoBehaviour:
   transitionFader: {fileID: 0}
   interactionPrompt: {fileID: 2128429981070017917}
   interactionKey: 101
-  animationLeadTime: 0
+  animationLeadTime: 10
   nextSceneName: Stage2
   loadNextBuildIndexWhenNameEmpty: 1
 --- !u!1 &4633009016908520077
@@ -597,8 +597,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: PRESS 'E'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 00b061bc35551da4abab048e83e69692, type: 2}
-  m_sharedMaterial: {fileID: -7108966860419506604, guid: 00b061bc35551da4abab048e83e69692, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
+  m_sharedMaterial: {fileID: 5937571395625260242, guid: ffa1f00f244eb0649b57a112aea4c8e1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
