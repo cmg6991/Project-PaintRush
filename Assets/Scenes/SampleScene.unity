@@ -4246,6 +4246,8 @@ MonoBehaviour:
   attackDamage: 1
   attackCooldown: 1.5
   attackTrigger: {fileID: 0}
+  blockPiranhaAttackWhilePlayerHanging: 1
+  logBlockedPiranhaAttack: 0
   canRunAway: 1
   runAwayHp: 1
   runAwaySpeed: 4
@@ -4262,11 +4264,18 @@ MonoBehaviour:
   monsterHitEffectPrefab: {fileID: 0}
   monsterHitEffectOffset: {x: 0, y: 0, z: 0}
   monsterHitEffectLifetime: 1
+  monsterHitSounds: []
+  monsterHitAudioSource: {fileID: 0}
+  monsterHitSoundVolume: 1
+  monsterHitPitchRange: {x: 0.95, y: 1.05}
+  monsterHitSpatialBlend: 0
   sparkleEffectPrefab: {fileID: 0}
   currentElement: 0
   redElementColor: {r: 1, g: 0, b: 0, a: 1}
   blueElementColor: {r: 0, g: 0, b: 1, a: 1}
   yellowElementColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  greenElementColor: {r: 0, g: 1, b: 0, a: 1}
+  purpleElementColor: {r: 0.6666667, g: 0, b: 1, a: 1}
   colorTolerance: 0.08
   noticeIcon: {fileID: 435942442}
   runAwayIcon: {fileID: 0}
@@ -4275,6 +4284,8 @@ MonoBehaviour:
   redDropPrefab: {fileID: 1719896524428501687, guid: cdaf1545c2a684c46a3500ac3ef23ab5, type: 3}
   blueDropPrefab: {fileID: 1719896524428501687, guid: 493b3b82425a53d41927b7d6abcd5888, type: 3}
   yellowDropPrefab: {fileID: 1719896524428501687, guid: 1e07116d06f58514fb297434e702d62b, type: 3}
+  greenDropPrefab: {fileID: 0}
+  purpleDropPrefab: {fileID: 0}
   paintDropChance: 0.7
   hasPaletteItem: 0
   paletteItemPrefab: {fileID: 0}
@@ -5151,63 +5162,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: da19621735e0c954fb67b02cae1fd0ea, type: 3}
---- !u!1001 &2097040377
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 7352564096136474196, guid: 1099bef03c49b1a4c9803d2d0600988a, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -1.8942325
-      objectReference: {fileID: 0}
-    - target: {fileID: 7352564096136474196, guid: 1099bef03c49b1a4c9803d2d0600988a, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.9255661
-      objectReference: {fileID: 0}
-    - target: {fileID: 7352564096136474196, guid: 1099bef03c49b1a4c9803d2d0600988a, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7352564096136474196, guid: 1099bef03c49b1a4c9803d2d0600988a, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7352564096136474196, guid: 1099bef03c49b1a4c9803d2d0600988a, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7352564096136474196, guid: 1099bef03c49b1a4c9803d2d0600988a, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7352564096136474196, guid: 1099bef03c49b1a4c9803d2d0600988a, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7352564096136474196, guid: 1099bef03c49b1a4c9803d2d0600988a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7352564096136474196, guid: 1099bef03c49b1a4c9803d2d0600988a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7352564096136474196, guid: 1099bef03c49b1a4c9803d2d0600988a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7753952058208247794, guid: 1099bef03c49b1a4c9803d2d0600988a, type: 3}
-      propertyPath: m_Name
-      value: Ladders
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 1099bef03c49b1a4c9803d2d0600988a, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -5247,4 +5201,3 @@ SceneRoots:
   - {fileID: 176074624}
   - {fileID: 1133210501}
   - {fileID: 2023442557}
-  - {fileID: 2097040377}

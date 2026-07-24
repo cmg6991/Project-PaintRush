@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TileManager : MonoBehaviour
 {
@@ -22,6 +23,15 @@ public class TileManager : MonoBehaviour
     // 색상 흡수 기믹이 적용될 블록들을 모아둘 리스트
     private List<ColorMinus> interactiveBlockList = new List<ColorMinus>();
 
+    void Awake()
+    {
+        string currentSceneName = SceneManager.GetActiveScene().name;
+
+        targetMapName = currentSceneName;
+
+        Debug.Log($"[TileManager] 현재 씬 감지됨: {currentSceneName} -> 맵 이름 '{targetMapName}'으로 설정합니다.");
+    }
+
     void Start()
     {
         LoadMap(targetMapName);
@@ -30,7 +40,7 @@ public class TileManager : MonoBehaviour
     // JSON을 읽어와서 스프라이트 오브젝트들을 낱개로 싹 세팅하는 핵심 함수
     public void LoadMap(string fileName)
     {
-        // 1. 기존에 생성된 맵 부모가 있다면 청소
+        // 기존에 생성된 맵 부모가 있다면 청소
         Transform parent = GetOrCreateParent();
         foreach (Transform child in parent)
         {
@@ -39,7 +49,7 @@ public class TileManager : MonoBehaviour
 
         interactiveBlockList.Clear();
 
-        // 2. JSON 데이터 로드
+        // JSON 데이터 로드
         MapData mapData = LoadMapData("Maps/" + fileName);
         if (mapData == null || mapData.tiles == null)
         {
@@ -47,7 +57,7 @@ public class TileManager : MonoBehaviour
             return;
         }
 
-        // 3. 데이터 기반 오브젝트 개별 생성
+        // 데이터 기반 오브젝트 개별 생성
         foreach (var data in mapData.tiles)
         {
             GameObject prefab = GetPrefabByName(data.name);
@@ -84,7 +94,7 @@ public class TileManager : MonoBehaviour
 
         Debug.Log($"[TileManager] 스프라이트 맵 '{fileName}' 로드 완료! (색상 기믹 대상 블록: {interactiveBlockList.Count}개)");
 
-        // 5. 렌더링 안정화 대기 후 무작위 색상 배분 셔플 실행
+        // 렌더링 안정화 대기 후 무작위 색상 배분 셔플 실행
         StartCoroutine(ColorShuffleRoutine());
     }
 
@@ -162,7 +172,7 @@ public class TileManager : MonoBehaviour
         Debug.Log($"[TileManager] 블록 색상 무작위 밸런스 배치 완료 (Red:{redCount}, Blue:{blueCount}, Yellow:{yellowCount})");
     }
 
-    // 아트 팀의 ColorMinus 컴포넌트를 건드리지 않고 색상을 강제 주입하는 헬퍼
+    // 색상 주입 필터
     private void ForceSetBlockColor(ColorMinus colorMinus, Color newColor)
     {
         var sr = colorMinus.GetComponent<SpriteRenderer>();
@@ -182,7 +192,7 @@ public class TileManager : MonoBehaviour
 
     private MapData LoadMapData(string resourcePath)
     {
-        // 1. 에디터 저장 경로 및 영구 저장 경로(PersistentDataPath) 먼저 탐색
+        // 에디터 저장 경로 및 영구 저장 경로(PersistentDataPath) 먼저 탐색
         string persistentPath = Path.Combine(Application.persistentDataPath, resourcePath + ".json");
         if (File.Exists(persistentPath))
         {
@@ -190,7 +200,7 @@ public class TileManager : MonoBehaviour
             return JsonUtility.FromJson<MapData>(jsonText);
         }
 
-        // 2. DataPath의 Resources 폴더 탐색 (에디터 저장 위치 대응)
+        // DataPath의 Resources 폴더 탐색 (에디터 저장 위치 대응)
         string dataPathFile = Path.Combine(Application.dataPath, "Resources", resourcePath + ".json");
         if (File.Exists(dataPathFile))
         {
@@ -198,7 +208,7 @@ public class TileManager : MonoBehaviour
             return JsonUtility.FromJson<MapData>(jsonText);
         }
 
-        // 3. 마지막으로 유니티 기본 Resources.Load 시도
+        // 유니티 기본 Resources.Load 시도
         TextAsset mapTextAsset = Resources.Load<TextAsset>(resourcePath);
         if (mapTextAsset != null)
         {

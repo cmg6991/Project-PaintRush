@@ -4,20 +4,23 @@ public class Spike : MonoBehaviour
 {
     [SerializeField] private int damage = 1;
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        PlayerHealth player =
-            collision.collider.GetComponentInParent<PlayerHealth>();
+        if (!other.CompareTag("Player"))
+            return;
+
+        PlayerHealth player = other.GetComponent<PlayerHealth>();
 
         if (player == null || player.IsDead)
             return;
 
         player.TakeDamage(
             damage,
-            Color.clear,   // °¡½Ã´Â ¼Ó¼º»öÀÌ ¾øÀ¸¹Ç·Î ¾Æ¹« »öÀÌ³ª Àü´Ş
-            gameObject,    // °ø°İÀÚ = °¡½Ã
-            true           // ¼Ó¼º ¹«½Ã
+            Color.clear,
+            gameObject,
+            true
         );
-        Debug.Log("°¡½Ã ´êÀ½");
+
+        Debug.Log("ê°€ì‹œ ë‹¿ìŒ");
     }
 }

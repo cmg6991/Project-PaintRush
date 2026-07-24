@@ -23,6 +23,8 @@ public class RestartUI : MonoBehaviour
         canvas.interactable = true;
         canvas.blocksRaycasts = true;
 
+        SoundManager.Instance.PlayBGM(BGMType.Normal);
+
         Time.timeScale = 0f;
     }
 

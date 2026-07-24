@@ -52,7 +52,7 @@ public class UIManager : Singleton<UIManager>
     {
         Debug.Log("게임 시작");
         SoundManager.Instance.PlaySFX(SFXType.Click);
-        SceneManager.LoadScene("ProtoScene");
+        SceneManager.LoadScene("TutorialScene");
     }
 
     public void Setting()

@@ -20,6 +20,16 @@ public class CinemachineSpawnDirector : MonoBehaviour
     public float drawingAnimationDuration = 1.0f;      // 만년필 애니메이션이 다 그려지는 시간
     public float postSpawnDelay = 0.5f;                // 플레이어 나오고 잠시 대기
 
+    private void Awake()
+    {
+        // 씬이 로드되는 첫 프레임(Frame 0) 즉시 카메라를 스폰 위치(-51.3, -8.4)에 붙여 튐 현상 제거
+        if (virtualCamera != null && spawnPoint != null)
+        {
+            Vector3 targetcamPos = new Vector3(spawnPoint.position.x, spawnPoint.position.y, virtualCamera.transform.position.z);
+            virtualCamera.transform.position = targetcamPos;
+        }
+    }
+
     private void Start()
     {
         StartCoroutine(CinemachineSpawnRoutine());
@@ -27,22 +37,28 @@ public class CinemachineSpawnDirector : MonoBehaviour
 
     private IEnumerator CinemachineSpawnRoutine()
     {
+        CinemachineBrain brain = Camera.main != null ? Camera.main.GetComponent<CinemachineBrain>() : FindAnyObjectByType<CinemachineBrain>();
+        if (brain != null)
+        {
+            brain.ActiveBlend = null;
+        }
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.ResetTutorialFlags();
+            TutorialManager.Instance.isCutscenePlaying = true;
+        }
+
         // 초기 상태: 연출 오브젝트와 플레이어 비활성화
         if (drawingObject) drawingObject.SetActive(false);
         if (realPlayer) realPlayer.SetActive(false);
 
-        // ※ 시네머신이 문 앞을 비추게 하려면, 
-        // 연출 동안 시네머신의 Follow를 문 앞(SpawnPoint)에 있는 빈 오브젝트로 지정해두거나
-        // 혹은 SpawnPoint 위치로 카메라를 잠시 고정하는 방식
-        // 여기서는 가장 깔끔하게 연출 동안 Follow를 해제(null)하고 스폰 위치로 포커스를 맞춥니다.
         Transform originalFollow = virtualCamera.Follow;
-        virtualCamera.Follow = null;
+        virtualCamera.Follow = spawnPoint;
 
-        // 카메라 위치를 스폰 위치로 즉시 이동 (z축 유지)
-        Vector3 camPos = virtualCamera.transform.position;
-        camPos.x = spawnPoint.position.x;
-        camPos.y = spawnPoint.position.y;
-        virtualCamera.transform.position = camPos;
+        // 씬 전환 시 카메라 튐 없이 스폰 위치로 즉시 이동 (z축 유지)
+        Vector3 targetcamPos = new Vector3(spawnPoint.position.x, spawnPoint.position.y, virtualCamera.transform.position.z);
+        virtualCamera.OnTargetObjectWarped(virtualCamera.transform, targetcamPos - virtualCamera.transform.position);
+        virtualCamera.transform.position = targetcamPos;
 
         // 카메라 줌인 (Orthographic Size 조절)
         float startZoom = virtualCamera.Lens.OrthographicSize;
@@ -82,6 +98,7 @@ public class CinemachineSpawnDirector : MonoBehaviour
         if (realPlayer)
         {
             virtualCamera.Follow = realPlayer.transform;
+            virtualCamera.OnTargetObjectWarped(realPlayer.transform, Vector3.zero);
         }
         else
         {
@@ -98,6 +115,13 @@ public class CinemachineSpawnDirector : MonoBehaviour
             yield return null;
         }
         virtualCamera.Lens.OrthographicSize = defaultZoomSize;
+
+        // 연출 종료 후 컷씬 해제 및 최초 이동 해금
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.isCutscenePlaying = false;
+            TutorialManager.Instance.canMove = true;
+        }
 
         Debug.Log("연출 종료, 게임 시작!");
         Destroy(this); // 이 연출 스크립트 삭제

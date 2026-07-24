@@ -30,7 +30,12 @@ namespace Project.Player
             // 이미 사망했다면 애니메이션 노드를 Dead로 고정하기 위해 다른 상태값 업데이트 정지
             if (playerHealth != null && playerHealth.IsDead)
             {
-                animator.SetTrigger("Death");
+                animator.SetBool("isGrounded", true);
+                animator.SetBool("isMoving", false);
+                animator.SetBool("isClimbing", false);
+                animator.SetBool("isHanging", false);
+
+                animator.SetTrigger("death");
                 return;
             }
 

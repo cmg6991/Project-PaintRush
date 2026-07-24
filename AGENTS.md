@@ -12,15 +12,40 @@
 - 터미널을 통해 파일을 읽을 때는 인코딩 변환(CP949 -> UTF-8)을 수행하여 출력의 가독성을 유지해야 합니다.
 - **단, 마크다운 문서 파일(`.md`)은 에디터 호환성을 위해 UTF-8로 보존합니다.**
 
-### B. 단계별 학습 지침 (Learning-Oriented Interaction)
-- 사용자는 완성형 코드를 단순히 덮어쓰는 대신, 핵심 로직 클래스(예: `CollisionManager.cpp`)를 비우고 스스로 구현하며 학습하는 것을 선호합니다.
-- 코드 전체를 한 번에 제공하지 않고, 논리적 흐름에 따라 여러 단계(Milestones)로 나누어 개념 설명, 힌트, 부분 코드를 제공하면서 점진적으로 유도해야 합니다.
-- 각 단계마다 사용자가 직접 작성하거나 이해할 수 있도록 대화식으로 피드백을 주고받아야 합니다.
+# 모호한 요청 명확화
 
-### C. 강사 파일 참조 및 업데이트 감지 (Reference Path & Update Check)
-- 코드를 학습/구현할 때 항상 강사님의 원본 폴더인 `D:\WinAPI\Main\BounceBall` 내의 관련 파일을 확인하고, 그곳에 업데이트된 내용이나 구조가 있다면 이를 학습 지침에 반영하여 유도해야 합니다.
+## 언제 발동하나
 
-### D. 수정 범위 (Scope of Modifications)
+다음 중 하나라도 해당하면, 코드를 바로 수정/구현하기 전에 이 스킬을 따른다.
+
+- 지시어만 있고 대상이 없음: "이거 고쳐줘", "더 낫게 해줘", "정리해줘"
+- 대상은 있으나 범위가 불명확: 어떤 씬/폴더/스크립트인지, 얼마나 넓게 손댈지 불특정
+- 구현 방식이 여러 갈래로 갈리고 각각 결과물이 달라짐 (예: 저장 위치, 네이밍 규칙, UI 방식)
+- 이 변경이 다른 코드/문서/팀원 작업에 영향을 줄 수 있는데 그 영향 범위가 불확실
+
+이 스킬은 **추천하기 전에, 애초에 무엇을 추천해야 할지조차 불확실한 경우**를 다룬다.
+
+반대로 다음은 발동 대상이 아니다: 요청이 구체적이고 대상/범위가 명확한 경우, 컨벤션 문서를 보면 답이 정해지는 경우. 이때는 바로 실행한다 - 매번 확인 질문을 던지면 오히려 방해가 된다.
+
+## 방법
+
+1. **추측으로 채우지 않는다.** 불명확한 부분을 그럴듯한 기본값으로 임의 해석해서 진행하지 않는다.
+2. **무엇이 불명확한지 먼저 코드/문서를 읽고 좁힌다.** 탐색 없이 바로 사용자에게 되묻지 않는다 - 예/아니오로 답할 수 있는 질문은 최대한 스스로 조사해서 없앤 뒤, 정말 사용자만 결정할 수 있는 지점만 질문으로 남긴다.
+3. **AskUserQuestion 툴로 구체적 선택지를 제시한다.** "어떻게 할까요?" 식의 열린 질문 대신, 조사한 내용을 바탕으로 2~4개의 실제 대안을 제시하고 근거를 덧붙인다. 추천 대안이 있으면 첫 번째 옵션에 "(권장)"을 붙인다.
+4. **질문은 실행에 필요한 만큼만.** 한 번에 필요 이상으로 여러 질문을 쏟아내지 않는다 - 결정이 서로 독립적이면 한 번에 묶어 물어도 되지만, 뒤 질문이 앞 질문의 답에 따라 달라지면 순서대로 나눈다.
+5. **답을 받으면 그 결정을 반영해 계획/코드를 진행한다.** 같은 사안을 다시 묻지 않는다.
+
+## 예시
+
+```
+사용자: "이거 커밋 메시지 형식 좀 정리해줘"
+
+❌ 바로 임의로 Conventional Commits 형식으로 재작성
+✅ 기존 커밋 로그/문서를 먼저 확인 -> 이미 확립된 관례가 없음을 파악
+   -> AskUserQuestion으로 "타입 태그 스타일(영어 vs 한글)",
+      "scope 표기 방식" 등 실제로 결과물이 갈리는 지점만 질문
+```
+### C. 수정 범위 (Scope of Modifications)
 - 게임 루프나 창 초기화 등 핵심 엔진/프레임워크 코드(`Game`, `Scene`, `InputManager`, `TimeManager` 등)는 명시적인 요청이 없는 한 수정하지 않고 그대로 보존합니다.
 - 게임 콘텐츠 및 충돌/물리 처리 등 플레이 패턴에 밀접한 로직 위주로 실습과 수정이 이루어집니다.
 
@@ -106,34 +131,29 @@ private void OnTriggerEnter2D(Collider2D collision)
 
 ---
 
-## 3. 자동 맵 스캔 & 격자 제너레이터 구현 현황 (Implementation Roadmap)
+## 3. 맵 에디터 & 타일 관리 및 스탯 시스템 현황 (System Implementation Status)
 
 ### A. 기획 배경 (Background & Needs)
 * **협업 생산성 극대화**: 팀원들이 각자 디자인한 맵을 단일 씬 파일에 직접 마구잡이로 배치하다 보면 Git 충돌(Merge Conflict)이 100% 발생합니다. 이를 원천 차단하기 위해 맵 정보를 런타임에 JSON 파일로 동적 로드하는 시스템을 구축했습니다.
-* **직관적인 백업 지원**: 유니티 에디터를 잘 다루지 못하는 팀원도 씬에 타일 오브젝트를 원하는 대로 배치한 후, 마우스 클릭 딱 2번만으로 데이터 백업 및 `Stage1.json` 추출을 마칠 수 있도록 자동 스캐너를 제공합니다.
+* **에디터 편의성 및 데이터 이관**: 기존 `MapGenerator` 및 `MapTestLauncher` 구성을 `MapEditor` / `MapEditorCustom`과 `TileManager`로 역할을 통합 이관하여 에디터 씬 뷰 드로잉 기반 배치와 런타임 자동 로딩/색상 배분 시스템으로 단순화했습니다.
 
-### B. 구현 완료된 핵심 코드 및 기능 (Completed Features)
+### B. 핵심 시스템 구조 및 역할 분담 (Core Architecture)
 
-#### ① 씬 엑스포터 및 스캐너 ([MapTestLauncher.cs](file:///d:/GitHub/Project-PaintRush/Assets/Scripts/Map/MapTestLauncher.cs))
-* 에디터 상에서 마우스 우클릭 콘텍스트 메뉴(`Scan Scene to JSON`)를 통해 구동됩니다.
-* 씬 내의 모든 낱개 `"tile_"` 오브젝트들의 위치(X, Y), 이름, 그리고 기믹 타입(`Grass`, `Bridge`, `Cog`, `Door` 등)을 동적으로 자동 분류하여 수집합니다.
-* `MapGenerator` 인스펙터에 등록되어 있는 타일 에셋 배열 순서를 대조하여 JSON 데이터의 `id` 필드를 빈틈없이 자동으로 매핑 기입합니다.
+#### ① 스탯 전용 싱글톤 매니저 ([DataManager.cs](file:///d:/GitHub/Project-PaintRush/Assets/Scripts/Manager/DataManager.cs))
+* **역할 전술적 축소**: 기존 맵 JSON 세이브/로드 책임을 전면 분리하고, **플레이어 및 몬스터 동적 스탯 관리 전용 매니저**로 직무를 명확히 다듬었습니다.
+* **`PlayerStat`**: 플레이어의 HP (`currentHp`, `maxHp`), 잉크 보유량 (`redInk`, `greenInk`, `blueInk`), 총의 물감 충전 정보(`currentColorHex`, `colorAmount`) 관리.
+* **`MonsterStat`**: 몬스터 ID별 체력, 이동/추격 속도, 감지/공격 범위, 공격력 및 속성 타입(`currentElement`)을 딕셔너리로 관리하고 런타임 동기화 API 제공.
 
-#### ② 견고한 백업 맵 로더 ([DataManager.cs](file:///d:/GitHub/Project-PaintRush/Assets/Scripts/Manager/DataManager.cs))
-* `CurrentMapData`를 소수점 유실이 없도록 조율하며 JSON 파일로 변환하여 에디터 로컬 폴더에 다이렉트로 물리 저장합니다.
-* **[임포트 딜레이 방어]** 방금 구워진 JSON 텍스트 에셋이 유니티 캐싱 데이터베이스에 새로고침되기 전에 로딩되어 맵이 누락되던 버그를 해결하기 위해, `Resources.Load`가 실패하면 실제 하드디스크 디렉토리(`File.ReadAllText`)를 직접 타고 들어가 강제 로드해오는 **이중 디스크 백업 시스템**을 도입했습니다.
+#### ② 씬 뷰 에디터 & JSON 엑스포터 ([MapEditor.cs](file:///d:/GitHub/Project-PaintRush/Assets/Scripts/Map/MapEditor.cs) / [MapEditorCustom.cs](file:///d:/GitHub/Project-PaintRush/Assets/Scripts/Editor/MapEditorCustom.cs))
+* **에디터 배치/지우개 모드**: `MapEditorCustom`을 통해 씬 뷰 상에서 그리드 단위 스냅 프리뷰 지원, 배치 모드(`isPaintMode`) 및 지우개 모드(`isEraserMode` / `Shift+클릭`) 제공.
+* **JSON 저장/로드 연동**: 씬 내 배치된 타일들의 위치, 회전, 스케일, 스프라이트 색상을 직렬화하여 `Resources/Maps/{mapName}.json` 파일로 물리 저장(`SaveSceneToJson`) 및 에디터 씬 복원(`LoadJsonToEditorScene`) 처리.
 
-#### ③ 스마트 격자 제너레이터 ([MapGenerator.cs](file:///d:/GitHub/Project-PaintRush/Assets/Scripts/Map/MapGenerator.cs))
-* 읽어 들인 JSON 데이터를 기반으로 정수 격자 좌표(`Vector3Int`)로 스냅을 가해 타일맵 컴포넌트 상에 `SetTile`로 타일을 깔끔하게 조립합니다.
-* **[복사본 이름 매칭 필터]** 타일 굽기(Drag) 시 유니티가 붙이는 `_0` 접미사나 공백, 언더바, 그리고 복사본 구별용 꼬리표 숫자 `1`까지 코드 단에서 유연하게 도려내어 이름 일치 여부를 매칭하는 **유연한 매칭 필터(Fuzzy Match)**를 적용하여 조립 실패 버그를 완치했습니다.
+#### ③ 런타임 맵 로더 & 동적 색상 배분 ([TileManager.cs](file:///d:/GitHub/Project-PaintRush/Assets/Scripts/Manager/TileManager.cs))
+* **다중 경로 맵 로드**: `persistentDataPath`, `Resources/Maps/`, `Resources.Load` 순서로 JSON 데이터를 안전하게 읽어와 런타임 씬에 타일 프리팹을 동적 생성.
+* **유연한 프리팹 매칭 (Fuzzy Match)**: 복사본 접미사(` (1)` 등) 및 대소문자 차이를 흡수하여 안전하게 타일 개별 생성.
+* **기믹 분류 및 `ColorMinus` 자동 부여**: 사다리(`Ladder`), 행거(`Grab`/`Hanger`), 함정(`Spike`) 등 물리 특수 타일을 예외 처리하고 일반 블록에만 `ColorMinus` 컴포넌트 자동 주입.
+* **Fisher-Yates 무작위 색상 배분**: 주입된 밸런스 비율(`redPercent`, `bluePercent`, `yellowPercent`)에 맞춰 블록들의 색상을 무작위 셔플 후 머티리얼 및 스프라이트 색상 자동 적용.
 
-#### ④ 빌드 오류 디버깅 완료 ([TileManager.cs](file:///d:/GitHub/Project-PaintRush/Assets/Scripts/Manager/TileManager.cs))
-* 데이터 캐스팅 규격이 다소 변경됨에 따라 타 스크립트에서 발생할 수 있는 오타(`Vector3int` ➡️ `Vector3Int`) 및 float 좌표 대입 타입 에러 부근에 명시적 반올림 캐스팅(`Mathf.RoundToInt`)을 적용하여 프로젝트 전체 컴파일 빌드를 성공 상태로 복구 완료했습니다.
-
-### C. 프리팹 및 에셋 점검 사항
-* **타일 에셋 복사본 정리**: `Assets/Sprites/Tiles` 폴더 내부에 `tile_brick_0 1.asset` 등 잉여 복사본 파일이 다량 생성되어 있지만, 현재 코드에 탑재된 필터 연산이 자동으로 접미사 `1`을 트리밍해 매칭하므로 수동 리네이밍 스트레스 없이 정상 구동됩니다.
-
-### D. 남은 진행 예정 사항 (Next TODOs)
-* [ ] Hierarchy의 **`MapGenerator` 오브젝트**를 선택하고, 컴포넌트의 빈 **`Tilemap` 변수 칸**에 씬 내의 `Grid/Tilemap` 오브젝트를 드래그 앤 드롭으로 연결하기. (타입 롤백으로 풀려있는 상태)
-* [ ] 유니티 플레이(▶) 버튼을 누른 뒤, 에러 로그 없이 정수 격자에 딱딱 맞물려 맵이 예쁘게 가동되는지 최종 기능 검증.
+### C. 마이그레이션 완료 사항 (Migration Summary)
+* 기존 `MapGenerator.cs` 및 `MapTestLauncher.cs`는 삭제/정리되었으며, 맵 생성 및 세이브 기능은 `MapEditor` / `MapEditorCustom`으로, 런타임 타일 조립 및 기믹 처리는 `TileManager`로 성공적으로 이관 통합 완료되었습니다.
 

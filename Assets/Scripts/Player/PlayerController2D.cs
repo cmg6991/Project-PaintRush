@@ -49,6 +49,8 @@ namespace Project.Player
         public bool IsGroundedToAnim => isGrounded;                           // 애니메이션에게 땅 착지 여부 전달
         public bool IsFallingFromLadder => isFallingFromLadder;               // 사다리 낙하 여부 노출
 
+        public bool IsInvincible => isInvincible;                             // 무적 여부 변수
+
         // Ladder State
         public bool isInsideLadder = false;                                   // 사다리 충돌범위안 판별
         public bool isClimbing = false;                                       // 사다리 오르는 중인가 판별
@@ -110,8 +112,11 @@ namespace Project.Player
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             }
 
+            // 튜토리얼 중 등반 해금 여부 검사
+            bool canClimbNow = TutorialManager.Instance == null || TutorialManager.Instance.canClimb;
+
             // 위아래 키입력이 있고 사다리 충돌 범위 안이라면
-            if (isInsideLadder && currentLadderCollider != null && Mathf.Abs(inputHandler.MoveInput.y) > 0.1f)
+            if (canClimbNow && isInsideLadder && currentLadderCollider != null && Mathf.Abs(inputHandler.MoveInput.y) > 0.1f)
             {
 
                 // In Ladder
@@ -145,7 +150,7 @@ namespace Project.Player
             }
 
             // 행거 범위 안이고 윗키를 눌렀을시
-            if (isInsideHanger && currentHangerCollider != null && inputHandler.MoveInput.y > 0.1f)
+            if (canClimbNow && isInsideHanger && currentHangerCollider != null && inputHandler.MoveInput.y > 0.1f)
             {
                 if (!isHanging)
                 {
@@ -237,8 +242,10 @@ namespace Project.Player
 
         private void FixedUpdate()
         {
-            // 사망했을 때는 사용자의 입력을 완전히 잠그고 물리 멈춤
-            if (playerHealth != null && playerHealth.IsDead)
+            // 사망했을 때 또는 튜토리얼 컷씬 진행 중일 때는 사용자의 입력을 완전히 잠그고 물리 멈춤
+            bool isCutscene = TutorialManager.Instance != null && TutorialManager.Instance.isCutscenePlaying;
+
+            if (playerHealth != null && playerHealth.IsDead || isCutscene)
             {
                 rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
                 return;
@@ -349,6 +356,21 @@ namespace Project.Player
                 }
             }
         }
+
+        private void OnCollisionEnter2D(Collision2D collision)
+        {
+            if (collision.gameObject.CompareTag("Monster"))
+            {
+                if (isInvincible) return;
+
+                PlayerHealth health = GetComponent<PlayerHealth>();
+                if (health != null)
+                {
+                    health.TakeDamage(1, Color.white, collision.gameObject, true);
+                }
+            }
+        }
+
         private void OnTriggerExit2D(Collider2D collision)
         {
             if (collision.GetComponent<ColorDropItem>() != null) return;
@@ -442,6 +464,9 @@ namespace Project.Player
                 rb.gravityScale = originalGravityScale;
                 transform.rotation = Quaternion.Euler(0f, IsFacingRight ? 0f : 180f, 0f);
             }
+
+            // 피격 애니메이션 트리거 신호 보장
+            isHurtTriggered = true;
 
             // 넉백, 스케일 바운스, 그리고 무적 깜빡이 코루틴을 동시에 실행!
             StartCoroutine(KnockbackRoutine(attackerPosition, knockbackForceX, knockbackForceY, knockbackDuration));
