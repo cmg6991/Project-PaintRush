@@ -179,6 +179,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     // 튜토리얼 전용 부활
     public void RespawnAtTutorialCheckpoint(Vector3 respawnPosition)
     {
+        gameObject.SetActive(true);
         isDead = false;
         currentHp = maxHp;  // 체력 100퍼 복구
         UpdateHeartFill();  // 하트 UI 복구

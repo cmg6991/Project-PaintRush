@@ -20,6 +20,16 @@ public class CinemachineSpawnDirector : MonoBehaviour
     public float drawingAnimationDuration = 1.0f;      // 만년필 애니메이션이 다 그려지는 시간
     public float postSpawnDelay = 0.5f;                // 플레이어 나오고 잠시 대기
 
+    private void Awake()
+    {
+        // 씬이 로드되는 첫 프레임(Frame 0) 즉시 카메라를 스폰 위치(-51.3, -8.4)에 붙여 튐 현상 제거
+        if (virtualCamera != null && spawnPoint != null)
+        {
+            Vector3 targetcamPos = new Vector3(spawnPoint.position.x, spawnPoint.position.y, virtualCamera.transform.position.z);
+            virtualCamera.transform.position = targetcamPos;
+        }
+    }
+
     private void Start()
     {
         StartCoroutine(CinemachineSpawnRoutine());
@@ -27,7 +37,12 @@ public class CinemachineSpawnDirector : MonoBehaviour
 
     private IEnumerator CinemachineSpawnRoutine()
     {
-        if(TutorialManager.Instance != null)
+        CinemachineBrain brain = Camera.main != null ? Camera.main.GetComponent<CinemachineBrain>() : FindAnyObjectByType<CinemachineBrain>();
+        if (brain != null)
+        {
+            brain.ActiveBlend = null;
+        }
+        if (TutorialManager.Instance != null)
         {
             TutorialManager.Instance.ResetTutorialFlags();
             TutorialManager.Instance.isCutscenePlaying = true;
@@ -38,13 +53,12 @@ public class CinemachineSpawnDirector : MonoBehaviour
         if (realPlayer) realPlayer.SetActive(false);
 
         Transform originalFollow = virtualCamera.Follow;
-        virtualCamera.Follow = null;
+        virtualCamera.Follow = spawnPoint;
 
-        // 카메라 위치를 스폰 위치로 즉시 이동 (z축 유지)
-        Vector3 camPos = virtualCamera.transform.position;
-        camPos.x = spawnPoint.position.x;
-        camPos.y = spawnPoint.position.y;
-        virtualCamera.transform.position = camPos;
+        // 씬 전환 시 카메라 튐 없이 스폰 위치로 즉시 이동 (z축 유지)
+        Vector3 targetcamPos = new Vector3(spawnPoint.position.x, spawnPoint.position.y, virtualCamera.transform.position.z);
+        virtualCamera.OnTargetObjectWarped(virtualCamera.transform, targetcamPos - virtualCamera.transform.position);
+        virtualCamera.transform.position = targetcamPos;
 
         // 카메라 줌인 (Orthographic Size 조절)
         float startZoom = virtualCamera.Lens.OrthographicSize;
@@ -84,6 +98,7 @@ public class CinemachineSpawnDirector : MonoBehaviour
         if (realPlayer)
         {
             virtualCamera.Follow = realPlayer.transform;
+            virtualCamera.OnTargetObjectWarped(realPlayer.transform, Vector3.zero);
         }
         else
         {

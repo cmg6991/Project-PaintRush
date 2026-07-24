@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using NUnit.Framework;
 
 [System.Serializable]
@@ -162,5 +163,17 @@ public class TutorialManager : MonoBehaviour
         {
             tutorialPanel.SetActive(false);
         }
+    }
+
+    public void OnClickRestartTutorial()
+    {
+        Time.timeScale = 1.0f;  // 혹시 멈춰있을 게임 속도 복구
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void OnClickSkipTutorial(string nextSceneName = "ProtoScene")
+    {
+        Time.timeScale = 1.0f;
+        SceneManager.LoadScene(nextSceneName);
     }
 }
