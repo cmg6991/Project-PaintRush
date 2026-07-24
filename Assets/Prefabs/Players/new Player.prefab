@@ -267,6 +267,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00b52dc1544996b4f82898db72c4d51a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FillColor
+  sameColorTolerance: 0.12
+  fullThreshold: 0.999
   feverLight: {fileID: 1648034755397693047}
   minIntensity: 0.5
   maxIntensity: 2
@@ -573,7 +575,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 9684a3ba0f0172a4f9b9b2dcd07be39b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

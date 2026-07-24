@@ -1,0 +1,1040 @@
+fileFormatVersion: 2
+guid: a01f4f23ac4ccce498f93bd2b0a56c4d
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 8372661483783254480
+    second: safv_0
+  - first:
+      213: 7668575206118222014
+    second: safv_1
+  - first:
+      213: 854065254218608684
+    second: safv_2
+  - first:
+      213: 5873605132047398290
+    second: safv_3
+  - first:
+      213: -1445947179399385484
+    second: safv_4
+  - first:
+      213: -3718995783196216793
+    second: safv_5
+  - first:
+      213: 3685212572380788332
+    second: safv_6
+  - first:
+      213: -9171588292263229668
+    second: safv_7
+  - first:
+      213: -6391153999959970598
+    second: safv_8
+  - first:
+      213: -1323267082364267032
+    second: safv_9
+  - first:
+      213: -1782574815934748643
+    second: safv_10
+  - first:
+      213: 3893255405699076604
+    second: safv_11
+  - first:
+      213: -1379680725165508082
+    second: safv_12
+  - first:
+      213: -6867892164243812022
+    second: safv_13
+  - first:
+      213: 7815092346611430396
+    second: safv_14
+  - first:
+      213: -5790890511486643766
+    second: safv_15
+  - first:
+      213: 5147079231560701637
+    second: safv_16
+  - first:
+      213: 6662623594937926339
+    second: safv_17
+  - first:
+      213: -2172693622458649088
+    second: safv_18
+  - first:
+      213: 7379922543910084803
+    second: safv_19
+  - first:
+      213: -9105844580267795620
+    second: safv_20
+  - first:
+      213: -7890600763052817769
+    second: safv_21
+  - first:
+      213: -8747302619728620063
+    second: safv_22
+  - first:
+      213: 8768498040018733983
+    second: safv_23
+  - first:
+      213: -6762819675965723960
+    second: safv_24
+  - first:
+      213: 3625504476059557197
+    second: safv_25
+  - first:
+      213: 6836452395239979014
+    second: safv_26
+  - first:
+      213: -6878238496044669389
+    second: safv_27
+  - first:
+      213: 2945210039393218731
+    second: safv_28
+  - first:
+      213: -7427551046052942768
+    second: safv_29
+  - first:
+      213: -2588783848397228022
+    second: safv_30
+  - first:
+      213: -6353990025947384777
+    second: safv_31
+  - first:
+      213: 889096286208552934
+    second: safv_32
+  - first:
+      213: 7018378002579544580
+    second: safv_33
+  - first:
+      213: 5779889571114853486
+    second: safv_34
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: safv_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 943
+        width: 1920
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d1fe7d524ba13470800000000000000
+      internalID: 8372661483783254480
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_1
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 1001
+        width: 67
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb86b0625804c6a60800000000000000
+      internalID: 7668575206118222014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_2
+      rect:
+        serializedVersion: 2
+        x: 188
+        y: 1007
+        width: 67
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2034bcd2df3adb00800000000000000
+      internalID: 854065254218608684
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_3
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 1051
+        width: 18
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 295b8967fbc338150800000000000000
+      internalID: 5873605132047398290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_4
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 1007
+        width: 67
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 47eebe783b6feebe0800000000000000
+      internalID: -1445947179399385484
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_5
+      rect:
+        serializedVersion: 2
+        x: 485
+        y: 1002
+        width: 68
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 722f96d0a09736cc0800000000000000
+      internalID: -3718995783196216793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_6
+      rect:
+        serializedVersion: 2
+        x: 638
+        y: 1009
+        width: 57
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c667f8a3f41842330800000000000000
+      internalID: 3685212572380788332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_7
+      rect:
+        serializedVersion: 2
+        x: 780
+        y: 1003
+        width: 67
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c17c4859a09f7b080800000000000000
+      internalID: -9171588292263229668
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_8
+      rect:
+        serializedVersion: 2
+        x: 935
+        y: 1009
+        width: 66
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: adca19f7c4f0e47a0800000000000000
+      internalID: -6391153999959970598
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_9
+      rect:
+        serializedVersion: 2
+        x: 1031
+        y: 1053
+        width: 17
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e5d5bc799fc2ade0800000000000000
+      internalID: -1323267082364267032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_10
+      rect:
+        serializedVersion: 2
+        x: 1078
+        y: 1009
+        width: 67
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d18e6ae36a50347e0800000000000000
+      internalID: -1782574815934748643
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_11
+      rect:
+        serializedVersion: 2
+        x: 1232
+        y: 1004
+        width: 67
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf110940a2f970630800000000000000
+      internalID: 3893255405699076604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_12
+      rect:
+        serializedVersion: 2
+        x: 1385
+        y: 1012
+        width: 56
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e0a7e09b0b36adce0800000000000000
+      internalID: -1379680725165508082
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_13
+      rect:
+        serializedVersion: 2
+        x: 1475
+        y: 1046
+        width: 14
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a411f8ad67850b0a0800000000000000
+      internalID: -6867892164243812022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_14
+      rect:
+        serializedVersion: 2
+        x: 1526
+        y: 1005
+        width: 68
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf3f5a64519c47c60800000000000000
+      internalID: 7815092346611430396
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_15
+      rect:
+        serializedVersion: 2
+        x: 1681
+        y: 1011
+        width: 66
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac198a1e2cf92afa0800000000000000
+      internalID: -5790890511486643766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_16
+      rect:
+        serializedVersion: 2
+        x: 1777
+        y: 1055
+        width: 17
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c657fb6a491e6740800000000000000
+      internalID: 5147079231560701637
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_17
+      rect:
+        serializedVersion: 2
+        x: 1824
+        y: 1012
+        width: 68
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c249680cd4667c50800000000000000
+      internalID: 6662623594937926339
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_18
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 6
+        width: 1920
+        height: 118
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 006789b69aa09d1e0800000000000000
+      internalID: -2172693622458649088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_19
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 0
+        width: 67
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c068a30470ca6660800000000000000
+      internalID: 7379922543910084803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_20
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 0
+        width: 17
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5bd83d599a81a180800000000000000
+      internalID: -9105844580267795620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_21
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 0
+        width: 66
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7928fc58964fe7290800000000000000
+      internalID: -7890600763052817769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_22
+      rect:
+        serializedVersion: 2
+        x: 299
+        y: 0
+        width: 68
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e55b30dc965b9680800000000000000
+      internalID: -8747302619728620063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_23
+      rect:
+        serializedVersion: 2
+        x: 452
+        y: 3
+        width: 57
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9b86098286ffa970800000000000000
+      internalID: 8768498040018733983
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_24
+      rect:
+        serializedVersion: 2
+        x: 594
+        y: 0
+        width: 68
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ca6a0ee553a522a0800000000000000
+      internalID: -6762819675965723960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_25
+      rect:
+        serializedVersion: 2
+        x: 748
+        y: 0
+        width: 67
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4d5e1bbc11605230800000000000000
+      internalID: 3625504476059557197
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_26
+      rect:
+        serializedVersion: 2
+        x: 846
+        y: 0
+        width: 16
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 608b52e7b35ffde50800000000000000
+      internalID: 6836452395239979014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_27
+      rect:
+        serializedVersion: 2
+        x: 892
+        y: 0
+        width: 67
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33627d2c7869b80a0800000000000000
+      internalID: -6878238496044669389
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_28
+      rect:
+        serializedVersion: 2
+        x: 1046
+        y: 0
+        width: 67
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba072fa2dec7fd820800000000000000
+      internalID: 2945210039393218731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_29
+      rect:
+        serializedVersion: 2
+        x: 1199
+        y: 4
+        width: 56
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05ceeec2da90ce890800000000000000
+      internalID: -7427551046052942768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_30
+      rect:
+        serializedVersion: 2
+        x: 1341
+        y: 0
+        width: 67
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a08b30c4ecac21cd0800000000000000
+      internalID: -2588783848397228022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_31
+      rect:
+        serializedVersion: 2
+        x: 1494
+        y: 0
+        width: 68
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 734f70d7cb712d7a0800000000000000
+      internalID: -6353990025947384777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_32
+      rect:
+        serializedVersion: 2
+        x: 1592
+        y: 0
+        width: 17
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ef64969c54b65c00800000000000000
+      internalID: 889096286208552934
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_33
+      rect:
+        serializedVersion: 2
+        x: 1638
+        y: 0
+        width: 67
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40a5b2fbb99466160800000000000000
+      internalID: 7018378002579544580
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: safv_34
+      rect:
+        serializedVersion: 2
+        x: 1792
+        y: 0
+        width: 67
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e64294711fa463050800000000000000
+      internalID: 5779889571114853486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      safv_0: 8372661483783254480
+      safv_1: 7668575206118222014
+      safv_10: -1782574815934748643
+      safv_11: 3893255405699076604
+      safv_12: -1379680725165508082
+      safv_13: -6867892164243812022
+      safv_14: 7815092346611430396
+      safv_15: -5790890511486643766
+      safv_16: 5147079231560701637
+      safv_17: 6662623594937926339
+      safv_18: -2172693622458649088
+      safv_19: 7379922543910084803
+      safv_2: 854065254218608684
+      safv_20: -9105844580267795620
+      safv_21: -7890600763052817769
+      safv_22: -8747302619728620063
+      safv_23: 8768498040018733983
+      safv_24: -6762819675965723960
+      safv_25: 3625504476059557197
+      safv_26: 6836452395239979014
+      safv_27: -6878238496044669389
+      safv_28: 2945210039393218731
+      safv_29: -7427551046052942768
+      safv_3: 5873605132047398290
+      safv_30: -2588783848397228022
+      safv_31: -6353990025947384777
+      safv_32: 889096286208552934
+      safv_33: 7018378002579544580
+      safv_34: 5779889571114853486
+      safv_4: -1445947179399385484
+      safv_5: -3718995783196216793
+      safv_6: 3685212572380788332
+      safv_7: -9171588292263229668
+      safv_8: -6391153999959970598
+      safv_9: -1323267082364267032
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

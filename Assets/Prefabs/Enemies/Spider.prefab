@@ -397,11 +397,11 @@ MonoBehaviour:
   deadSpriteTime: 0.3
   deadFadeDuration: 0.9
   stopWhileHit: 0
-  attackHitEffectPrefab: {fileID: 8680598818964007281, guid: dcd90c4976197424b9958a7c54b6bb8c, type: 3}
+  attackHitEffectPrefab: {fileID: 1967835574231978638, guid: 3e196c9e632c76841a71cb6e2dc6d010, type: 3}
   attackHitEffectScale: 0.15
   attackHitEffectLifetime: 1
   attackHitEffectOffset: {x: 0, y: 0, z: 0}
-  monsterHitEffectPrefab: {fileID: 5700784828077083704, guid: ed962e35f7fa6f34f8d27aa6d19ea293, type: 3}
+  monsterHitEffectPrefab: {fileID: 6424076732465889602, guid: 14147d73f80b839479e077618a8caa22, type: 3}
   monsterHitEffectOffset: {x: 0, y: 0, z: 0}
   monsterHitEffectLifetime: 1
   monsterHitSounds: []
@@ -411,7 +411,7 @@ MonoBehaviour:
   monsterHitSpatialBlend: 0
   currentElement: 0
   redElementColor: {r: 1, g: 0, b: 0, a: 1}
-  blueElementColor: {r: 0, g: 0, b: 1, a: 1}
+  blueElementColor: {r: 0, g: 0.7647059, b: 1, a: 1}
   yellowElementColor: {r: 1, g: 1, b: 0.015686275, a: 1}
   greenElementColor: {r: 0, g: 1, b: 0, a: 1}
   purpleElementColor: {r: 0.6666667, g: 0, b: 1, a: 1}
@@ -425,7 +425,7 @@ MonoBehaviour:
   yellowDropPrefab: {fileID: 1719896524428501687, guid: 1e07116d06f58514fb297434e702d62b, type: 3}
   greenDropPrefab: {fileID: 5051658664445571470, guid: bd51eacad49577d4ab77535719967194, type: 3}
   purpleDropPrefab: {fileID: 6863371975533239461, guid: 0314bdc30ee5dea40934f98540740735, type: 3}
-  paintDropChance: 0.5
+  paintDropChance: 0.8
   healthDropPrefab: {fileID: 8268438765250318584, guid: bbab21c8e5213c8458bea114d1130351, type: 3}
   colorlessHealthDropChance: 1
   hasPaletteItem: 0
