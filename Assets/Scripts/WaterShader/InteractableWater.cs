@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
-using UnityEditor;
-using UnityEditor.UIElements;
+//using UnityEditor;
+//using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEngine.WSA;
+//using UnityEngine.WSA;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(EdgeCollider2D))]
@@ -236,37 +236,37 @@ public class InteractableWater : MonoBehaviour
         }
     }
 }
-[CustomEditor(typeof(InteractableWater))]
-public class InteractableWaterEditor : Editor
-{
-    private InteractableWater _water;
+//[CustomEditor(typeof(InteractableWater))]
+//public class InteractableWaterEditor : Editor
+//{
+//    private InteractableWater _water;
 
-    private void OnEnable()
-    {
-        _water = (InteractableWater)target;
-    }
-    public override VisualElement CreateInspectorGUI()
-    {
-        VisualElement root = new VisualElement();
-        InspectorElement.FillDefaultInspector(root, serializedObject, this);
-        root.Add(new VisualElement { style = { height = 10 } });
-        Button generateMeshButton = new Button(() => _water.GenerateMesh())
-        {
-            text = "Generate Mesh"
-        };
-        root.Add(generateMeshButton);
-        Button placeEdgeColliderButton = new Button(() => _water.ResetEdgeCollider())
-        {
-            text = "Place Edge Collider"
-        };
-        root.Add(placeEdgeColliderButton);
-        return root;
-    }
+//    private void OnEnable()
+//    {
+//        _water = (InteractableWater)target;
+//    }
+//    public override VisualElement CreateInspectorGUI()
+//    {
+//        VisualElement root = new VisualElement();
+//        InspectorElement.FillDefaultInspector(root, serializedObject, this);
+//        root.Add(new VisualElement { style = { height = 10 } });
+//        Button generateMeshButton = new Button(() => _water.GenerateMesh())
+//        {
+//            text = "Generate Mesh"
+//        };
+//        root.Add(generateMeshButton);
+//        Button placeEdgeColliderButton = new Button(() => _water.ResetEdgeCollider())
+//        {
+//            text = "Place Edge Collider"
+//        };
+//        root.Add(placeEdgeColliderButton);
+//        return root;
+////    }
 
-    private void ChangeDimensions(ref float width, ref float height, float calculatedWidthMax, float calculateHeightMax)
-    {
-        width = Mathf.Max(0.1f, calculatedWidthMax);
-        height = Mathf.Max(0.1f, calculateHeightMax);
-    }
+//    private void ChangeDimensions(ref float width, ref float height, float calculatedWidthMax, float calculateHeightMax)
+//    {
+//        width = Mathf.Max(0.1f, calculatedWidthMax);
+//        height = Mathf.Max(0.1f, calculateHeightMax);
+//    }
 
-}
+//}

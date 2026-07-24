@@ -16,7 +16,7 @@ public sealed class PaletteSpecialAttack : MonoBehaviour
     [SerializeField] private StagePaletteManager paletteManager;
 
     [Header("피버 설정")]
-    [SerializeField, Min(0.1f)] private float feverDuration = 5f;
+    [SerializeField, Min(0.1f)] private float feverDuration = 7f;
     [SerializeField, Min(1)] private int feverDamage = 100;
 
     [Header("입력")]

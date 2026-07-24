@@ -202,7 +202,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -294176629042664203, guid: 3ad35ff1ae3840141b49348faf93826d, type: 3}
+  m_Sprite: {fileID: 4244520332653443229, guid: 10f7093d18cbfac4898d28e8a154215b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -308,6 +308,8 @@ MonoBehaviour:
   canvasGroup: {fileID: 6704481658867555256}
   countImage: {fileID: 499762770164659406}
   countSprites:
+  - {fileID: 4244520332653443229, guid: 10f7093d18cbfac4898d28e8a154215b, type: 3}
+  - {fileID: -6189753365256099914, guid: 84531e027d5b4c34bb4d2dc48f8b0aa7, type: 3}
   - {fileID: -294176629042664203, guid: 3ad35ff1ae3840141b49348faf93826d, type: 3}
   - {fileID: 8600742759229893397, guid: ca3a6501398fc0640976dbaf5b0a8dca, type: 3}
   - {fileID: 6079004374095836574, guid: b35badd8d001f0f4788bbc915676c2d8, type: 3}
