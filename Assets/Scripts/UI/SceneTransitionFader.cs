@@ -12,7 +12,6 @@ public sealed class SceneTransitionFader : MonoBehaviour
 
     [Header("UI 참조")]
     [SerializeField] private RectTransform splatContainer;
-    [SerializeField] private Image splatPrefab;
 
     [Header("물감 이미지")]
     [SerializeField] private Sprite[] splatSprites;
@@ -41,6 +40,7 @@ public sealed class SceneTransitionFader : MonoBehaviour
     [SerializeField] private bool persistAcrossScenes = true;
     [SerializeField] private bool logTransition;
 
+    private Canvas transitionCanvas;
     private readonly List<Image> activeSplats = new();
     private bool isLoading;
 
@@ -64,6 +64,18 @@ public sealed class SceneTransitionFader : MonoBehaviour
         }
 
         Instance = this;
+
+        transitionCanvas = GetComponent<Canvas>();
+
+        if (transitionCanvas != null)
+        {
+            transitionCanvas.renderMode =
+                RenderMode.ScreenSpaceOverlay;
+
+            transitionCanvas.overrideSorting = true;
+            transitionCanvas.sortingOrder = 32000;
+            transitionCanvas.enabled = true;
+        }
 
         if (persistAcrossScenes)
             DontDestroyOnLoad(gameObject);
@@ -90,33 +102,81 @@ public sealed class SceneTransitionFader : MonoBehaviour
     {
         isLoading = true;
 
-        // 문 열림/뿅 애니메이션을 먼저 보여줄 시간.
+        // E 입력 후 문 애니메이션을 보여주는 시간
         if (transitionStartDelay > 0f)
-            yield return new WaitForSecondsRealtime(transitionStartDelay);
+        {
+            yield return new WaitForSecondsRealtime(
+                transitionStartDelay
+            );
+        }
 
+        gameObject.SetActive(true);
         SetContainerVisible(true);
 
-        if (logTransition)
-            Debug.Log($"[PaintTransition] 현재 씬에서 화면 덮기 시작 → {sceneName}");
+        splatContainer.localScale = Vector3.one;
+        splatContainer.SetAsLastSibling();
 
-        // 반드시 현재 씬에서 물감이 전부 생성될 때까지 기다립니다.
+        if (transitionCanvas != null)
+        {
+            // Canvas를 껐다 켜서 현재 씬에서 강제로 다시 렌더링
+            transitionCanvas.enabled = false;
+            transitionCanvas.enabled = true;
+
+            transitionCanvas.overrideSorting = true;
+            transitionCanvas.sortingOrder = 32000;
+        }
+
+        Canvas.ForceUpdateCanvases();
+
+        Canvas canvas = GetComponent<Canvas>();
+        canvas.sortingOrder = 9999;
+
+        // 중요:
+        // 활성화한 바로 그 프레임에는 UI 크기와 렌더링이
+        // 아직 적용되지 않을 수 있으므로 한 프레임 기다림
+        yield return null;
+        yield return new WaitForEndOfFrame();
+
+        Canvas.ForceUpdateCanvases();
+
+        Debug.Log(
+            $"[PaintTransition] 현재 씬에서 물감 시작 / " +
+            $"Container Size={splatContainer.rect.size}",
+            this
+        );
+
+        // 현재 씬에서 물감이 전부 덮일 때까지 기다림
         yield return SpawnCoverSplats();
 
+        // 생성이 끝난 뒤 실제 화면에 한 번 이상 렌더링되도록 대기
         Canvas.ForceUpdateCanvases();
         yield return new WaitForEndOfFrame();
 
+        // 화면이 완전히 덮인 상태 유지
         if (coveredHoldTime > 0f)
-            yield return new WaitForSecondsRealtime(coveredHoldTime);
+        {
+            yield return new WaitForSecondsRealtime(
+                coveredHoldTime
+            );
+        }
 
-        if (logTransition)
-            Debug.Log("[PaintTransition] 화면 덮기 완료, 이제 씬 로드");
+        Debug.Log(
+            "[PaintTransition] 현재 화면 덮기 완료 → 씬 로드 시작",
+            this
+        );
 
-        AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName);
+        AsyncOperation operation =
+            SceneManager.LoadSceneAsync(sceneName);
 
         if (operation == null)
         {
-            Debug.LogError($"씬 로드 실패: {sceneName}");
+            Debug.LogError(
+                $"씬 로드 실패: {sceneName}",
+                this
+            );
+
             yield return RevealAndClear();
+            SetContainerVisible(false);
             isLoading = false;
             yield break;
         }
@@ -124,15 +184,25 @@ public sealed class SceneTransitionFader : MonoBehaviour
         while (!operation.isDone)
             yield return null;
 
-        // 새 씬 첫 프레임까지 물감 화면을 그대로 유지합니다.
+        // 새 씬이 한 프레임 표시될 때까지
+        // 기존 물감 화면을 그대로 유지
+        splatContainer.SetAsLastSibling();
         Canvas.ForceUpdateCanvases();
+
+        yield return null;
         yield return new WaitForEndOfFrame();
 
         if (revealDelay > 0f)
-            yield return new WaitForSecondsRealtime(revealDelay);
+        {
+            yield return new WaitForSecondsRealtime(
+                revealDelay
+            );
+        }
 
-        if (logTransition)
-            Debug.Log("[PaintTransition] 새 씬 표시 후 물감 제거 시작");
+        Debug.Log(
+            "[PaintTransition] 새 씬에서 물감 제거 시작",
+            this
+        );
 
         yield return RevealAndClear();
 
@@ -143,23 +213,65 @@ public sealed class SceneTransitionFader : MonoBehaviour
     private IEnumerator SpawnCoverSplats()
     {
         ClearExistingSplats();
+
+        if (splatContainer == null)
+            yield break;
+
+        splatContainer.gameObject.SetActive(true);
+        splatContainer.SetAsLastSibling();
+
+        Canvas.ForceUpdateCanvases();
+
+        // UI가 켜진 뒤 크기가 적용될 때까지 기다림
+        yield return null;
+        yield return new WaitForEndOfFrame();
+
         Canvas.ForceUpdateCanvases();
 
         Rect rect = splatContainer.rect;
+
+        if (rect.width <= 1f || rect.height <= 1f)
+        {
+            Debug.LogError(
+                $"SplatContainer 크기가 비정상입니다. " +
+                $"Width={rect.width}, Height={rect.height}",
+                this
+            );
+
+            yield break;
+        }
+
         float cellWidth = rect.width / columns;
         float cellHeight = rect.height / rows;
 
-        List<Vector2> positions = new(columns * rows + extraRandomSplats);
+        List<Vector2> positions =
+            new List<Vector2>(
+                columns * rows + extraRandomSplats
+            );
 
         for (int row = 0; row < rows; row++)
         {
-            for (int column = 0; column < columns; column++)
+            for (int column = 0;
+                 column < columns;
+                 column++)
             {
-                float x = rect.xMin + (column + 0.5f) * cellWidth;
-                float y = rect.yMin + (row + 0.5f) * cellHeight;
+                float x =
+                    rect.xMin +
+                    (column + 0.5f) * cellWidth;
 
-                x += Random.Range(-cellWidth * positionJitter, cellWidth * positionJitter);
-                y += Random.Range(-cellHeight * positionJitter, cellHeight * positionJitter);
+                float y =
+                    rect.yMin +
+                    (row + 0.5f) * cellHeight;
+
+                x += Random.Range(
+                    -cellWidth * positionJitter,
+                    cellWidth * positionJitter
+                );
+
+                y += Random.Range(
+                    -cellHeight * positionJitter,
+                    cellHeight * positionJitter
+                );
 
                 positions.Add(new Vector2(x, y));
             }
@@ -167,60 +279,144 @@ public sealed class SceneTransitionFader : MonoBehaviour
 
         for (int i = 0; i < extraRandomSplats; i++)
         {
-            positions.Add(new Vector2(
-                Random.Range(rect.xMin, rect.xMax),
-                Random.Range(rect.yMin, rect.yMax)));
+            positions.Add(
+                new Vector2(
+                    Random.Range(rect.xMin, rect.xMax),
+                    Random.Range(rect.yMin, rect.yMax)
+                )
+            );
         }
 
         Shuffle(positions);
 
-        float baseSize = Mathf.Max(cellWidth, cellHeight) * 1.9f;
+        float baseSize =
+            Mathf.Max(cellWidth, cellHeight) * 2.2f;
 
         foreach (Vector2 position in positions)
         {
-            Image splat = CreateSplat(position, baseSize);
+            Image splat =
+                CreateSplat(position, baseSize);
+
             activeSplats.Add(splat);
-            StartCoroutine(PopIn(splat.rectTransform));
+
+            StartCoroutine(
+                PopIn(splat.rectTransform)
+            );
 
             if (spawnInterval > 0f)
-                yield return new WaitForSecondsRealtime(spawnInterval);
+            {
+                yield return new WaitForSecondsRealtime(
+                    spawnInterval
+                );
+            }
         }
 
-        // 마지막 얼룩의 팝 애니메이션까지 현재 씬에서 완전히 재생합니다.
-        yield return new WaitForSecondsRealtime(popDuration);
+        // 마지막 물감의 팝 애니메이션이 끝날 때까지 기다림
+        yield return new WaitForSecondsRealtime(
+            popDuration
+        );
+
         Canvas.ForceUpdateCanvases();
         yield return new WaitForEndOfFrame();
     }
-
-    private Image CreateSplat(Vector2 anchoredPosition, float baseSize)
+    private Image CreateSplat(
+    Vector2 anchoredPosition,
+    float baseSize)
     {
-        Image splat = Instantiate(splatPrefab, splatContainer);
-        RectTransform rect = splat.rectTransform;
+        // 기존 프리팹을 Instantiate하지 않고
+        // UI 오브젝트를 런타임에 깨끗하게 직접 생성합니다.
+        GameObject splatObject = new GameObject(
+            "PaintSplat_Runtime",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(Image)
+        );
 
-        rect.anchorMin = new Vector2(0.5f, 0.5f);
-        rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.anchoredPosition = anchoredPosition;
-        rect.sizeDelta = Vector2.one * baseSize;
-        rect.localRotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
+        splatObject.layer = LayerMask.NameToLayer("UI");
+
+        RectTransform rect =
+            splatObject.GetComponent<RectTransform>();
+
+        Image splat =
+            splatObject.GetComponent<Image>();
+
+        // SplatContainer의 자식으로 넣습니다.
+        rect.SetParent(
+            splatContainer,
+            false
+        );
+
+        rect.anchorMin =
+            new Vector2(0.5f, 0.5f);
+
+        rect.anchorMax =
+            new Vector2(0.5f, 0.5f);
+
+        rect.pivot =
+            new Vector2(0.5f, 0.5f);
+
+        rect.anchoredPosition =
+            anchoredPosition;
+
+        rect.sizeDelta =
+            new Vector2(baseSize, baseSize);
+
+        rect.localRotation =
+            Quaternion.Euler(
+                0f,
+                0f,
+                Random.Range(0f, 360f)
+            );
+
         rect.localScale = Vector3.zero;
 
-        splat.sprite = splatSprites[Random.Range(0, splatSprites.Length)];
+        splat.sprite =
+            splatSprites[
+                Random.Range(
+                    0,
+                    splatSprites.Length
+                )
+            ];
 
         Color[] colors =
-            paintColors != null && paintColors.Length > 0
+            paintColors != null &&
+            paintColors.Length > 0
                 ? paintColors
                 : DefaultPaintColors;
 
-        splat.color = colors[Random.Range(0, colors.Length)];
+        Color randomColor =
+            colors[
+                Random.Range(
+                    0,
+                    colors.Length
+                )
+            ];
+
+        // 혹시 Inspector 색상의 Alpha가 0이어도
+        // 무조건 불투명하게 생성합니다.
+        randomColor.a = 1f;
+
+        splat.color = randomColor;
+        splat.enabled = true;
         splat.preserveAspect = true;
-        splat.raycastTarget = true;
-        splat.gameObject.SetActive(true);
-        splat.gameObject.name = "PaintSplat_Runtime";
+        splat.raycastTarget = false;
+        splat.maskable = false;
+
+        // Image 색과 별개로 CanvasRenderer Alpha도
+        // 강제로 1로 설정합니다.
+        splat.canvasRenderer.SetAlpha(1f);
+        splat.canvasRenderer.cull = false;
+
+        // UI 갱신 강제
+        splat.SetVerticesDirty();
+        splat.SetMaterialDirty();
+
+        rect.SetAsLastSibling();
+
+        splatObject.SetActive(true);
 
         return splat;
     }
-
     private IEnumerator PopIn(RectTransform target)
     {
         float finalScale = Random.Range(minimumScale, maximumScale);
@@ -285,19 +481,24 @@ public sealed class SceneTransitionFader : MonoBehaviour
     {
         if (splatContainer == null)
         {
-            Debug.LogError("SceneTransitionFader: Splat Container가 연결되지 않았습니다.", this);
+            Debug.LogError(
+                "SceneTransitionFader: " +
+                "Splat Container가 연결되지 않았습니다.",
+                this
+            );
+
             return false;
         }
 
-        if (splatPrefab == null)
+        if (splatSprites == null ||
+            splatSprites.Length == 0)
         {
-            Debug.LogError("SceneTransitionFader: Splat Prefab이 연결되지 않았습니다.", this);
-            return false;
-        }
+            Debug.LogError(
+                "SceneTransitionFader: " +
+                "Splat Sprites가 비어 있습니다.",
+                this
+            );
 
-        if (splatSprites == null || splatSprites.Length == 0)
-        {
-            Debug.LogError("SceneTransitionFader: Splat Sprites가 비어 있습니다.", this);
             return false;
         }
 

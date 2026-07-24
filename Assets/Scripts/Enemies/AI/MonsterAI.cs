@@ -183,44 +183,140 @@ public class MonsterAI : MonoBehaviour, IDamageable {
         SetElement(newElement);
         return true;
     }
-    /// <summary>색상과 피버 보정을 확인한 뒤 피해를 적용합니다.</summary>
-
+    /// <summary>
+    /// 모든 일반 공격이 들어오는 공통 진입점입니다.
+    /// 피버가 활성화되어 있으면 속성 판정을 무시한 피버 피해로 전환합니다.
+    /// 피라냐는 피버 피해일 때만 피해를 받을 수 있습니다.
+    /// </summary>
     public void TakeDamage(
         int damage,
         Color attackColor,
         GameObject attacker,
-        bool ignoreElement) {
-        if (isDead)
+        bool ignoreElement)
+    {
+        if (!CanProcessIncomingDamage(damage))
             return;
-        if (damage <= 0) {
-            Debug.LogWarning($"{name}: 0 이하의 데미지가 전달되었습니다. ({damage})");
+
+        if (IsPiranha)
+        {
+            TryTakePiranhaFeverDamage(damage, attacker);
             return;
         }
+
+        if (TryTakeFeverDamage(damage, attacker))
+            return;
+
+        ApplyResolvedDamage(
+            damage,
+            attackColor,
+            ignoreElement,
+            isFeverDamage: false);
+    }
+
+    /// <summary>
+    /// 피라냐 전용 피버 피해 진입점입니다.
+    /// 피버가 비활성 상태이거나 대상이 피라냐가 아니면 피해를 적용하지 않습니다.
+    /// </summary>
+    public bool TryTakePiranhaFeverDamage(
+        int damage,
+        GameObject attacker = null)
+    {
+        if (!IsPiranha)
+            return false;
+
+        return TryTakeFeverDamage(damage, attacker);
+    }
+
+    /// <summary>
+    /// 현재 씬의 피버 상태를 확인하고 속성을 무시한 강화 피해를 적용합니다.
+    /// 일반 몬스터와 피라냐 모두 사용할 수 있습니다.
+    /// </summary>
+    public bool TryTakeFeverDamage(
+        int damage,
+        GameObject attacker = null)
+    {
+        if (isDead || damage <= 0)
+            return false;
+
         PaletteSpecialAttack fever =
             PaletteSpecialAttack.FindForScene(gameObject);
-        bool feverApplied = fever != null &&
-            fever.ApplyMonsterDamageModifiers(ref damage, ref ignoreElement);
+
+        if (fever == null ||
+            !fever.TryGetFeverDamage(
+                damage,
+                out int resolvedDamage))
+        {
+            return false;
+        }
+
+        return ApplyResolvedDamage(
+            resolvedDamage,
+            Color.white,
+            ignoreElement: true,
+            isFeverDamage: true);
+    }
+
+    private bool ApplyResolvedDamage(
+        int damage,
+        Color attackColor,
+        bool ignoreElement,
+        bool isFeverDamage)
+    {
+        if (!CanProcessIncomingDamage(damage))
+            return false;
+
         SyncElementFromFillColor();
+
         if (!CanReceiveDamage(attackColor, ignoreElement))
-            return;
+            return false;
+
         currentHp = Mathf.Max(0, currentHp - damage);
 
-        // 색상 판정을 통과해 실제 체력이 감소했을 때만 재생합니다.
         PlayMonsterHitSound();
         SpawnMonsterHitEffect();
 
         Debug.Log(
-            $"{name} 피격! 데미지: {damage}, 남은 체력: {currentHp}" +
-            (feverApplied ? " (피버 공격)" : string.Empty));
+            $"{name} 피격! 데미지: {damage}, " +
+            $"남은 체력: {currentHp}" +
+            (isFeverDamage ? " (피버 공격)" : string.Empty),
+            this);
 
-        if (currentHp <= 0) {
-            isDead = true;
-            StartCoroutine(DieRoutine());
-            return;
+        if (currentHp <= 0)
+        {
+            BeginDeath();
+            return true;
         }
+
         RestartHitRoutine();
+
         if (currentHp <= runAwayHp)
             EnterRunAway();
+
+        return true;
+    }
+
+    private bool CanProcessIncomingDamage(int damage)
+    {
+        if (isDead)
+            return false;
+
+        if (damage > 0)
+            return true;
+
+        Debug.LogWarning(
+            $"{name}: 0 이하의 데미지가 전달되었습니다. ({damage})",
+            this);
+
+        return false;
+    }
+
+    private void BeginDeath()
+    {
+        if (isDead)
+            return;
+
+        isDead = true;
+        StartCoroutine(DieRoutine());
     }
 
     private void ConfigureMonsterHitAudio()
@@ -732,10 +828,14 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             return;
         }
 
-        float distance = Vector2.Distance(
-            transform.position,
-            player.position);
+        float distance =
+            Vector2.Distance(
+                transform.position,
+                player.position);
 
+        // 공격 조건이 더 이상 충족되지 않으면 즉시 추적으로 복귀합니다.
+        // 이렇게 해야 플레이어가 가만히 있어도 몬스터가 공격 범위 바깥에서
+        // 제자리 정지하는 문제가 생기지 않습니다.
         if (!CanEnterAttackState(distance))
         {
             currentState = MonsterState.Chase;
@@ -744,33 +844,9 @@ public class MonsterAI : MonoBehaviour, IDamageable {
 
         FacePlayer();
         movement.Stop();
+        visual.SetState(MonsterVisualState.Attack);
 
-        // 실제 공격 중일 때만 공격 자세 유지
-        if (IsAnyAttackRunning)
-        {
-            visual.SetState(
-                MonsterVisualState.Attack);
-            return;
-        }
-
-        float adjustedCooldown =
-            attackCooldown *
-            movement.AttackCooldownMultiplier;
-
-        if (Time.time - lastAttackTime <
-            adjustedCooldown)
-        {
-            visual.SetState(
-                MonsterVisualState.Idle);
-            return;
-        }
-
-        bool started = TryStartAttack();
-
-        visual.SetState(
-            started
-                ? MonsterVisualState.Attack
-                : MonsterVisualState.Idle);
+        TryStartAttack();
     }
 
     private void UpdateRunAway()
@@ -1027,17 +1103,15 @@ public class MonsterAI : MonoBehaviour, IDamageable {
 
     private bool TryStartAttack()
     {
-        if (IsAnyAttackRunning)
+        if (!movement.CanAttackPlayer ||
+            IsAnyAttackRunning ||
+            Time.time - lastAttackTime <
+                attackCooldown * movement.AttackCooldownMultiplier)
+        {
             return false;
+        }
 
-        float adjustedCooldown =
-            attackCooldown * movement.AttackCooldownMultiplier;
-
-        if (Time.time - lastAttackTime < adjustedCooldown)
-            return false;
-
-        // 슬라임은 근접 공격 가능 여부와 AttackTrigger를 검사하지 않습니다.
-        // 원거리 공격 컴포넌트와 거리만 확인합니다.
+        // 슬라임은 근접 몸통 박치기 대신 포물선 점액을 사용합니다.
         if (movement.Type == MonsterType.Slime &&
             slimeRangedAttack != null &&
             slimeRangedAttack.IsConfigured)
@@ -1045,24 +1119,17 @@ public class MonsterAI : MonoBehaviour, IDamageable {
             if (player == null)
                 return false;
 
-            PlayerHealth rangedTarget =
-                FindPlayerHealth(player);
+            PlayerHealth rangedTarget = FindPlayerHealth(player);
 
             if (rangedTarget == null ||
-                rangedTarget.IsDead)
+                Vector2.Distance(
+                    transform.position,
+                    rangedTarget.transform.position) > attackRange)
             {
                 return false;
             }
 
-            float distance = Vector2.Distance(
-                transform.position,
-                rangedTarget.transform.position);
-
-            if (distance > attackRange)
-                return false;
-
-            FaceTargetImmediately(
-                rangedTarget.transform);
+            FaceTargetImmediately(rangedTarget.transform);
 
             bool rangedStarted =
                 slimeRangedAttack.TryStartAttack(
@@ -1074,35 +1141,21 @@ public class MonsterAI : MonoBehaviour, IDamageable {
                 return false;
 
             lastAttackTime = Time.time;
-            visual.SetState(
-                MonsterVisualState.Attack);
-
-            Debug.Log(
-                $"{name}: 슬라임 원거리 공격 시작 / " +
-                $"거리={distance:F2}, 사거리={attackRange:F2}",
-                this);
-
             return true;
         }
 
-        // 여기부터 근접 공격 몬스터 전용 검사
-        if (!movement.CanAttackPlayer)
-            return false;
-
         if (attackTrigger == null ||
-            !attackTrigger.TryGetTarget(
-                out PlayerHealth target))
+            !attackTrigger.TryGetTarget(out PlayerHealth target))
         {
             return false;
         }
 
         FaceTargetImmediately(target.transform);
 
-        bool started =
-            movement.TryStartAttackMotion(
-                target.transform,
-                () => ApplyAttackDamage(target),
-                OnAttackMotionComplete);
+        bool started = movement.TryStartAttackMotion(
+            target.transform,
+            () => ApplyAttackDamage(target),
+            OnAttackMotionComplete);
 
         if (!started)
             return false;
