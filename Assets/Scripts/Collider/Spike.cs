@@ -6,8 +6,10 @@ public class Spike : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        PlayerHealth player =
-            other.GetComponentInParent<PlayerHealth>();
+        if (!other.CompareTag("Player"))
+            return;
+
+        PlayerHealth player = other.GetComponent<PlayerHealth>();
 
         if (player == null || player.IsDead)
             return;
