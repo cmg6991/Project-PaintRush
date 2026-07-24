@@ -93,9 +93,9 @@ public class FeverUI : MonoBehaviour
         feverTitleText.gameObject.SetActive(true);
 
         StartCoroutine(HideTitle());
-        for (int i = 5; i >= 1; i--)
+        for (int i = 7; i >= 1; i--)
         {
-            countImage.sprite = countSprites[5 - i];
+            countImage.sprite = countSprites[7 - i];
 
             yield return Pop();
 

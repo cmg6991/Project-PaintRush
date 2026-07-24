@@ -183,9 +183,9 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: c65829610e1e69a449f1b6058a23a530, type: 2}
+  m_Sprite: {fileID: 5628198344725179689, guid: ac4e7761ad96de24697721d80286e255, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -343,7 +343,7 @@ Transform:
   m_GameObject: {fileID: 4633009016908520077}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.7, y: 9.52, z: 0}
+  m_LocalPosition: {x: -35.48, y: -13.68, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -455,7 +455,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2701862242716841394
 Transform:
   m_ObjectHideFlags: 0
@@ -597,8 +597,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: PRESS 'E'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 00b061bc35551da4abab048e83e69692, type: 2}
-  m_sharedMaterial: {fileID: -7108966860419506604, guid: 00b061bc35551da4abab048e83e69692, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1cc2ce5d7239f254f97ed0d35b48eb41, type: 2}
+  m_sharedMaterial: {fileID: 8029085620956870091, guid: 1cc2ce5d7239f254f97ed0d35b48eb41, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

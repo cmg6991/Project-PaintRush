@@ -85,7 +85,7 @@ SpriteRenderer:
   m_SortingOrder: 2
   m_MaskInteraction: 0
   m_Sprite: {fileID: 5007347937705249242, guid: 87d99363e61b36b4293e3dbf1667c528, type: 3}
-  m_Color: {r: 0, g: 0.04080522, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.76277757, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -143,7 +143,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorDropItem
   colorId: Blue
-  paintColor: {r: 0, g: 0, b: 1, a: 1}
+  paintColor: {r: 0, g: 0.039215688, b: 1, a: 1}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -159,6 +159,7 @@ MonoBehaviour:
   pullWobbleAmount: 0.08
   pullWobbleSpeed: 18
   paletteManager: {fileID: 0}
+  showDebugLogs: 0
 --- !u!50 &1315367429538672647
 Rigidbody2D:
   serializedVersion: 5

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7515728412968081830}
   - component: {fileID: 3410164385205410093}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: FeverTimeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: FEVER TIME
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 00b061bc35551da4abab048e83e69692, type: 2}
-  m_sharedMaterial: {fileID: -7108966860419506604, guid: 00b061bc35551da4abab048e83e69692, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1cc2ce5d7239f254f97ed0d35b48eb41, type: 2}
+  m_sharedMaterial: {fileID: 8029085620956870091, guid: 1cc2ce5d7239f254f97ed0d35b48eb41, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -171,8 +171,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 200}
+  m_AnchoredPosition: {x: 0, y: -56.4}
+  m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &1878678322392993966
 CanvasRenderer:
@@ -195,14 +195,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 0.5139641, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -294176629042664203, guid: 3ad35ff1ae3840141b49348faf93826d, type: 3}
+  m_Sprite: {fileID: 4244520332653443229, guid: 10f7093d18cbfac4898d28e8a154215b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -308,6 +308,8 @@ MonoBehaviour:
   canvasGroup: {fileID: 6704481658867555256}
   countImage: {fileID: 499762770164659406}
   countSprites:
+  - {fileID: 4244520332653443229, guid: 10f7093d18cbfac4898d28e8a154215b, type: 3}
+  - {fileID: -6189753365256099914, guid: 84531e027d5b4c34bb4d2dc48f8b0aa7, type: 3}
   - {fileID: -294176629042664203, guid: 3ad35ff1ae3840141b49348faf93826d, type: 3}
   - {fileID: 8600742759229893397, guid: ca3a6501398fc0640976dbaf5b0a8dca, type: 3}
   - {fileID: 6079004374095836574, guid: b35badd8d001f0f4788bbc915676c2d8, type: 3}
@@ -316,6 +318,8 @@ MonoBehaviour:
   panel: {fileID: 5876144774678859651}
   shakeAmount: 4
   shakeSpeed: 10
+  feverTitleText: {fileID: 3410164385205410093}
+  rainbowSpeed: 2
 --- !u!225 &6704481658867555256
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -326,7 +330,7 @@ CanvasGroup:
   m_Enabled: 1
   m_Alpha: 1
   m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1 &6534844186834643027
 GameObject:

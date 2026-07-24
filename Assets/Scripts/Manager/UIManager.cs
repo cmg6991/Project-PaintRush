@@ -64,6 +64,7 @@ public class UIManager : Singleton<UIManager>
     {
         Debug.Log("게임 종료");
         SoundManager.Instance.PlaySFX(SFXType.Click);
+        Application.Quit();
     }
     public void RegisterFeverUI(FeverUI ui)
     {
