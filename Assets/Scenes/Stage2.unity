@@ -7205,7 +7205,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5357491492689460914, guid: 387b5d0ec9e1dd3439fa1b87f4796d61, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5876144774678859651, guid: 387b5d0ec9e1dd3439fa1b87f4796d61, type: 3}
       propertyPath: m_Pivot.x
@@ -32102,6 +32102,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1989683943351753408, guid: c94a1c76320a9d947ab19b1661206f8b, type: 3}
+      propertyPath: feverDuration
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 2400402291004064894, guid: c94a1c76320a9d947ab19b1661206f8b, type: 3}
       propertyPath: m_Name
       value: Player
